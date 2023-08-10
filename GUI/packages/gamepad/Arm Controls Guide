@@ -1,0 +1,19 @@
+Left Joystick:
+Left and right controls servo 1 left and right
+ - This moves the arm left and right
+Up and Down controls servo 2 forward and backward
+ - This moves the first arm servo forward or backward
+ 
+ Right Joystick:
+ Up and Down Control servo 3 forward and backward
+  - This moves the second arm servo forward or backward
+ 
+ Triggers:
+ Right shoulder controls claw open (servo 4)
+ Left shoulder controls claw close
+ 
+X and B (Square and Circle on PS4):
+- B moves sample storage clockwise (servo 5)
+- X moves sample storage ccw
+ 
+ 
