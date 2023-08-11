@@ -92,11 +92,8 @@ def processes():
         startTime = time.time() 
         ard.write(nmea_string_utf)
         print("ard written: ", nmea_string_utf)
-        #while(ard.in_waiting==0): #wait for data to be available
-        #    time.sleep(0.0001)
-        
         receive_string = ard.read()	
-        while("*" not in str(receive_string)): # old: while(ard.in_waiting)
+        while("*" not in str(receive_string)): 
             receive_string += ard.read()	
         print("Receive String:", receive_string)
         endTime = time.time()
