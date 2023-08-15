@@ -21,11 +21,11 @@ def addWindow():
     if numwindows < 5:
         numwindows = numwindows + 1
         windows[numwindows-1] = ("frame" + str(numwindows))
-    #newCam = Cam()
-    #newCam.start()
+    newCam = Cam()
+    newCam.start()
 
 def beginVideoThread():
-    a = threading.Thread(target=displayVideo, name='Thread-a', daemon=True)
+    a = threading.Thread(target=displayVideo, name='Thread-a', daemon=True) #Q: is this used anymore??
     a.start()
 
 def displayVideo():

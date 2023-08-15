@@ -71,7 +71,7 @@ class topMenu:
 		sub_windows = tk.Menu(menu_top)
 		menu_top.add_cascade(label="Windows", menu=sub_windows)
 		sub_windows.add_command(label="Add Camera Feed", command=addWindow)
-		#sub_windows.add_command(label="Add Camera Feed", command=lambda: beginThreading())
+		#sub_windows.add_command(label="Add Camera Feed", command=lambda: beginThreading()) #Q: I think this is depreicated
 		sub_windows.add_command(label="Remove Camera Feed", command=removeWindow)
 
 
@@ -348,7 +348,7 @@ class lightControl(tk.Frame):
 		self.ltog_btn.pack()
 
 
-class samplerControl(tk.Frame):
+class samplerControl(tk.Frame): #Q: this is no longer a used thing why is it still here
 	def __init__(self, parent):
 		self.parent = parent
 

@@ -13,7 +13,7 @@ pid_dict={"head": None, "depth": None, "altitude": None}
 gui = None
 gamepad = None
 gamepad2 = None
-port = '/dev/ttyACM0' #Q: should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1)
+port = '/dev/ttyUSB0' #Q: should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1)
 ard = None
 logFile = None
 
@@ -67,11 +67,17 @@ def processes():
        
     #listen for gamepad
     if config.gamepad_flag:
-        gamepad.listen(gamepad2)
+        gamepad.listen(gamepad)
         interpret(gamepad)
-        interpret2(gamepad2)
         pass
     else:      
+        pass
+
+    if config.gamepad2_flag:
+        gamepad2.listen(gamepad2)
+        interpret2(gamepad2)
+        pass
+    else:
         pass
         
     

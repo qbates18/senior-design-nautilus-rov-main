@@ -7,8 +7,8 @@ PROCESS_RATE = 50
 THRESHOLD = 0.1
 
 gamepad_flag = True
-gamepad2_flag = True
-cam_flag = False
+gamepad2_flag = False
+cam_flag = False #Q: is this used anymore?
 serial_flag = True
 altitude_lock_flag = False
 
