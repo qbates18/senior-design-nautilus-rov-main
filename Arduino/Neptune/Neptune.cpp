@@ -198,10 +198,10 @@ float angle, man_thrust, rot_thrust;
 			x_axis=0;
 		}
 		if (abs(y_axis) < 0.1) {
-			y_axis=0
+			y_axis=0;
 		}
 		if (abs(rot) < 0.1) {
-			rot=0
+			rot=0;
 		}
 
 	this->ltogop2 = x_axis;
