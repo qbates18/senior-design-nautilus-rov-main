@@ -193,6 +193,17 @@ float angle, man_thrust, rot_thrust;
 	float y_axis = atof(tokens3);
 	float rot = atof(tokens5);
 
+	//add deazone for the joystick input
+		if (abs(x_axis) < 0.1){ 
+			x_axis=0;
+		}
+		if (abs(y_axis) < 0.1) {
+			y_axis=0
+		}
+		if (abs(rot) < 0.1) {
+			rot=0
+		}
+
 	this->ltogop2 = x_axis;
 	this->ltogop3 = y_axis;
 	this->ltogop5 = rot;
