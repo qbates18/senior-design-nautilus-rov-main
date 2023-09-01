@@ -288,21 +288,12 @@ float angle, man_thrust, rot_thrust;
 				this->_thrusters[4] = this->_thrusters_signal[4];
 			}	
 
-			// this->_thrusters[1] = round((400*normalizedA) + 1500);
-			// this->_thrusters[2] = round((400*normalizedB) + 1500); 
-			// this->_thrusters[3] = round((400*normalizedC) + 1500);
-			// this->_thrusters[4] = round((400*normalizedD) + 1500);
-
 		}
 		break;
 	
 	case 2: //heading lock is on
 		{
 			multiply_matrices(J45, C, result, 4, 3, 3, 1);
-			//this->_thrusters[1] = 1465;
-			//this->_thrusters[2] = 1465;
-			//this->_thrusters[3] = 1465;
-			//this->_thrusters[4] = 1465;
 		
 			float scaling_factor_closed = find_max_scaling(abs(x_axis), abs(y_axis), abs(rot));
 			float norm_factor_closed = abs(find_max_thruster_closed(result, 0, 3));
@@ -371,7 +362,7 @@ float angle, man_thrust, rot_thrust;
 	}
 
 
-	// sample toggle
+	// sample toggle - Q: unused
 	if(tokens7 == "T"){
 		this->_stog = true;
 	}
@@ -384,40 +375,21 @@ float angle, man_thrust, rot_thrust;
 		this->_stog = false;
 	}
 
-
+	// camera servo movement
 	char token_8 = tokens8[0];
 	ltogop1[0] = token_8;
 
-	if(token_8 == 'U'){
+	if(token_8 == 'U'){ // move cam up
 		this->_camdir = 1;
 	}
 
-	if(token_8 == 'S'){
+	if(token_8 == 'S'){ // stay where it is
 		this->_camdir = 0;
 	}
 	
-	if(token_8 == 'D'){
+	if(token_8 == 'D'){ // move cam down
 		this->_camdir = 2;
 	}
-
-	// switch(token_8) {
-	// 	case 'U' : {
-	// 		this->_camdir = 1;
-	// 		break;
-	// 	} 
-	// 	case 'S' : {
-	// 		this->_camdir = 0;
-	// 		break;
-	// 	}
-	// 	case 'D' : {
-	// 		this->_camdir = -1;
-	// 	}
-
-	// 	default : {
-	// 		this->_camdir = 0;
-	// 	}
-	// }
-
 
 }
 
