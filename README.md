@@ -13,3 +13,8 @@ It is important to start Nautilus first before the GUI on the laptop as the Ardu
 Once Nautilus is on and all conections are in place, the main GUI can be opened. With the working directory as /GUI, run "python3 main.py". The camera can be opened by clicking the button labeled "Windows" in the menu bar and choosing the "add camera" option from the drop down menu. NOTE: CURRENTLY THE CAMERA FUNCTIONALITY WITHIN THE GUI IS NOT WORKING! TO RUN THE CAMERA, OPEN A SEPERATE TERMINAL, RUN "cd /GUI/packages/camera/" THEN "python3 camtest.py". A NEW WINDOW SHOULD POP UP WITH THE CAMERA FEED AFTER ABOUT 30 SECONDS. 
 
 To close the GUI, there is a "x" in the top right corner of the window which should prompt the user to quit. Alternitavely, the terminal which ran "python3 main.py" can be used to close the program. CTRL + C should force laptop to quit the GUI, though is most often necessary to spam CTRL + C several times until everything stops entirely. On VSCode, the keyboard shortcut "CTRL + SHIFT + ~" will bring up a fresh terminal if reopening the GUI is desired.
+
+COMMON ISSUES
+
+- If after you run main.py it throws a ModuleNotFound error, make sure that module is installed under the current version of python. For example, when this happened, the packages wer all downloaded under the folder usr/.local/lib/python3.8, but the laptop was running python3.10. So, I was forced to redownload the packages individually using "pip3.10 install _____". Make sure you replace 3.10 with the current version if this is happening to you. You can check the current version using "python3 -V".
+
