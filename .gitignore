@@ -10,3 +10,6 @@ GUI/packages/models/__pycache__/input.cpython-310.pyc
 GUI/packages/models/__pycache__/generator.cpython-310.pyc
 GUI/packages/models/__pycache__/generator.cpython-38.pyc
 *.pyc
+GUI/packages/camera/__pycache__/cam.cpython-38.pyc
+GUI/packages/gamepad/__pycache__/interpreter.cpython-38.pyc
+GUI/packages/models/__pycache__/generator.cpython-38.pyc
