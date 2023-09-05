@@ -2,15 +2,16 @@ from packages.models.input import Data
 
 CAM_RATE = 1
 INPUT_RATE = 500
-PROCESS_RATE = 50
+PROCESS_RATE = 100
 
 THRESHOLD = 0.1
 
 gamepad_flag = True
-gamepad2_flag = False
+gamepad2_flag = True
 cam_flag = False #Q: is this used anymore?
 serial_flag = True
 altitude_lock_flag = False
+endpoint_control_flag = False
 
 top_data = Data(["FORWARD", "RIGHT", "BACK", "LEFT", "DOWN", "UP", "ROT_CCW", "ROT_CW", "S_TOG", "L_TOG", "CAM_UP", "CAM_DN"])
 sub_data = Data(["ID", "TMPR", "DEPTH", "HEAD", "ALT"])

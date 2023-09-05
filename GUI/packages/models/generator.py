@@ -155,59 +155,62 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 	#arm/disarm value
 	output = add_next(output, str(arm_disarm_value))
 	
+
+
 	# robot arm servo values
 	# reads controller values and maps them to pwm values for servos
 	# robot arm servo controller pins 0,2,12,14,15 from left to right servo1-servo5
 	
 	mult = 30 # movement multiplier, increase mult to increase servo speed
 
-	print(arm_inputs.read("theta1"))
-	print(arm_inputs.read("theta2"))
-	print(arm_inputs.read("theta3"))
+	if(endpoint_control_flag):
+		#print(arm_inputs.read("theta1"))
+		#print(arm_inputs.read("theta2"))
+		#print(arm_inputs.read("theta3"))
 
-	#servo1 = arm_inputs.read("S1_LEFT") - arm_inputs.read("S1_RIGHT") 
-	# print("CHECK: ")
-	# print(servo1)
-	# print("\n")
-	#s1_mapped += (servo1 * mult)
-	s1_mapped += arm_inputs.read("theta1")
-	if (s1_mapped < 100):
-		s1_mapped = 100
-	elif (s1_mapped > 310):
-		s1_mapped = 310
-		 
-	#s1_mapped = round(map(servo1, -1,1, 10, 420), 1)
-	
-	#servo2 = arm_inputs.read("S2_FORWARD") - arm_inputs.read("S2_BACK")
-	servo2 = 0
-	if (s2_mapped > 100 or s2_mapped < 310): s2_mapped +=(servo2 * mult)
-	if (s2_mapped < 100):
-		s2_mapped = 100
-	elif (s2_mapped > 310):
-		s2_mapped = 310
-	
-	#s2_mapped = round(map(servo2, -1,1, 10, 420), 1)
-	
-	#servo3 = arm_inputs.read("S3_FORWARD") - arm_inputs.read("S3_BACK")
-	#if (s3_mapped > 100 or s3_mapped < 310): s3_mapped += ((servo3 + 0.5) * 2 * mult)
-	s3_mapped += arm_inputs.read("theta3")
-	if (s3_mapped < 100):
-		s3_mapped = 100
-	elif (s3_mapped > 310):
-		s3_mapped = 310
-	
-	#s3_mapped = round(map(servo3, -1,1, 10, 420), 1)
+		s1_mapped += arm_inputs.read("theta1")
+		if (s1_mapped < 100):
+			s1_mapped = 100
+		elif (s1_mapped > 310):
+			s1_mapped = 310
+
+		servo2 = 0 #Q: why is this set to 0 and not reading theta2
+		if (s2_mapped > 100 or s2_mapped < 310): 
+			s2_mapped +=(servo2 * mult)
+		if (s2_mapped < 100):
+			s2_mapped = 100
+		elif (s2_mapped > 310):
+			s2_mapped = 310
+
+		s3_mapped += arm_inputs.read("theta3")
+		#if (s3_mapped > 100 or s3_mapped < 310): s3_mapped += ((servo3 + 0.5) * 2 * mult)
+		if (s3_mapped < 100):
+			s3_mapped = 100
+		elif (s3_mapped > 310):
+			s3_mapped = 310
+	else:
+
+		servo1 = arm_inputs.read("S1_LEFT") - arm_inputs.read("S1_RIGHT") 
+		#s1_mapped += (servo1 * mult)
+		s1_mapped = round(map(servo1, -1,1, 60, 90), 1)
+		
+		servo2 = arm_inputs.read("S2_FORWARD") - arm_inputs.read("S2_BACK")
+		s2_mapped = round(map(servo2, -1,1, 10, 420), 1)
+		
+		servo3 = arm_inputs.read("S3_FORWARD") - arm_inputs.read("S3_BACK")
+		s3_mapped = round(map(servo3, -1,1, 10, 420), 1)
+		
 	
 	servo4 = arm_inputs.read("S4_OPEN") + arm_inputs.read("S4_CLOSE")
-	if (s4_mapped > 100 or s4_mapped < 270): s4_mapped += (servo4 * mult)
-	if (s4_mapped < 100):
-		s4_mapped = 100
-	elif (s4_mapped > 270):
-		s4_mapped = 270
+	s4_mapped = round(map(servo4, -1,1, 100, 200), 1)
+	#if (s4_mapped > 100 or s4_mapped < 270): 
+	#	s4_mapped += (servo4 * mult)
+	#if (s4_mapped < 100):
+	#	s4_mapped = 100
+	#elif (s4_mapped > 270):
+	#	s4_mapped = 270
 	
-	#s4_mapped = round(map(servo4, -1,1, 100, 200), 1)
-	
-	servo5 = arm_inputs.read("S5_CW") - arm_inputs.read("S5_CCW")
+	servo5 = arm_inputs.read("S5_CW") - arm_inputs.read("S5_CCW") #servo5 currently not on nautilus
 	s5_mapped = 0
 	#s5_mapped += (servo5 * mult)
 	#if (s5_mapped < 10):
