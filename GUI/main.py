@@ -67,18 +67,13 @@ def processes():
        
     #listen for gamepad
     if config.gamepad_flag:
-        gamepad.listen(gamepad)
+        gamepad.listen(gamepad2)
         interpret(gamepad)
+        interpret2(gamepad2)
         pass
     else:      
         pass
 
-    if config.gamepad2_flag:
-        gamepad2.listen(gamepad2)
-        interpret2(gamepad2)
-        pass
-    else:
-        pass
         
     
 
@@ -97,20 +92,21 @@ def processes():
         #send control string over serial
         startTime = time.time() 
         ard.write(nmea_string_utf)
-        print("ard written: ", nmea_string_utf)
+        #print("ard written: ", nmea_string_utf)
         receive_string = ard.read()	
         while("*" not in str(receive_string)): 
-            receive_string += ard.read()	
-        print("Receive String:", receive_string)
+            receive_string += ard.read()
+            print("waiting")	
+        #print("Receive String:", receive_string)
         endTime = time.time()
-        print("time: ", endTime-startTime)
+        #print("time: ", endTime-startTime)
         str_receive_string = str(receive_string)
         receive_string_tokens = str_receive_string.split(',', 8)
         initial_token=list(receive_string_tokens[0])
         end_token=list(receive_string_tokens[len(receive_string_tokens)-1])
 
         if(initial_token[len(initial_token)-1]=='$' and '*' in end_token): #check if recieved string is valid
-            print("recieved valid string")
+            #print("recieved valid string")
             tmpr = receive_string_tokens[2]
             depth = receive_string_tokens[3]
             head = receive_string_tokens[4]
