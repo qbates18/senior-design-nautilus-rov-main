@@ -1,3 +1,6 @@
+# file: frames.py
+# description: creates the structure of the GUI
+
 import tkinter as tk                # python 3
 from packages.closed_loop.RotationCounter import *
 from packages.closed_loop.PIDs import *

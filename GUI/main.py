@@ -4,17 +4,17 @@
 
 from imports import *
 
-nmea_string = None #Q: using National Marine Electronics Association (NMEA) string protocol
+nmea_string = None # This stands for National Marine Electronics Association (NMEA) string protocol
 data = None
-map_dict = {} #Q: dictionary for controller 1 (usually the logitech) for ROV control
-map2_dict = {} #Q: dictionary for controller 2 (usually the xbox one controller) for arm control
+map_dict = {} # Dictionary for controller 1 for ROV control
+map2_dict = {} # Dictionary for controller 2 for arm control
 closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
 pid_dict={"head": None, "depth": None, "altitude": None}
 gui = None
 gamepad = None
 gamepad2 = None
-port = '/dev/ttyUSB0' #Q: should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1)
-ard = None
+port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1)
+ard = None # Short for Arduino, this becomes the object which deals with serial communication with the ROV
 logFile = None
 
 
@@ -24,7 +24,6 @@ logFile = None
 def startup():
     global ard, logFile    
 
-    
     logFile = initialize_log_folder()
 
     #prepare necessary resources for gamepad
@@ -64,8 +63,7 @@ def startup():
 def processes():
     global nmea_string, gamepad, gamepad2, ard, closed_loop_dict, pid_dict, logFile 
 
-       
-    #listen for gamepad
+    # listen for gamepad
     if config.gamepad_flag:
         gamepad.listen(gamepad2)
         interpret(gamepad)
@@ -74,39 +72,34 @@ def processes():
     else:      
         pass
 
-        
-    
-
+    # Generate string to send subsea
     nmea_string = generate(config.top_data, config.sub_data, closed_loop_dict, pid_dict, gui.return_arm(), config.arm_inputs)
-    #print(nmea_string)
     nmea_string_stripped = nmea_string.replace(" ", "")
 
-    #WRITE SEND MESSAGE TO LOG
+    # Write the generated message to log
     write_to_log(nmea_string_stripped, logFile)
 
-    #print(nmea_string_stripped)
+    # Encode the string to something that can be handled by serial
     nmea_string_utf = nmea_string_stripped.encode(encoding='ascii')
-    #print(nmea_string_utf)
 
     if config.serial_flag:
-        #send control string over serial
-        startTime = time.time() 
+        # Send generated message over serial
         ard.write(nmea_string_utf)
-        #print("ard written: ", nmea_string_utf)
+
+        # Wait for message from Arduino to be available, then read it
         receive_string = ard.read()	
         while("*" not in str(receive_string)): 
             receive_string += ard.read()
-            print("waiting")	
-        #print("Receive String:", receive_string)
-        endTime = time.time()
-        #print("time: ", endTime-startTime)
+
+        # Parse the message received from the subsea Arduino
         str_receive_string = str(receive_string)
         receive_string_tokens = str_receive_string.split(',', 8)
         initial_token=list(receive_string_tokens[0])
         end_token=list(receive_string_tokens[len(receive_string_tokens)-1])
 
-        if(initial_token[len(initial_token)-1]=='$' and '*' in end_token): #check if recieved string is valid
-            #print("recieved valid string")
+        # If the recieved message is valid, then update the GUI with new sensor values
+        if(initial_token[len(initial_token)-1]=='$' and '*' in end_token):
+            # Read the recieved message for updated values
             tmpr = receive_string_tokens[2]
             depth = receive_string_tokens[3]
             head = receive_string_tokens[4]
@@ -114,20 +107,21 @@ def processes():
             leak = receive_string_tokens[6]
             voltage = receive_string_tokens[7]
             
-            #add values coming up from ROV to the sub_data dictionary to pass to generator
+            # Add values to the sub_data dictionary to pass to generator
             config.sub_data.assign("TMPR", tmpr)
             config.sub_data.assign("DEPTH", depth)
             config.sub_data.assign("HEAD", head)
             config.sub_data.assign("ALT", altitude)
 
+            # Update graphs wtih new data
             gui.sensor_display("ALT", altitude)
             gui.sensor_display("DEPTH", depth)
             gui.sensor_display("HEAD", head)
-            #gui.rotation_display(head)
+
+            # Update GUI sensor display
             gui.sensor_readout(tmpr, depth, head, altitude, voltage)
             closed_loop_dict = gui.closed_loop_control()
-            pid_dict = gui.return_pids()
-            #print(pid_dict["depth"].calculate_next(pres))    
+            pid_dict = gui.return_pids()   
             pass
         
             # update camera
@@ -136,11 +130,13 @@ def processes():
                 pass
 
             #WRITE RECEIVED MESSAGE TO LOG
-            #write_to_log(str_receive_string,logFile) #:Q Why is this commented out?
+            write_to_log(str_receive_string,logFile)
 
     
-
+    # Display generated message at the bottom of the GUI
     gui.status_display(nmea_string)
+
+    # Call this function again, after the amount of time set in config.py
     gui.after(config.PROCESS_RATE, processes)
 
 
@@ -160,20 +156,22 @@ def on_closing():
             
         gui.destroy()
 
-
-# main module to execute functions
+# function: main()
+# description: main module to execute functions
 if __name__ == "__main__":
 
     startup()
 
-    #build GUI
+    # build GUI
     gui = neptuneGUI()
-    ani = gui.sensor_animate(config.PROCESS_RATE * 2)
+    ani = gui.sensor_animate(config.PROCESS_RATE * 2) 
 
     gui.after(50, processes) #Q: after 50ms run the above recursive processes function which sends and recieves data from arduino and raspi
 
-    gui.protocol("WM_DELETE_WINDOW", on_closing) #Q: when the window is closed run the above on_closeing function
-    gui.mainloop() #Q: starts the GUI event handler
+    gui.protocol("WM_DELETE_WINDOW", on_closing) # when the window is closed run the above on_closeing function
+    
+    # Start the GUI event handler
+    gui.mainloop() 
 
 
 

@@ -1,3 +1,6 @@
+# file: config.py  
+# description: set parameters and enable/disable functionality based on the current hardware configuration
+
 from packages.models.input import Data
 
 CAM_RATE = 1

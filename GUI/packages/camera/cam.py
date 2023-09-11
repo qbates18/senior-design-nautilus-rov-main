@@ -1,3 +1,6 @@
+# file: cam.py
+# description: handles creating a new window to display subsea camera feed
+
 from packages.camera.CameraSupplier import *
 from imports import *
 import threading

@@ -1,3 +1,6 @@
+# file: RotationCounter.py
+# description: creates the rotationCounter class, unsurprisingly, to count how many times Nautilus rotates. I have no idea why this is created, as it is currently used nowhere in the rest of the code. 
+
 from imports import *
 import threading
 

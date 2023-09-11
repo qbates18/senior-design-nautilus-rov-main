@@ -1,3 +1,6 @@
+# file: controls.py
+# description: old control method, where printing commands worked with ROS nodes to send the data to the ROV
+
 #Q: Isnt this obsolete? ROS was removed by the 2020-2021 team...
 
 #contains control functions that are triggered on each event in the gui or by 

@@ -1,8 +1,10 @@
+# file: PIDs.py
+# description: defines the altitude, depth, and heading PID classes, which enables closed loop control of the ROV's motion with respect to those three sensors
+
 from simple_pid import PID
 import time
 
 
-#wrapper class that makes it easier to manipulate and store input values going into the PID controller
 class altitude_PID:
     def __init__(self, desiredAltitude):
         #initialize PID object
@@ -41,7 +43,6 @@ class head_PID:
     def __init__(self, desiredHead):
         desiredHead = float(desiredHead)
         self.vector_thruster_amount = 4
-        #convert pressure to depth in feet
         self.vector_thrust_contribution = 0.5
         self.max_moment = 156.9*self.vector_thrust_contribution*self.vector_thruster_amount
         self.pid_instance = PID(4, 1, 1, setpoint=desiredHead)

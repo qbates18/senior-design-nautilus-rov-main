@@ -1,3 +1,6 @@
+# file: CameraSupplier.py
+# description: defines the Camera and Video classes, which populate the camera window with data
+
 import numpy as np
 import cv2
 from PIL import ImageFont, ImageDraw, Image, ImageColor

@@ -1,4 +1,7 @@
-#Q: Is this obsolete? passing the NMEA string is currently all handled in main.py and ROS is no longer used
+# file: socket.py
+# description: sends and recieves the NMEA string over socket. This method is depricated and has been replaced with serial.
+
+#Q: this is obsolete. passing the NMEA string is currently all handled in main.py and ROS is no longer used
 
 import socket	
 

@@ -1,3 +1,6 @@
+# file: imports.py
+# description: import all necessary modules for the whole project so any file can import this file and get everything it needs
+
 from tkinter import *
 from tkinter import messagebox
 

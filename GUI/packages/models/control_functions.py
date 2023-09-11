@@ -1,4 +1,5 @@
-#Q: Isnt this obsolete? ROS was removed by the 2020-2021 team...
+# file: control_functions.py
+# description: this file defines the commands issued when certain GUI buttons are pressed. Seems to be Obsolete.
 
 import config
 import packages.camera.cam as cam
