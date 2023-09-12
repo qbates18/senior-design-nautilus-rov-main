@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# file: camera.py
+# description: this script comes from the internet, intending to be run with a BlueROV. The Nautilus RasPi is set up to work with this script to display the subsea camera in a window seperate from the main GUI.
 
 import cv2
 import gi
