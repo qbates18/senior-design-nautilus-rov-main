@@ -33,7 +33,7 @@ def startup():
         #gamepad initialization
         generate_dictionaries("map.txt") 
         gamepad = Gamepad()
-        config.gamepad_flag = gamepad.init(0)
+        config.gamepad_flag = gamepad.init(0) #why are we doing this
         print("gamepad initialized")
     #prepare necessary resources for second gamepad
     if config.gamepad2_flag:

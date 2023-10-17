@@ -18,5 +18,6 @@ To close the GUI, there is a "x" in the top right corner of the window which sho
 
 ------ COMMON ISSUES ------
 
-- If after you run main.py it throws a ModuleNotFound error, make sure that module is installed under the current version of python. For example, when this happened, the packages wer all downloaded under the folder usr/.local/lib/python3.8, but the laptop was running python3.10. So, I was forced to redownload the packages individually using "pip3.10 install _____". Make sure you replace 3.10 with the current version if this is happening to you. You can check the current version using "python3 -V".
+- If after you run main.py it throws a ModuleNotFound error, make sure that module is installed under the current version of python. For example, when this happened, the packages were all downloaded under the folder usr/.local/lib/python3.8, but the laptop was running python3.10. So, I was forced to redownload the packages individually using "pip3.10 install _____". Make sure you replace 3.10 with the current version if this is happening to you. You can check the current version using "python3 -V".
 
+- If the logitech controller's little switch on the back is set to "D" instead of "X" The get_numaxes() function from pygame will return 4 eventually causing a index out of bounds error and crashing the topside in ps4.py. Move the switch back to "X" to solve this.
