@@ -13,7 +13,7 @@ pid_dict={"head": None, "depth": None, "altitude": None}
 gui = None
 gamepad = None
 gamepad2 = None
-port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1)
+port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
 ard = None # Short for Arduino, this becomes the object which deals with serial communication with the ROV
 logFile = None
 
@@ -97,6 +97,9 @@ def processes():
         initial_token=list(receive_string_tokens[0])
         end_token=list(receive_string_tokens[len(receive_string_tokens)-1])
 
+        #WRITE RECEIVED MESSAGE TO LOG
+        write_to_log(str_receive_string,logFile)
+        
         # If the recieved message is valid, then update the GUI with new sensor values
         if(initial_token[len(initial_token)-1]=='$' and '*' in end_token):
             # Read the recieved message for updated values
@@ -129,8 +132,7 @@ def processes():
                 cam_update(head, depth)
                 pass
 
-            #WRITE RECEIVED MESSAGE TO LOG
-            write_to_log(str_receive_string,logFile)
+            
 
     
     # Display generated message at the bottom of the GUI
