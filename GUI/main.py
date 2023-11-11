@@ -18,7 +18,6 @@ ard = None # Short for Arduino, this becomes the object which deals with serial 
 logFile = None
 
 
-
 # function: startup()
 # description: called first to initialize components
 def startup():
@@ -82,6 +81,9 @@ def processes():
     # Encode the string to something that can be handled by serial
     nmea_string_utf = nmea_string_stripped.encode(encoding='ascii')
 
+    #Set heading to the value of the previous heading. This will be overwritten with the new heading value only if it is able to be interpreted as a float.
+    # head = prevHead
+
     if config.serial_flag:
         # Send generated message over serial
         ard.write(nmea_string_utf)
@@ -101,7 +103,7 @@ def processes():
         write_to_log(str_receive_string,logFile)
         
         # If the recieved message is valid, then update the GUI with new sensor values
-        if(initial_token[len(initial_token)-1]=='$' and '*' in end_token):
+        if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and validate_receive_string_tokens(receive_string_tokens)):
             # Read the recieved message for updated values
             tmpr = receive_string_tokens[2]
             depth = receive_string_tokens[3]
@@ -122,6 +124,7 @@ def processes():
             gui.sensor_display("HEAD", head)
 
             # Update GUI sensor display
+            #check that head is valid if yes do the next line if no don't
             gui.sensor_readout(tmpr, depth, head, altitude, voltage)
             closed_loop_dict = gui.closed_loop_control()
             pid_dict = gui.return_pids()   
@@ -131,6 +134,8 @@ def processes():
             if config.cam_flag:
                 cam_update(head, depth)
                 pass
+        else:
+            write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", logFile)
 
             
 
@@ -158,6 +163,16 @@ def on_closing():
             
         gui.destroy()
 
+#function: validate_receive_string_tokens(tokens):
+#description: Ensure that each token received from the arduino is a valid integer or float (depending on the expected data type)
+def validate_receive_string_tokens(tokens):
+    for token in tokens[1:len(tokens)-1]:
+        try:
+            float(token)
+        except ValueError:
+            return False
+    return True
+
 # function: main()
 # description: main module to execute functions
 if __name__ == "__main__":
@@ -174,8 +189,6 @@ if __name__ == "__main__":
     
     # Start the GUI event handler
     gui.mainloop() 
-
-
 
 
 

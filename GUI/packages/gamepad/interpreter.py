@@ -106,7 +106,6 @@ def interpret2(gamepad2):
 	theta_radians = end_point(x_dot, 0.0, 0.0)
 	theta_degrees = (theta_radians * 180) / math.pi
 	theta_degrees = theta_degrees / 1.6 #1.6 is the gear ratio
-	print(theta_degrees)
 	config.arm_inputs.assign("theta1", theta_degrees[0][0])
 	config.arm_inputs.assign("theta2", theta_degrees[1][0])
 	config.arm_inputs.assign("theta3", theta_degrees[2][0])

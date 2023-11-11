@@ -5,9 +5,9 @@ from packages.models.input import Data
 
 CAM_RATE = 1
 INPUT_RATE = 500
-PROCESS_RATE = 100
+PROCESS_RATE = 100 
 
-THRESHOLD = 0.1
+THRESHOLD = 0.1 # sets controller deadzone: the minimal joystick input value required for manuvering thruster motion
 
 gamepad_flag = True
 gamepad2_flag = True
