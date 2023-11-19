@@ -37,8 +37,8 @@ def open_camera():
 	# Capture the video frame by frame 
 	ret, frame = vid.read() 
 	
-   if not ret:
-	  break
+	if not ret:
+		break
 
 	# Convert image from one color space to other 
 	opencv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA) 
