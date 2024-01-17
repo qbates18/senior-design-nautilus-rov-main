@@ -12,16 +12,26 @@ class MainWindow(QWidget):
         self.FeedLabel = QLabel()
         self.GL.addWidget(self.FeedLabel)
         self.setLayout(self.GL)
-        self.VideoRetrieve = VideoRetrieve() #start instance of Qthread class
-        self.VideoRetrieve.start()
+        self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
+        self.VideoRetrieve.start() #start instance of Qthread class
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
         self.setWindowTitle('Video Feed')
 
     def ImageUpdateSlot(self, Image):
         self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
 
-    def StopVideo(self):
+    def StopVideo(self): #calls Video Retrieval thread to stop capturing video
         self.VideoRetrieve.stop()
+    
+    def closeEvent(self, event):
+        confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
+
+        if confirm == QMessageBox.Yes:
+            self.StopVideo()
+            event.accept()
+        else:
+            event.ignore()
+
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
@@ -36,7 +46,7 @@ class VideoRetrieve(QThread):
                 ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888) #pass in binary values of the flipped image, converting frame to a QImage
                 Pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
                 self.ImageUpdate.emit(Pic) #emit the QImage
-    def stopVideo(self):
+    def stop(self):
         self.ThreadActive = False
         self.quit()
 
@@ -45,6 +55,4 @@ if __name__ == "__main__":
     gui = MainWindow()
     gui.show()
     sys.exit(App.exec())
-
-
 
