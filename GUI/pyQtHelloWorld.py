@@ -9,8 +9,8 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
-        self.FeedLabel = QLabel()
-        self.GL.addWidget(self.FeedLabel)
+        self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
+        self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter)
         self.setLayout(self.GL)
         self.VideoRetrieve = VideoRetrieve() #start instance of Qthread class
         self.VideoRetrieve.start()
@@ -18,7 +18,7 @@ class MainWindow(QWidget):
         self.setWindowTitle('Video Feed')
 
     def ImageUpdateSlot(self, Image):
-        self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
+        self.FeedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the FeedLabel object in the GUI
 
     def StopVideo(self):
         self.VideoRetrieve.stop()
