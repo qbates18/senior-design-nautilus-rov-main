@@ -49,6 +49,7 @@ class VideoRetrieve(QThread):
     def stop(self):
         self.ThreadActive = False
         self.quit()
+        self.wait()
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
