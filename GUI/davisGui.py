@@ -44,7 +44,6 @@ class VideoRetrieve(QThread):
         self.quit()
         self.wait()
 
-    #Below is from old Video class, with modifications:
     def __init__(self, port=5000):
         super(VideoRetrieve, self).__init__()
         """Summary
@@ -69,7 +68,7 @@ class VideoRetrieve(QThread):
             '! decodebin ! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert'
         # Create a sink to get data
         self.video_sink_conf = \
-            '! appsink emit-signals=true sync=false max-buffers=2 drop=true'
+            '! appsink emit-signals=true sync=false max-buffers=4 drop=true' #D: increase max-buffers to buffer more frames.
 
         self.video_pipe = None
         self.video_sink = None
@@ -160,7 +159,6 @@ class VideoRetrieve(QThread):
 
         return Gst.FlowReturn.OK
     
-    #below is entirely new, which includes above elements of old Video class, with modifications:
     def run(self):
         self.ThreadActive = True
         
@@ -169,9 +167,8 @@ class VideoRetrieve(QThread):
                 continue
             frame = self.frame() #capture a frame
             Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            FlippedImage = cv2.flip(Image, 1)
-            ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888) #pass in binary values of the flipped image, converting frame to a QImage
-            Pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+            ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
+            Pic = ConvertToQtFormat.scaled(1100, 1100, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
 
 
