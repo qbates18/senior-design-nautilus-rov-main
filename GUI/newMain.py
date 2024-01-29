@@ -9,7 +9,6 @@ import numpy as np
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
-
 class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
