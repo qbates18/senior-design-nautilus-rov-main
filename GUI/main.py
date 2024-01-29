@@ -89,10 +89,11 @@ def processes():
         ard.write(nmea_string_utf)
 
         # Wait for message from Arduino to be available, then read it
-        receive_string = ard.read()	
+        receive_string = ard.read()
+        print("before while loop")	
         while("*" not in str(receive_string)): 
             receive_string += ard.read()
-
+        print("after while loop")
         # Parse the message received from the subsea Arduino
         str_receive_string = str(receive_string)
         receive_string_tokens = str_receive_string.split(',', 8)
