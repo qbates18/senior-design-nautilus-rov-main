@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 import cv2
 import gi
 import numpy as np
+import datetime
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
@@ -161,15 +162,18 @@ class VideoRetrieve(QThread):
     
     def run(self):
         self.ThreadActive = True
+        result = cv2.VideoWriter("DeploymentVideo " + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'MJPG'), 6, (640, 480))
         
         while self.ThreadActive:
             if not self.frame_available():
                 continue
             frame = self.frame() #capture a frame
+            result.write(frame) #maybe have this here?
             Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
-            Pic = ConvertToQtFormat.scaled(1100, 1100, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
+            Pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
+        result.release()
 
 
 if __name__ == "__main__":
