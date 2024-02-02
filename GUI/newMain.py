@@ -175,13 +175,19 @@ class MainWindow(QWidget):
         #GUI:
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
+        #Widgets:
         self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter)
+        self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        self.DisplayMessageReceivedTextBox = QTextEdit()
+        self.GL.addWidget(self.DisplayMessageReceivedTextBox, 1, 0, Qt.AlignCenter)
+        #Threading:
         self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.Comms = Comms() #create instance of Qthread class
         self.VideoRetrieve.start() #start instance of Qthread class
         self.Comms.start() #start instance of Qthread class
+        #Slots and Signals
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        #General
         self.setWindowTitle('Video Feed')
         self.setLayout(self.GL)
 
