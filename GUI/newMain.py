@@ -1,25 +1,31 @@
 import sys
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from pyQtWidgets import *
 import cv2
 import gi
 import numpy as np
+import datetime
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
-
 
 class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
         self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter)
+        self.GL.addWidget(self.FeedLabel, 0, 0, 2, 1, Qt.AlignCenter)
         self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.VideoRetrieve.start() #start instance of Qthread class
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
-        self.setWindowTitle('Video Feed')
+
+        compass = CompassWidget()
+        spinBox = QSpinBox()
+        spinBox.setRange(0, 359)
+        spinBox.valueChanged.connect(compass.setAngle)
+
+        self.GL.addWidget(compass, 0, 1, Qt.AlignCenter)
+        self.GL.addWidget(spinBox, 1, 1, Qt.AlignCenter)
+        self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
 
     def ImageUpdateSlot(self, Image):
@@ -129,7 +135,9 @@ class VideoRetrieve(QThread):
         Returns:
             iterable: bool and image frame, cap.read() output
         """
-        return self._frame
+        temp = self._frame
+        self._frame = None
+        return temp
 
     def frame_available(self):
         """Check if frame is available
@@ -162,21 +170,27 @@ class VideoRetrieve(QThread):
     
     def run(self):
         self.ThreadActive = True
+        size = (640, 480)
+        result = cv2.VideoWriter("DeploymentVideo " + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),30, size)
+        counter = 0
         
         while self.ThreadActive:
             if not self.frame_available():
                 continue
+            print(counter)
+            counter += 1
             frame = self.frame() #capture a frame
+            newFrame = cv2.resize(frame, size) #testing resizing
+            result.write(newFrame) #maybe have this here?
             Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
-            Pic = ConvertToQtFormat.scaled(1100, 1100, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
+            Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
-
+        result.release()
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
     gui = MainWindow()
     gui.show()
     sys.exit(App.exec())
-
 
