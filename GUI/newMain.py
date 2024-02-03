@@ -12,6 +12,8 @@ from gi.repository import Gst
 
 
 class Comms(QThread):
+    #signals:
+    DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -104,6 +106,7 @@ class Comms(QThread):
 
                 #WRITE RECEIVED MESSAGE TO LOG
                 write_to_log(str_receive_string, self.logFile)
+                self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
                 # If the recieved message is valid, then update the GUI with new sensor values
                 if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and self.validate_receive_string_tokens(receive_string_tokens)):
                     # Read the recieved message for updated values
@@ -178,7 +181,7 @@ class MainWindow(QWidget):
         #Widgets:
         self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
-        self.DisplayMessageReceivedTextBox = QTextEdit()
+        self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
         self.GL.addWidget(self.DisplayMessageReceivedTextBox, 1, 0, Qt.AlignCenter)
         #Threading:
         self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
@@ -187,6 +190,7 @@ class MainWindow(QWidget):
         self.Comms.start() #start instance of Qthread class
         #Slots and Signals
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
         #General
         self.setWindowTitle('Video Feed')
         self.setLayout(self.GL)
@@ -196,7 +200,7 @@ class MainWindow(QWidget):
 
     def StopVideo(self): #calls Video Retrieval thread to stop capturing video
         self.VideoRetrieve.stop()
-    def StopComms(self):
+    def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
         self.Comms.stop()
 
     def closeEvent(self, event):
@@ -344,11 +348,16 @@ class VideoRetrieve(QThread):
             Pic = ConvertToQtFormat.scaled(1100, 1100, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
 
+class DisplayMessageReceivedTextBox(QTextEdit):
+    def __init__(self):
+        super(DisplayMessageReceivedTextBox, self).__init__()
+        self.setPlainText("Initializing...")
+        self.setReadOnly(True)
+    def TextUpdateSlot(self, text):
+        self.setPlainText(text)
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
     gui = MainWindow()
     gui.show()
     sys.exit(App.exec())
-
-
