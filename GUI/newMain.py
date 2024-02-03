@@ -1,11 +1,10 @@
 import sys
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from pyQtWidgets import *
 import cv2
 import gi
 import numpy as np
 from imports import * #eventually the imports file should be cleaned up...
+import datetime
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
@@ -180,9 +179,13 @@ class MainWindow(QWidget):
         self.GL = QGridLayout()
         #Widgets:
         self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.FeedLabel, 0, 0, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        self.GL.addWidget(self.FeedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
         self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
         self.GL.addWidget(self.DisplayMessageReceivedTextBox, 1, 0, Qt.AlignCenter)
+        self.compass = CompassWidget()
+        self.spinBox = QSpinBox()
+        self.GL.addWidget(self.compass, 0, 1, Qt.AlignCenter)
+        self.GL.addWidget(self.spinBox, 1, 1, Qt.AlignCenter)
         #Threading:
         self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.Comms = Comms() #create instance of Qthread class
@@ -191,8 +194,10 @@ class MainWindow(QWidget):
         #Slots and Signals
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
         self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
+        self.spinBox.valueChanged.connect(self.compass.setAngle) #slot/signal to conect compass to little text box to enter angle
         #General
-        self.setWindowTitle('Video Feed')
+        self.setWindowTitle('Nautilus')
+        self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
         self.setLayout(self.GL)
 
     def ImageUpdateSlot(self, Image):
@@ -305,7 +310,9 @@ class VideoRetrieve(QThread):
         Returns:
             iterable: bool and image frame, cap.read() output
         """
-        return self._frame
+        temp = self._frame
+        self._frame = None
+        return temp
 
     def frame_available(self):
         """Check if frame is available
@@ -337,16 +344,23 @@ class VideoRetrieve(QThread):
         return Gst.FlowReturn.OK
     
     def run(self):
-        self.threadActive = True
-        
+        self.ThreadActive = True
+        size = (640, 480)
+        result = cv2.VideoWriter("DeploymentVideo " + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),30, size)
+        counter = 0
         while self.threadActive:
             if not self.frame_available():
                 continue
+            counter += 1
             frame = self.frame() #capture a frame
+            newFrame = cv2.resize(frame, size) #testing resizing
+            result.write(newFrame) #maybe have this here?
             Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
-            Pic = ConvertToQtFormat.scaled(1100, 1100, Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
+            Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
+            result.release()
+
 
 class DisplayMessageReceivedTextBox(QTextEdit):
     def __init__(self):
