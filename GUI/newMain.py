@@ -10,6 +10,56 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 
+class MainWindow(QWidget):
+    def __init__(self):
+        #GUI:
+        super(MainWindow, self).__init__()
+        self.GL = QGridLayout()
+        #Widgets:
+        self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
+        self.GL.addWidget(self.FeedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
+        self.GL.addWidget(self.DisplayMessageReceivedTextBox, 2, 0, Qt.AlignCenter)
+        self.compass = CompassWidget()
+        self.spinBox = QSpinBox()
+        self.GL.addWidget(self.compass, 0, 1, Qt.AlignCenter)
+        self.GL.addWidget(self.spinBox, 1, 1, Qt.AlignCenter)
+        #Threading:
+        self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
+        self.Comms = Comms() #create instance of Qthread class
+        self.VideoRetrieve.start() #start instance of Qthread class
+        self.Comms.start() #start instance of Qthread class
+        #Slots and Signals
+        self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
+        self.spinBox.valueChanged.connect(self.compass.setAngle) #slot/signal to conect compass to little text box to enter angle
+        #General
+        self.setWindowTitle('Nautilus')
+        self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
+        self.setLayout(self.GL)
+
+    def ImageUpdateSlot(self, Image):
+        self.FeedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the FeedLabel object in the GUI
+
+    def StopVideo(self): #calls Video Retrieval thread to stop capturing video
+        self.VideoRetrieve.stop()
+    def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
+        self.Comms.stop()
+
+    def closeEvent(self, event):
+        confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
+
+        if confirm == QMessageBox.Yes:
+            #stop each thread
+            self.StopComms()
+            print("Comms stopped!")
+            self.StopVideo()
+            print("Video stopped!")
+            event.accept()
+        else:
+            event.ignore()
+
+
 class Comms(QThread):
     #signals:
     DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
@@ -133,10 +183,7 @@ class Comms(QThread):
                     pass
                 else:
                     write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
-            
-            # Display generated message at the bottom of the GUI
-            #^This has been removed for development of PyQt gui as opposed to Tkinter
-        print("TRHEAD NOT NOT NOT NOT ACTICE")
+    
     #function: validate_receive_string_tokens(tokens):
     #description: Ensure that each token received from the arduino is a valid integer or float (depending on the expected data type)
     def validate_receive_string_tokens(self, tokens):
@@ -170,53 +217,6 @@ class Comms(QThread):
         self.altitude = altitude
 		#self.altitudeLbl['text'] = "ALT: " + str(altitude) + "m"
 
-
-
-class MainWindow(QWidget):
-    def __init__(self):
-        #GUI:
-        super(MainWindow, self).__init__()
-        self.GL = QGridLayout()
-        #Widgets:
-        self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.FeedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
-        self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
-        self.GL.addWidget(self.DisplayMessageReceivedTextBox, 1, 0, Qt.AlignCenter)
-        self.compass = CompassWidget()
-        self.spinBox = QSpinBox()
-        self.GL.addWidget(self.compass, 0, 1, Qt.AlignCenter)
-        self.GL.addWidget(self.spinBox, 1, 1, Qt.AlignCenter)
-        #Threading:
-        self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
-        self.Comms = Comms() #create instance of Qthread class
-        self.VideoRetrieve.start() #start instance of Qthread class
-        self.Comms.start() #start instance of Qthread class
-        #Slots and Signals
-        self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
-        self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
-        self.spinBox.valueChanged.connect(self.compass.setAngle) #slot/signal to conect compass to little text box to enter angle
-        #General
-        self.setWindowTitle('Nautilus')
-        self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
-        self.setLayout(self.GL)
-
-    def ImageUpdateSlot(self, Image):
-        self.FeedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the FeedLabel object in the GUI
-
-    def StopVideo(self): #calls Video Retrieval thread to stop capturing video
-        self.VideoRetrieve.stop()
-    def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
-        self.Comms.stop()
-
-    def closeEvent(self, event):
-        confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
-
-        if confirm == QMessageBox.Yes:
-            self.StopVideo()
-            self.StopComms()
-            event.accept()
-        else:
-            event.ignore()
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
@@ -362,21 +362,13 @@ class VideoRetrieve(QThread):
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
             Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
             self.ImageUpdate.emit(Pic) #emit the QImage
-            totalTime = datetime.datetime.now().timestamp() - timeStarted
-            print("Total time elapsed while receiving camera feed = " + str(totalTime))
-            print("Number of Frames received: " + str(framesCounter))
-            optimalFps = framesCounter/totalTime
-            print("Optimal fps: " + str(optimalFps))
-            result.release()
+        totalTime = datetime.datetime.now().timestamp() - timeStarted
+        print("Total time elapsed while receiving camera feed = " + str(totalTime))
+        print("Number of Frames received: " + str(framesCounter))
+        optimalFps = framesCounter/totalTime
+        print("Optimal fps: " + str(optimalFps))
+        result.release()
 
-
-class DisplayMessageReceivedTextBox(QTextEdit):
-    def __init__(self):
-        super(DisplayMessageReceivedTextBox, self).__init__()
-        self.setPlainText("Initializing...")
-        self.setReadOnly(True)
-    def TextUpdateSlot(self, text):
-        self.setPlainText(text)
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
