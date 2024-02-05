@@ -21,9 +21,7 @@ class MainWindow(QWidget):
         self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
         self.GL.addWidget(self.DisplayMessageReceivedTextBox, 2, 0, Qt.AlignCenter)
         self.compass = CompassWidget()
-        self.spinBox = QSpinBox()
         self.GL.addWidget(self.compass, 0, 1, Qt.AlignCenter)
-        self.GL.addWidget(self.spinBox, 1, 1, Qt.AlignCenter)
         #Threading:
         self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.Comms = Comms() #create instance of Qthread class
@@ -32,10 +30,10 @@ class MainWindow(QWidget):
         #Slots and Signals
         self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
         self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
-        self.spinBox.valueChanged.connect(self.compass.setAngle) #slot/signal to conect compass to little text box to enter angle
+        self.Comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
         #General
         self.setWindowTitle('Nautilus')
-        self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
+        #self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
         self.setLayout(self.GL)
 
     def ImageUpdateSlot(self, Image):
@@ -63,6 +61,12 @@ class MainWindow(QWidget):
 class Comms(QThread):
     #signals:
     DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
+    tmprUpdate = pyqtSignal(str)
+    depthUpdate = pyqtSignal(str)
+    headUpdate = pyqtSignal(int)
+    altitudeUpdate = pyqtSignal(str)
+    voltageUpdate = pyqtSignal(str)
+    leakUpdate = pyqtSignal(str)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -86,6 +90,7 @@ class Comms(QThread):
         self.head = None
         self.voltage = None
         self.altitude = None
+        self.leak = None
         self.startup()
     def stop(self):
         self.threadActive = False
@@ -176,7 +181,7 @@ class Comms(QThread):
                     #^This has been removed for development of PyQt gui as opposed to Tkinter
 
                     # Update GUI sensor display
-                    self.update_sensor_readout(tmpr, depth, head, altitude, voltage)
+                    self.update_sensor_readout(tmpr, depth, head, altitude, voltage, leak)
                     #CLOSED LOOP DICT UPDATE AND PID DICT UPDATE FUNCTIONS ARE COMMENTED OUT TEMPORARILY TO FACILLITATE COMMS INTEGRATION, NEITHER ARE IMPLEMENTED IN NEW CODE
                     #closed_loop_dict = gui.closed_loop_control()
                     #pid_dict = gui.return_pids()   
@@ -198,24 +203,33 @@ class Comms(QThread):
     def return_arm(self):
         return self.arm_value
 
-    def update_sensor_readout(self, tmpr, depth, head, altitude, voltage):
+    def update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
         #self.rotationValue = self.rotationCounter.calculate_rotation(head)
 		#self.rotLbl['text'] = "ROT: " + str(format(self.rotationValue, '.2f'))
-		
-        self.tmpr = tmpr
-		#self.tmprLbl['text'] = "TEMP: " + str(tmpr) + "C"
-
-        self.depth = depth
-		#self.depthLbl['text'] = "DEPTH: " + str(depth) + "m"
-		
-        self.head = head
-		#self.headLbl['text'] = "HEAD: " + str(head)
-		
-        self.voltage = voltage
-		#self.voltageLbl['text'] = "Voltage: " + str(voltage) + "V"
-
-        self.altitude = altitude
-		#self.altitudeLbl['text'] = "ALT: " + str(altitude) + "m"
+        if not tmpr == self.tmpr:
+            self.tmprUpdate.emit(str(tmpr))
+            self.tmpr = tmpr
+        
+        if not depth == self.depth:
+            self.depthUpdate.emit(str(depth))
+            self.depth = depth
+        
+        head = round(float(head))
+        if not head == self.head:
+            self.headUpdate.emit(int(head))
+            self.head = head
+        
+        if not altitude == self.altitude:
+            self.altitudeUpdate.emit(str(altitude))
+            self.altitude = altitude
+        
+        if not voltage == self.voltage:
+            self.voltageUpdate.emit(str(voltage))
+            self.voltage = voltage
+        
+        if not leak == self.leak:
+            self.leakUpdate.emit(str(leak))
+            self.leak = leak
 
 
 class VideoRetrieve(QThread):
