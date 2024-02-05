@@ -223,7 +223,6 @@ class VideoRetrieve(QThread):
     def stop(self):
         self.threadActive = False
         self.quit()
-        self.wait()
 
     def __init__(self, port=5000):
         super(VideoRetrieve, self).__init__()
