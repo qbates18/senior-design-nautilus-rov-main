@@ -54,9 +54,9 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 	if closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 0:
 		# takes analog value from 0 to 1 for each up and down
 		if input.read("UP") > 0 and input.read("DOWN") == 0:
-	 		output = add_next(output, str(format(input.read("UP"), '.3f')))
+			output = add_next(output, str(format(input.read("UP"), '.3f')))
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
-	 		output = add_next(output, str(format(input.read("DOWN"), '.3f')))
+			output = add_next(output, str(format(input.read("DOWN"), '.3f')))
 		else:
 			output = add_next(output, str(format(0, '.3f')))
 	# If the altitude lock is enabled use altitude closed loop control
@@ -73,9 +73,9 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 	# If 0 closed loop heading control is off, if 1 then its on, otherwise default to off
 	if closed_loop_dict["head"] == 0:
 		if input.read("ROT_CW") > config.THRESHOLD and input.read("ROT_CCW") == 0:
-	 		output = add_next(output, str(format(input.read("ROT_CW"), '.3f')))
+			output = add_next(output, str(format(input.read("ROT_CW"), '.3f')))
 		elif input.read("ROT_CW") == 0 and input.read("ROT_CCW") > config.THRESHOLD:
-	 		output = add_next(output, str(format(-input.read("ROT_CCW"), '.3f')))
+			output = add_next(output, str(format(-input.read("ROT_CCW"), '.3f')))
 		else:
 			output = add_next(output, str(format(0, '.3f')))
 	# If heading lock is enabled
@@ -99,15 +99,15 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 
 	# ------ Token8: Controller1 "B" Button for Toggling Sampler ------
 	if input.read("S_TOG") == 1 and s_tog_flag == False:
-	 	output = add_next(output, 'T')
-	 	s_tog_flag = True
+		output = add_next(output, 'T')
+		s_tog_flag = True
 	elif input.read("S_TOG") == 0:
-	 	output = add_next(output, 'F')
-	 	s_tog_flag = False
+		output = add_next(output, 'F')
+		s_tog_flag = False
 	elif input.read("S_TOG") == 1 and s_tog_flag == True:
 		output = add_next(output, 'F')
 	else:
-	 	output = add_next(output, 'E')
+		output = add_next(output, 'E')
 
 	# ------ Token9: Controller1 DPad Up/Down for Tilting Camera Servo ------
 	if input.read("CAM_UP") == 1 and input.read("CAM_DN") == 0:
