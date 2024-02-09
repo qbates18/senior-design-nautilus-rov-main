@@ -15,34 +15,54 @@ class MainWindow(QWidget):
         #GUI:
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
+        
+        self.bottomWidgetsHorizontalContainer = QHBoxLayout()
+        self.GL.addLayout(self.bottomWidgetsHorizontalContainer, 2, 0, 1, 2, Qt.AlignCenter)
+
+        self.movementControlButtonsVerticalContainer = ButtonsVerticalContainers()
+        self.bottomWidgetsHorizontalContainer.addLayout(self.movementControlButtonsVerticalContainer, Qt.AlignLeft)
+
+        self.armLocationSelectVerticalContainer = ButtonsVerticalContainers()
+        self.bottomWidgetsHorizontalContainer.addLayout(self.armLocationSelectVerticalContainer, Qt.AlignCenter)
         #Widgets:
-        self.FeedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.FeedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
-        self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
-        self.GL.addWidget(self.DisplayMessageReceivedTextBox, 2, 0, Qt.AlignCenter)
+        self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
+        self.GL.addWidget(self.feedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        
+        self.rovArmedButton = RovArmedButton()
+        self.movementControlButtonsVerticalContainer.addWidget(self.rovArmedButton, Qt.AlignCenter)
+
+        self.rovSafeModeButton = RovSafeModeButton()
+        self.movementControlButtonsVerticalContainer.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
+        
+        self.moveArmButton = MoveArmButton()
+        self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
+
+        #self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
+        #self.GL.addWidget(self.DisplayMessageReceivedTextBox, 2, 0, Qt.AlignCenter)
+        
         self.compass = CompassWidget()
-        self.GL.addWidget(self.compass, 0, 1, Qt.AlignCenter)
+        self.GL.addWidget(self.compass, 0, 2, 1, 1, Qt.AlignCenter)
         #Threading:
-        self.VideoRetrieve = VideoRetrieve() #create instance of Qthread class
-        self.Comms = Comms() #create instance of Qthread class
-        self.VideoRetrieve.start() #start instance of Qthread class
-        self.Comms.start() #start instance of Qthread class
+        self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
+        self.comms = Comms() #create instance of Qthread class
+        self.videoRetrieve.start() #start instance of Qthread class
+        self.comms.start() #start instance of Qthread class
         #Slots and Signals
-        self.VideoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
-        self.Comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
-        self.Comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        #self.comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
+        self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
         #General
         self.setWindowTitle('Nautilus')
         #self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
         self.setLayout(self.GL)
 
     def ImageUpdateSlot(self, Image):
-        self.FeedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the FeedLabel object in the GUI
+        self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
 
     def StopVideo(self): #calls Video Retrieval thread to stop capturing video
-        self.VideoRetrieve.stop()
+        self.videoRetrieve.stop()
     def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
-        self.Comms.stop()
+        self.comms.stop()
 
     def closeEvent(self, event):
         confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
@@ -60,7 +80,7 @@ class MainWindow(QWidget):
 
 class Comms(QThread):
     #signals:
-    DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
+    #DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
     tmprUpdate = pyqtSignal(str)
     depthUpdate = pyqtSignal(str)
     headUpdate = pyqtSignal(int)
@@ -76,7 +96,6 @@ class Comms(QThread):
         self.map2_dict = {} # Dictionary for controller 2 for arm control
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
-        self.gui = None
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
@@ -160,7 +179,7 @@ class Comms(QThread):
 
                 #WRITE RECEIVED MESSAGE TO LOG
                 write_to_log(str_receive_string, self.logFile)
-                self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
+                #self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
                 # If the recieved message is valid, then update the GUI with new sensor values
                 if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and self.validate_receive_string_tokens(receive_string_tokens)):
                     # Read the recieved message for updated values
@@ -358,7 +377,7 @@ class VideoRetrieve(QThread):
     
     def run(self):
         self.ThreadActive = True
-        size = (640, 480)
+        size = (1228, 921)
         result = cv2.VideoWriter("DeploymentVideo " + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         framesCounter = 0
         firstStart = True

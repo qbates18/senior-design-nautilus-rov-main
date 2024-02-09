@@ -2,6 +2,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
+
+BUTTON_MAX_HEIGHT = 40
+BUTTON_MAX_WIDTH = 150
+LAYOUT_CONTENTS_MARGINS = 5
+LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
+LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
+LAYOUT_CONTENTS_MARGINS_RIGHT = LAYOUT_CONTENTS_MARGINS
+LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
+
 class CompassWidget(QWidget):
 
     angleChanged = pyqtSignal(float)
@@ -101,6 +110,35 @@ class CompassWidget(QWidget):
             self.update()
     
     angle = pyqtProperty(float, angle, setAngle)
+
+class ButtonsVerticalContainers(QVBoxLayout):
+    def __init__(self):
+        super(ButtonsVerticalContainers, self).__init__()
+        self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
+        
+class RovArmedButton(QPushButton):
+    def __init__(self):
+        super(RovArmedButton, self).__init__()
+        self.setText("ROV Disarmed")
+        self.setEnabled(False)
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+
+class RovSafeModeButton(QPushButton):
+    def __init__(self):
+        super(RovSafeModeButton, self).__init__()
+        self.setText("Safe Mode On")
+        self.setEnabled(True)
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+
+class MoveArmButton(QPushButton):
+    def __init__(self):
+        super(MoveArmButton, self).__init__()
+        self.setText("Move Arm")
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+
 
 #class to display a small text box with constantly updating values of messages received from the arduino
 class DisplayMessageReceivedTextBox(QTextEdit):
