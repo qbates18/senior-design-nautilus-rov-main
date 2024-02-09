@@ -62,7 +62,7 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 
 	# ------ Calculate the XYZ coordinates of the end effector ------
     thetas = thetas + deltaThetas
-    print((thetas * 180) / math.pi)
+    #print((thetas * 180) / math.pi)
     t1 = thetas[0][0]
     t2 = thetas[1][0]
     t3 = -thetas[1][0]
@@ -70,9 +70,9 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
     x = (L1 / 2) * math.cos(t1 + t2) + (L1 / 2) * math.cos(t1 - t2) + L2 * math.cos(t1 + t4)
     y = (L1 / 2) * math.sin(t1 + t2) + (L1 / 2) * math.sin(t1 - t2) + L2 * math.sin(t1 + t4)
     z = -L1 * math.sin(t2) - L2 * math.sin(t2 + t3) * math.cos(t4)
-    print("X: {}\n".format(x))
-    print("Y: {}\n".format(y))
-    print("Z: {}\n".format(z))
+    #print("X: {}\n".format(x))
+    #print("Y: {}\n".format(y))
+    #print("Z: {}\n".format(z))
 
     return deltaThetas
 

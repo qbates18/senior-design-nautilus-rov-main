@@ -378,7 +378,7 @@ class VideoRetrieve(QThread):
     def run(self):
         self.ThreadActive = True
         size = (1228, 921)
-        result = cv2.VideoWriter("DeploymentVideo " + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),16, size)
+        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         framesCounter = 0
         firstStart = True
         while self.ThreadActive:
