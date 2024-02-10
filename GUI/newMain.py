@@ -16,14 +16,24 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
         
-        self.bottomWidgetsHorizontalContainer = QHBoxLayout()
+        self.bottomWidgetsHorizontalContainer = HorizontalContainer()
         self.GL.addLayout(self.bottomWidgetsHorizontalContainer, 2, 0, 1, 2, Qt.AlignCenter)
 
-        self.movementControlButtonsVerticalContainer = ButtonsVerticalContainers()
+        self.sideWidgetsVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.sideWidgetsVerticalContainer, 0, 2, 3, 1, Qt.AlignCenter)
+
+        self.movementControlButtonsVerticalContainer = VerticalContainer()
         self.bottomWidgetsHorizontalContainer.addLayout(self.movementControlButtonsVerticalContainer, Qt.AlignLeft)
 
-        self.armLocationSelectVerticalContainer = ButtonsVerticalContainers()
+        self.armLocationSelectVerticalContainer = VerticalContainer()
         self.bottomWidgetsHorizontalContainer.addLayout(self.armLocationSelectVerticalContainer, Qt.AlignCenter)
+
+        self.dataValuesVerticalContainer = VerticalContainer()
+        self.sideWidgetsVerticalContainer.insertLayout(2, self.dataValuesVerticalContainer, Qt.AlignCenter)
+
+        self.headingLockHorizontalContainer = HorizontalContainer()
+        self.sideWidgetsVerticalContainer.insertLayout(1, self.headingLockHorizontalContainer, Qt.AlignCenter)
+
         #Widgets:
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
@@ -34,14 +44,30 @@ class MainWindow(QWidget):
         self.rovSafeModeButton = RovSafeModeButton()
         self.movementControlButtonsVerticalContainer.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
         
+        self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
+        self.armLocationSelectVerticalContainer.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
+        
         self.moveArmButton = MoveArmButton()
         self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
 
-        #self.DisplayMessageReceivedTextBox = DisplayMessageReceivedTextBox()
-        #self.GL.addWidget(self.DisplayMessageReceivedTextBox, 2, 0, Qt.AlignCenter)
-        
         self.compass = CompassWidget()
-        self.GL.addWidget(self.compass, 0, 2, 1, 1, Qt.AlignCenter)
+        self.sideWidgetsVerticalContainer.insertWidget(0, self.compass, Qt.AlignCenter)
+
+        self.displayAltitude = DisplayAltitude()
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
+
+        self.displayTemperature = DisplayTemperature()
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
+
+        self.displayVoltage = DisplayVoltage()
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
+
+        self.displayRotations = DisplayRotations()
+        self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
+
+        self.headingLockButton = HeadingLockButton()
+        self.headingLockHorizontalContainer.addWidget(self.headingLockButton, Qt.AlignCenter)
+        
         #Threading:
         self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.comms = Comms() #create instance of Qthread class
@@ -49,6 +75,10 @@ class MainWindow(QWidget):
         self.comms.start() #start instance of Qthread class
         #Slots and Signals
         self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
+        self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
+        self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
+
         #self.comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
         self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
         #General
@@ -81,7 +111,7 @@ class MainWindow(QWidget):
 class Comms(QThread):
     #signals:
     #DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
-    tmprUpdate = pyqtSignal(str)
+    temperatureUpdate = pyqtSignal(str)
     depthUpdate = pyqtSignal(str)
     headUpdate = pyqtSignal(int)
     altitudeUpdate = pyqtSignal(str)
@@ -226,7 +256,7 @@ class Comms(QThread):
         #self.rotationValue = self.rotationCounter.calculate_rotation(head)
 		#self.rotLbl['text'] = "ROT: " + str(format(self.rotationValue, '.2f'))
         if not tmpr == self.tmpr:
-            self.tmprUpdate.emit(str(tmpr))
+            self.temperatureUpdate.emit(str(tmpr))
             self.tmpr = tmpr
         
         if not depth == self.depth:

@@ -111,9 +111,14 @@ class CompassWidget(QWidget):
     
     angle = pyqtProperty(float, angle, setAngle)
 
-class ButtonsVerticalContainers(QVBoxLayout):
+class VerticalContainer(QVBoxLayout):
     def __init__(self):
-        super(ButtonsVerticalContainers, self).__init__()
+        super(VerticalContainer, self).__init__()
+        self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
+
+class HorizontalContainer(QHBoxLayout):
+    def __init__(self):
+        super(HorizontalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
         
 class RovArmedButton(QPushButton):
@@ -132,6 +137,11 @@ class RovSafeModeButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
 
+class ArmMovementOptionsDropdown(QComboBox):
+    def __init__(self):
+        super(ArmMovementOptionsDropdown, self).__init__()
+        self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
+
 class MoveArmButton(QPushButton):
     def __init__(self):
         super(MoveArmButton, self).__init__()
@@ -139,6 +149,41 @@ class MoveArmButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
 
+class DisplayAltitude(QLabel):
+    def __init__(self):
+        super(DisplayAltitude, self).__init__()
+        self.setText("Altitude: Initializing...")
+    def updateAltitudeSlot(self, alt):
+        self.setText("Altitude: " + alt)
+
+class DisplayTemperature(QLabel):
+    def __init__(self):
+        super(DisplayTemperature, self).__init__()
+        self.setText("Temperature: Initializing...")
+    def updateTemperatureSlot(self, temp):
+        self.setText("Temperature: " + temp)
+
+class DisplayVoltage(QLabel):
+    def __init__(self):
+        super(DisplayVoltage, self).__init__()
+        self.setText("Voltage: Initializing...")
+    def updateVoltageSlot(self, volts):
+        self.setText("Voltage: " + volts)
+
+class DisplayRotations(QLabel):
+    def __init__(self):
+        super(DisplayRotations, self).__init__()
+        self.setText("Rotations: Initializing...")
+    def updateRotationsSlot(self, rotations):
+        self.setText("Rotations: " + rotations)
+
+class HeadingLockButton(QPushButton):
+    def __init__(self):
+        super(HeadingLockButton, self).__init__()
+        self.setText("Heading Lock Off")
+        self.setEnabled(False)
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
 
 #class to display a small text box with constantly updating values of messages received from the arduino
 class DisplayMessageReceivedTextBox(QTextEdit):
