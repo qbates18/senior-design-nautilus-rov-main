@@ -14,30 +14,35 @@ class MainWindow(QWidget):
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
-        self.GL = QGridLayout()
+        self.MainHorizontalLayout = QHBoxLayout()
+        self.leftSide = VerticalContainer()
+        self.rightSide = VerticalContainer()
+        self.MainHorizontalLayout.insertLayout(1, self.leftSide, Qt.AlignCenter)
+        self.MainHorizontalLayout.insertLayout(2, self.rightSide, Qt.AlignCenter)
+
         
         self.movementControlButtonsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.movementControlButtonsVerticalContainer, 0, 4, 1, 1, Qt.AlignCenter)
+        self.rightSide.insertLayout(0, self.movementControlButtonsVerticalContainer, Qt.AlignCenter)
 
         self.armLocationSelectVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.armLocationSelectVerticalContainer, 1, 4, 1, 1, Qt.AlignCenter)
-
-        self.dataValuesVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.dataValuesVerticalContainer, 4, 3, 1, 1, Qt.AlignCenter)
+        self.rightSide.insertLayout(1, self.armLocationSelectVerticalContainer, Qt.AlignCenter)
 
         self.headingLockHorizontalContainer = HorizontalContainer()
-        self.GL.addLayout(self.headingLockHorizontalContainer, 1, 3, 1, 1, Qt.AlignTop)
+        self.leftSide.insertLayout(1, self.headingLockHorizontalContainer, Qt.AlignCenter)
 
         self.depthLockHorizontalContainer = HorizontalContainer()
-        self.GL.addLayout(self.depthLockHorizontalContainer, 3, 3, 1, 1, Qt.AlignCenter)
+        self.leftSide.insertLayout(3, self.depthLockHorizontalContainer, Qt.AlignCenter)
+
+        self.dataValuesVerticalContainer = VerticalContainer()
+        self.leftSide.insertLayout(4, self.dataValuesVerticalContainer, Qt.AlignCenter)
 
         self.warningIndicatorsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 5, 3, 1, 1, Qt.AlignCenter)
+        self.leftSide.insertLayout(5, self.warningIndicatorsVerticalContainer, Qt.AlignCenter)
 
         #Widgets:
         #camera
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.feedLabel, 0, 0, 6, 3, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        self.MainHorizontalLayout.insertWidget(0, self.feedLabel, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
         
         #movement control buttons
         self.rovArmedButton = RovArmedButton()
@@ -68,7 +73,7 @@ class MainWindow(QWidget):
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
         #compass
         self.compass = CompassWidget()
-        self.GL.addWidget(self.compass, 0, 3, 1, 1, Qt.AlignCenter)
+        self.leftSide.insertWidget(0, self.compass, Qt.AlignCenter)
 
         #depth lock
         self.depthLockButton = DepthLockButton()
@@ -77,7 +82,7 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
         #guage (is just another compass for now...)
         self.guage = CompassWidget()
-        self.GL.addWidget(self.guage, 2, 3, 1, 1, Qt.AlignCenter)
+        self.leftSide.insertWidget(2, self.guage, Qt.AlignCenter)
 
         #warning indicators
         self.leakIndicator = LeakIndicator()
@@ -105,7 +110,7 @@ class MainWindow(QWidget):
         
         #General
         self.setWindowTitle('Nautilus')
-        self.setLayout(self.GL)
+        self.setLayout(self.MainHorizontalLayout)
 
     def ImageUpdateSlot(self, Image):
         self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
