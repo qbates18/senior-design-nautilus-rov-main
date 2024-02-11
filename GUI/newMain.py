@@ -16,74 +16,95 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
         
-        self.bottomWidgetsHorizontalContainer = HorizontalContainer()
-        self.GL.addLayout(self.bottomWidgetsHorizontalContainer, 2, 0, 1, 2, Qt.AlignCenter)
-
-        self.sideWidgetsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.sideWidgetsVerticalContainer, 0, 2, 3, 1, Qt.AlignCenter)
-
         self.movementControlButtonsVerticalContainer = VerticalContainer()
-        self.bottomWidgetsHorizontalContainer.addLayout(self.movementControlButtonsVerticalContainer, Qt.AlignLeft)
+        self.GL.addLayout(self.movementControlButtonsVerticalContainer, 0, 4, 1, 1, Qt.AlignCenter)
 
         self.armLocationSelectVerticalContainer = VerticalContainer()
-        self.bottomWidgetsHorizontalContainer.addLayout(self.armLocationSelectVerticalContainer, Qt.AlignCenter)
+        self.GL.addLayout(self.armLocationSelectVerticalContainer, 1, 4, 1, 1, Qt.AlignCenter)
 
         self.dataValuesVerticalContainer = VerticalContainer()
-        self.sideWidgetsVerticalContainer.insertLayout(2, self.dataValuesVerticalContainer, Qt.AlignCenter)
+        self.GL.addLayout(self.dataValuesVerticalContainer, 4, 3, 1, 1, Qt.AlignCenter)
 
         self.headingLockHorizontalContainer = HorizontalContainer()
-        self.sideWidgetsVerticalContainer.insertLayout(1, self.headingLockHorizontalContainer, Qt.AlignCenter)
+        self.GL.addLayout(self.headingLockHorizontalContainer, 1, 3, 1, 1, Qt.AlignTop)
+
+        self.depthLockHorizontalContainer = HorizontalContainer()
+        self.GL.addLayout(self.depthLockHorizontalContainer, 3, 3, 1, 1, Qt.AlignCenter)
+
+        self.warningIndicatorsVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 5, 3, 1, 1, Qt.AlignCenter)
 
         #Widgets:
+        #camera
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
-        self.GL.addWidget(self.feedLabel, 0, 0, 2, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        self.GL.addWidget(self.feedLabel, 0, 0, 6, 3, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
         
+        #movement control buttons
         self.rovArmedButton = RovArmedButton()
         self.movementControlButtonsVerticalContainer.addWidget(self.rovArmedButton, Qt.AlignCenter)
-
         self.rovSafeModeButton = RovSafeModeButton()
         self.movementControlButtonsVerticalContainer.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
         
+        #arm movement
         self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
         self.armLocationSelectVerticalContainer.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
-        
         self.moveArmButton = MoveArmButton()
         self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
-
-        self.compass = CompassWidget()
-        self.sideWidgetsVerticalContainer.insertWidget(0, self.compass, Qt.AlignCenter)
-
+        
+        #display raw values
         self.displayAltitude = DisplayAltitude()
         self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
-
         self.displayTemperature = DisplayTemperature()
         self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
-
         self.displayVoltage = DisplayVoltage()
         self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
-
         self.displayRotations = DisplayRotations()
         self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
-
+        
+        #heading lock
         self.headingLockButton = HeadingLockButton()
         self.headingLockHorizontalContainer.addWidget(self.headingLockButton, Qt.AlignCenter)
+        self.headingLockTextBox = HeadingLockTextBox()
+        self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
+        #compass
+        self.compass = CompassWidget()
+        self.GL.addWidget(self.compass, 0, 3, 1, 1, Qt.AlignCenter)
+
+        #depth lock
+        self.depthLockButton = DepthLockButton()
+        self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
+        self.depthLockTextBox = DepthLockTextBox()
+        self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
+        #guage (is just another compass for now...)
+        self.guage = CompassWidget()
+        self.GL.addWidget(self.guage, 2, 3, 1, 1, Qt.AlignCenter)
+
+        #warning indicators
+        self.leakIndicator = LeakIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
+        self.voltageIndicator = VoltageIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
+        self.depthIndicator = DepthIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
         
         #Threading:
         self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.comms = Comms() #create instance of Qthread class
         self.videoRetrieve.start() #start instance of Qthread class
         self.comms.start() #start instance of Qthread class
+        
         #Slots and Signals
         self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
-
-        #self.comms.DisplayMessageReceivedTextBoxUpdate.connect(self.DisplayMessageReceivedTextBox.TextUpdateSlot)
         self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
+        self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
+        self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
+        
         #General
         self.setWindowTitle('Nautilus')
-        #self.spinBox.setRange(0, 359) #This should be moved to a widget somewhere probably? maybe not if we didn't create a class for it and all functions we need are pre-defined?
         self.setLayout(self.GL)
 
     def ImageUpdateSlot(self, Image):
@@ -112,11 +133,11 @@ class Comms(QThread):
     #signals:
     #DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
     temperatureUpdate = pyqtSignal(str)
-    depthUpdate = pyqtSignal(str)
+    depthUpdate = pyqtSignal(float)
     headUpdate = pyqtSignal(int)
     altitudeUpdate = pyqtSignal(str)
-    voltageUpdate = pyqtSignal(str)
-    leakUpdate = pyqtSignal(str)
+    voltageUpdate = pyqtSignal(float)
+    leakUpdate = pyqtSignal(int)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -259,8 +280,9 @@ class Comms(QThread):
             self.temperatureUpdate.emit(str(tmpr))
             self.tmpr = tmpr
         
+        depth = round(float(depth), 1)
         if not depth == self.depth:
-            self.depthUpdate.emit(str(depth))
+            self.depthUpdate.emit(depth)
             self.depth = depth
         
         head = round(float(head))
@@ -273,11 +295,11 @@ class Comms(QThread):
             self.altitude = altitude
         
         if not voltage == self.voltage:
-            self.voltageUpdate.emit(str(voltage))
+            self.voltageUpdate.emit(float(voltage))
             self.voltage = voltage
         
         if not leak == self.leak:
-            self.leakUpdate.emit(str(leak))
+            self.leakUpdate.emit(int(float(leak[1:]))) #get rid of leading space, cast to float, cast to int, emit int
             self.leak = leak
 
 
@@ -407,7 +429,7 @@ class VideoRetrieve(QThread):
     
     def run(self):
         self.ThreadActive = True
-        size = (1228, 921)
+        size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
         result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         framesCounter = 0
         firstStart = True
@@ -422,7 +444,7 @@ class VideoRetrieve(QThread):
             result.write(cv2.resize(frame, size)) #maybe have this here?
             Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
-            Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio
+            Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio which takes the width and determines the height based on keeping the aspect ratio with that width
             self.ImageUpdate.emit(Pic) #emit the QImage
         totalTime = datetime.datetime.now().timestamp() - timeStarted
         print("Total time elapsed while receiving camera feed = " + str(totalTime))

@@ -4,7 +4,13 @@ from PyQt5.QtCore import *
 
 
 BUTTON_MAX_HEIGHT = 40
-BUTTON_MAX_WIDTH = 150
+BUTTON_MAX_WIDTH = 200
+BUTTON_MIN_WIDTH = 150
+SMALL_TEXT_BOX_MAX_WIDTH = 40
+COMPASS_FIXED_WIDTH = 150
+COMPASS_FIXED_HEIGHT = 150
+INDICATOR_FIXED_HEIGHT = 50
+INDICATOR_MIN_WIDTH = 80
 LAYOUT_CONTENTS_MARGINS = 5
 LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
@@ -23,7 +29,8 @@ class CompassWidget(QWidget):
         self._margins = 10
         self._pointText = {0: "N", 45: "NE", 90: "E", 135: "SE", 180: "S",
                            225: "SW", 270: "W", 315: "NW"}
-        self.setFixedWidth(150)
+        self.setFixedWidth(COMPASS_FIXED_WIDTH)
+        self.setFixedHeight(COMPASS_FIXED_HEIGHT)
     
     def paintEvent(self, event):
     
@@ -128,6 +135,7 @@ class RovArmedButton(QPushButton):
         self.setEnabled(False)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
 class RovSafeModeButton(QPushButton):
     def __init__(self):
@@ -136,6 +144,7 @@ class RovSafeModeButton(QPushButton):
         self.setEnabled(True)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
 class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
@@ -148,6 +157,7 @@ class MoveArmButton(QPushButton):
         self.setText("Move Arm")
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
 class DisplayAltitude(QLabel):
     def __init__(self):
@@ -168,7 +178,7 @@ class DisplayVoltage(QLabel):
         super(DisplayVoltage, self).__init__()
         self.setText("Voltage: Initializing...")
     def updateVoltageSlot(self, volts):
-        self.setText("Voltage: " + volts)
+        self.setText("Voltage: " + str(volts))
 
 class DisplayRotations(QLabel):
     def __init__(self):
@@ -184,13 +194,114 @@ class HeadingLockButton(QPushButton):
         self.setEnabled(False)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
-#class to display a small text box with constantly updating values of messages received from the arduino
-class DisplayMessageReceivedTextBox(QTextEdit):
+class HeadingLockTextBox(QLineEdit):
     def __init__(self):
-        super(DisplayMessageReceivedTextBox, self).__init__()
-        self.setPlainText("Initializing...")
+        super(HeadingLockTextBox, self).__init__()
+        self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+
+class DepthLockButton(QPushButton):
+    def __init__(self):
+        super(DepthLockButton, self).__init__()
+        self.setText("Depth Lock Off")
+        self.setEnabled(False)
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
+
+class DepthLockTextBox(QLineEdit):
+    def __init__(self):
+        super(DepthLockTextBox, self).__init__()
+        self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+
+class LeakIndicator(QTextEdit):
+    def __init__(self):
+        super(LeakIndicator, self).__init__()
+        self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
+        self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setFixedSize(640, 25)
-    def TextUpdateSlot(self, text):
-        self.setPlainText(text)
+        self.setIndicatorToNotLeak()
+        self.leakWasWarned = False
+        self.leakWarningPopup = LeakWarningPopup()
+    def setIndicatorToLeak(self):
+        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setText("Leak Detected!")
+    def setIndicatorToNotLeak(self):
+        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setText("No Leak Detected")
+    def leakUpdateSlot(self, leak):
+        if (leak):
+            self.setIndicatorToLeak()
+            if (not self.leakWasWarned):
+                self.leakWasWarned = True
+                self.leakWarningPopup.popup()
+        else:
+            self.setIndicatorToNotLeak()
+
+class LeakWarningPopup(QMessageBox):
+    def popup(self):
+        self.warning(self, "Leak Detected!", "The ROV has detected a leak within the internal electronics! Return to the surface immediately!", QMessageBox.Ok)
+
+class VoltageIndicator(QTextEdit):
+    def __init__(self):
+        super(VoltageIndicator, self).__init__()
+        self.BATTERY_LOW_PER_CELL = 3.5
+        self.BATTERY_CRITICAL_PER_CELL = 3.3
+        self.NUMBER_OF_CELLS = 4
+        self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
+        self.setMinimumWidth(INDICATOR_MIN_WIDTH)
+        self.setReadOnly(True)
+        self.setIndicatorToBatteryGood()
+        self.batteryCriticalWasWarned = False
+        self.batteryCriticalWarningPopup = BatteryCriticalWarningPopup()
+    def setIndicatorToBatteryCritical(self):
+        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setText("Battery Critical!")
+    def setIndicatorToBatteryLow(self):
+        self.setStyleSheet("background-color : rgba(255, 175, 5, 60%);")
+        self.setText("Battery Low!")
+    def setIndicatorToBatteryGood(self):
+        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setText("Battery Good")
+    def voltageUpdateSlot(self, volts):
+        if (volts>self.BATTERY_LOW_PER_CELL*self.NUMBER_OF_CELLS):
+            self.setIndicatorToBatteryGood()
+        elif (volts>self.BATTERY_CRITICAL_PER_CELL*self.NUMBER_OF_CELLS):
+            self.setIndicatorToBatteryLow()
+        elif (not self.batteryCriticalWasWarned):
+            self.setIndicatorToBatteryCritical()
+            self.batteryCriticalWasWarned = True
+            self.batteryCriticalWarningPopup.popup()
+        else:
+            self.setIndicatorToBatteryCritical()
+
+class BatteryCriticalWarningPopup(QMessageBox):
+    def popup(self):
+        self.warning(self, "Battery Critical!", "The ROV battery is critically low! Return to the surface immediately!", QMessageBox.Ok)
+
+class DepthIndicator(QTextEdit):
+    def __init__(self):
+        super(DepthIndicator, self).__init__()
+        self.DEPTH_WARNING_THRESHHOLD = 80.0
+        self.DEPTH_MAX_THRESHHOLD = 90.0
+        self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
+        self.setMinimumWidth(INDICATOR_MIN_WIDTH)
+        self.setReadOnly(True)
+        self.setDepthIndicatorGood()
+    def setDepthIndicatorGood(self):
+        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setText("Depth Good")
+    def setDepthIndicatorWarning(self):
+        self.setStyleSheet("background-color : rgba(255, 175, 5, 60%);")
+        self.setText("Approaching Max Depth!")
+    def setDepthIndicatorCritical(self):
+        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setText("Exceeded Max Depth!")
+    def depthUpdateSlot(self, depth):
+        if (depth<self.DEPTH_WARNING_THRESHHOLD):
+            self.setDepthIndicatorGood()
+        elif (depth<self.DEPTH_MAX_THRESHHOLD):
+            self.setDepthIndicatorWarning()
+        else:
+            self.setDepthIndicatorCritical()
