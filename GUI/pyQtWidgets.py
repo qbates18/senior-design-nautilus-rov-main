@@ -11,6 +11,8 @@ COMPASS_FIXED_WIDTH = 150
 COMPASS_FIXED_HEIGHT = 150
 INDICATOR_FIXED_HEIGHT = 50
 INDICATOR_MIN_WIDTH = 80
+PILOT_LOG_MIN_HEIGHT = 50
+PILOT_LOG_MIN_WIDTH = 50
 LAYOUT_CONTENTS_MARGINS = 5
 LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
@@ -305,3 +307,10 @@ class DepthIndicator(QTextEdit):
             self.setDepthIndicatorWarning()
         else:
             self.setDepthIndicatorCritical()
+
+class PilotLogTextEntryBox(QTextEdit):
+    def __init__(self):
+        super(PilotLogTextEntryBox, self).__init__()
+        self.setMinimumHeight(PILOT_LOG_MIN_HEIGHT)
+        self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
+        self.setReadOnly(True)
