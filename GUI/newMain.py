@@ -34,6 +34,9 @@ class MainWindow(QWidget):
         self.warningIndicatorsVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.warningIndicatorsVerticalContainer, 5, 3, 1, 1, Qt.AlignCenter)
 
+        self.pilotLogVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.pilotLogVerticalContainer, 4, 4, 2, 1)
+
         #Widgets:
         #camera
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
@@ -87,6 +90,12 @@ class MainWindow(QWidget):
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
         
+        #pilot's log
+        self.pilotLogTextEntryBox = PilotLogTextEntryBox()
+        self.pilotLogVerticalContainer.addWidget(self.pilotLogTextEntryBox, Qt.AlignCenter)
+        self.pilotLogSaveButton = PilotLogSaveButton()
+        self.pilotLogVerticalContainer.addWidget(self.pilotLogSaveButton, Qt.AlignCenter)
+
         #Threading:
         self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.comms = Comms() #create instance of Qthread class
@@ -102,6 +111,7 @@ class MainWindow(QWidget):
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
+        self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
         
         #General
         self.setWindowTitle('Nautilus')
@@ -301,7 +311,20 @@ class Comms(QThread):
         if not leak == self.leak:
             self.leakUpdate.emit(int(float(leak[1:]))) #get rid of leading space, cast to float, cast to int, emit int
             self.leak = leak
-
+    def getHeading(self):
+        return self.head
+    def getVoltage(self):
+        return self.voltage
+    def getAltitude(self):
+        return self.altitude
+    def getDepth(self):
+        return self.depth
+    def getTemperature(self):
+        return self.tmpr
+    def getLeak(self):
+        return self.leak
+    def getRotation(self):
+        return self.rotationValue
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
