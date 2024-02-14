@@ -6,6 +6,9 @@ import datetime
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 200
 BUTTON_MIN_WIDTH = 150
+GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
+ORANGE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 175, 5, 60%);"
+RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 SMALL_TEXT_BOX_MAX_WIDTH = 40
 COMPASS_FIXED_WIDTH = 150
 COMPASS_FIXED_HEIGHT = 150
@@ -133,11 +136,16 @@ class HorizontalContainer(QHBoxLayout):
 class RovArmedButton(QPushButton):
     def __init__(self):
         super(RovArmedButton, self).__init__()
-        self.setText("ROV Disarmed")
-        self.setEnabled(False)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setText("ROV Disarmed")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
+    def armUpdateSlot(self, isArmed):
+        self.setText("ROV Armed" if isArmed else "ROV Disarmed")
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS if isArmed else GREEN_BUTTON_BACKGROUND_COLOR_SS)
+
+
 
 class RovSafeModeButton(QPushButton):
     def __init__(self):
@@ -227,10 +235,10 @@ class LeakIndicator(QTextEdit):
         self.leakWasWarned = False
         self.leakWarningPopup = LeakWarningPopup()
     def setIndicatorToLeak(self):
-        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Leak Detected!")
     def setIndicatorToNotLeak(self):
-        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("No Leak Detected")
     def leakUpdateSlot(self, leak):
         if (leak):
@@ -258,13 +266,13 @@ class VoltageIndicator(QTextEdit):
         self.batteryCriticalWasWarned = False
         self.batteryCriticalWarningPopup = BatteryCriticalWarningPopup()
     def setIndicatorToBatteryCritical(self):
-        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Critical!")
     def setIndicatorToBatteryLow(self):
-        self.setStyleSheet("background-color : rgba(255, 175, 5, 60%);")
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Low!")
     def setIndicatorToBatteryGood(self):
-        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Good")
     def voltageUpdateSlot(self, volts):
         if (volts>self.BATTERY_LOW_PER_CELL*self.NUMBER_OF_CELLS):
@@ -292,13 +300,13 @@ class DepthIndicator(QTextEdit):
         self.setReadOnly(True)
         self.setDepthIndicatorGood()
     def setDepthIndicatorGood(self):
-        self.setStyleSheet("background-color : rgba(30, 255, 30, 60%);")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Depth Good")
     def setDepthIndicatorWarning(self):
-        self.setStyleSheet("background-color : rgba(255, 175, 5, 60%);")
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Approaching Max Depth!")
     def setDepthIndicatorCritical(self):
-        self.setStyleSheet("background-color : rgba(255, 30, 30, 60%);")
+        self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Exceeded Max Depth!")
     def depthUpdateSlot(self, depth):
         if (depth<self.DEPTH_WARNING_THRESHHOLD):

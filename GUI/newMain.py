@@ -112,6 +112,8 @@ class MainWindow(QWidget):
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
         self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
+        self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
+        self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
         
         #General
         self.setWindowTitle('Nautilus')
@@ -148,6 +150,7 @@ class Comms(QThread):
     altitudeUpdate = pyqtSignal(str)
     voltageUpdate = pyqtSignal(float)
     leakUpdate = pyqtSignal(int)
+    armUpdate = pyqtSignal(bool)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -163,7 +166,7 @@ class Comms(QThread):
         self.ard = None # Short for Arduino, this becomes the object which deals with serial communication with the ROV
         self.logFile = None
         #Comms:
-        self.arm_value = 1 #should eventually be changed to 0 to be disarmed by default and probably also moved to be associated with the arm/disarm button widget class.
+        self.arm_value = 0
         self.rotationValue = None
         self.tmpr = None
         self.depth = None
@@ -218,7 +221,7 @@ class Comms(QThread):
                 pass
 
             # Generate string to send subsea
-            self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.return_arm(), config.arm_inputs)
+            self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.get_arm(), config.arm_inputs)
             nmea_string_stripped = self.nmea_string.replace(" ", "")
 
             # Write the generated message to log
@@ -278,10 +281,6 @@ class Comms(QThread):
             except ValueError:
                 return False
         return True
-    
-    #Return true if ROV is armed, false if ROV is disarmed
-    def return_arm(self):
-        return self.arm_value
 
     def update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
         #self.rotationValue = self.rotationCounter.calculate_rotation(head)
@@ -325,6 +324,12 @@ class Comms(QThread):
         return self.leak
     def getRotation(self):
         return self.rotationValue
+    #Return true if ROV is armed, false if ROV is disarmed
+    def get_arm(self):
+        return self.arm_value
+    def armRovSlot(self):
+        self.arm_value = 0 if self.arm_value else 1 #take care that arm_value isn't turned into a bool because generator.py assumes it to be an int
+        self.armUpdate.emit(self.arm_value)
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
