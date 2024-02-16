@@ -114,6 +114,7 @@ class MainWindow(QWidget):
         self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
         
         #General
         self.setWindowTitle('Nautilus')
@@ -458,7 +459,7 @@ class VideoRetrieve(QThread):
     def run(self):
         self.ThreadActive = True
         size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
-        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(datetime.datetime.now()), cv2.VideoWriter_fourcc(*'XVID'),16, size)
+        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         framesCounter = 0
         firstStart = True
         while self.ThreadActive:

@@ -1,7 +1,9 @@
 from PyQt5.QtGui import *
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import datetime
+from imports import timeDeploymentStarted
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 200
@@ -318,23 +320,28 @@ class DepthIndicator(QTextEdit):
             self.setDepthIndicatorCritical()
 
 class PilotLogTextEntryBox(QTextEdit):
+    emptyTextWroteUpon = pyqtSignal()
     def __init__(self):
         super(PilotLogTextEntryBox, self).__init__()
         self.setMinimumHeight(PILOT_LOG_MIN_HEIGHT)
         self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
-        self.pilotLogFileName = '/home/rsl/Desktop/NautilusPilotLogs/Pilot Log ' + str(datetime.datetime.now()) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        self.pilotLogFileName = '/home/rsl/Desktop/NautilusPilotLogs/Pilot Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
         self.pilotLogFds = open(self.pilotLogFileName, 'a')
         self.pilotLogFds.close()
     def saveTextSlot(self, comms):
         logText = self.toPlainText()
-        self.pilotLogFds = open(self.pilotLogFileName, 'a')
-        self.pilotLogFds.write("Pilot's Log Entry " + str(self.entryNumber) + "\n" + str(datetime.datetime.now()) + "\n" + "Heading: " + str(comms.getHeading()) + ", Depth: " + str(comms.getDepth()) + ", Altitude: " + str(comms.getAltitude()) + ", Temperature: " + str(comms.getTemperature()) + ", Voltage: " + str(comms.getVoltage()) + ", Leak: " + ("True" if (comms.getLeak()) else "False") + ", Rotations: " + str(comms.getRotation()) + "\n")
-        self.pilotLogFds.write(logText + "\n\n")
-        self.entryNumber += 1
-        self.pilotLogFds.close()
-        self.setPlaceholderText("Saved!")
-        self.clear()
+        if (len(logText) != 0):
+            self.pilotLogFds = open(self.pilotLogFileName, 'a')
+            self.pilotLogFds.write("Pilot's Log Entry " + str(self.entryNumber) + "\n" + str(datetime.datetime.now()) + "\n" + "Heading: " + str(comms.getHeading()) + ", Depth: " + str(comms.getDepth()) + ", Altitude: " + str(comms.getAltitude()) + ", Temperature: " + str(comms.getTemperature()) + ", Voltage: " + str(comms.getVoltage()) + ", Leak: " + ("True" if (comms.getLeak()) else "False") + ", Rotations: " + str(comms.getRotation()) + "\n")
+            self.pilotLogFds.write(logText + "\n\n")
+            self.entryNumber += 1
+            self.pilotLogFds.close()
+            self.setPlaceholderText("Saved!")
+            self.clear()
+    def textChangedSlot(self):
+        if (len(self.toPlainText()) == 1):
+            self.setPlaceholderText("")
 
 class PilotLogSaveButton(QPushButton):
     def __init__(self):
