@@ -28,7 +28,7 @@ class MainWindow(QWidget):
         self.compassVC.addWidget(self.compass, Qt.AlignCenter)
 
         # Heading Lock
-        self.depthLockHC = HorizontalContainer()
+        self.headingLockHC = HorizontalContainer()
         self.headingLockButton = HeadingLockButton()
         self.headingLockHC.addWidget(self.headingLockButton, Qt.AlignCenter)
         self.headingLockTextBox = HeadingLockTextBox()
@@ -42,7 +42,7 @@ class MainWindow(QWidget):
         self.gaugeVC.addWidget(self.gauge, Qt.AlignCenter)
 
         # Depth Lock
-        self.headingLockHC = HorizontalContainer()
+        self.depthLockHC = HorizontalContainer()
         self.depthLockButton = DepthLockButton()
         self.depthLockHC.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
