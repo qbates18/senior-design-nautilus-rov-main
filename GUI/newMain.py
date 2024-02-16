@@ -9,6 +9,7 @@ import datetime
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
+timeVideoStarted = None
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -464,7 +465,7 @@ class VideoRetrieve(QThread):
             if not self.frame_available():
                 continue
             if firstStart:
-                timeStarted = datetime.datetime.now().timestamp()
+                timeVideoStarted = datetime.datetime.now().timestamp()
                 firstStart = False
             framesCounter += 1
             frame = self.frame() #capture a frame
@@ -473,7 +474,7 @@ class VideoRetrieve(QThread):
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
             Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio which takes the width and determines the height based on keeping the aspect ratio with that width
             self.ImageUpdate.emit(Pic) #emit the QImage
-        totalTime = datetime.datetime.now().timestamp() - timeStarted
+        totalTime = datetime.datetime.now().timestamp() - timeVideoStarted
         print("Total time elapsed while receiving camera feed = " + str(totalTime))
         print("Number of Frames received: " + str(framesCounter))
         optimalFps = framesCounter/totalTime
