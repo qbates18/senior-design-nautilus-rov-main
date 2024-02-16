@@ -17,92 +17,92 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
 
-        self.dataValuesVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
-
-        self.pilotLogVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.pilotLogVerticalContainer, 3, 1, 1, 2)
-
-        self.headingLockHorizontalContainer = HorizontalContainer()
-        self.GL.addLayout(self.headingLockHorizontalContainer, 4, 1, 1, 1, Qt.AlignTop)
-
-        self.depthLockHorizontalContainer = HorizontalContainer()
-        self.GL.addLayout(self.depthLockHorizontalContainer, 4, 2, 1, 1, Qt.AlignCenter)
-
-        self.movementControlButtonsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.movementControlButtonsVerticalContainer, 5, 1, 1, 1, Qt.AlignCenter)
-
-        self.armLocationSelectVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.armLocationSelectVerticalContainer, 5, 2, 1, 1, Qt.AlignCenter)
-
-        #Widgets:
+        # Widgets:
         # Camera Feed
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, -1, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
         
         # Compass / Heading Display
         self.compass = CompassWidget()
-        self.GL.addWidget(self.compass, 0, 1, 1, 2, Qt.AlignCenter)
-        # Heading Lock
-        self.headingLockButton = HeadingLockButton()
-        self.headingLockHorizontalContainer.addWidget(self.headingLockButton, Qt.AlignCenter)
-        self.headingLockTextBox = HeadingLockTextBox()
-        self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
+        self.compassVC = VerticalContainer()
+        self.compassVC.addWidget(self.compass, Qt.AlignCenter)
 
-        #depth lock
+        # Heading Lock
+        self.depthLockHC = HorizontalContainer()
+        self.headingLockButton = HeadingLockButton()
+        self.headingLockHC.addWidget(self.headingLockButton, Qt.AlignCenter)
+        self.headingLockTextBox = HeadingLockTextBox()
+        self.headingLockHC.addWidget(self.headingLockTextBox, Qt.AlignCenter)
+        self.compassVC.addWidget(self.headingLockHC, Qt.AlignCenter)
+        self.GL.addWidget(self.compass, 0, 1, 1, 2, Qt.AlignCenter)
+
+        # Gauge (is just another compass for now...)
+        self.gauge = CompassWidget()
+        self.gaugeVC = VerticalContainer()
+        self.gaugeVC.addWidget(self.gauge, Qt.AlignCenter)
+
+        # Depth Lock
+        self.headingLockHC = HorizontalContainer()
         self.depthLockButton = DepthLockButton()
-        self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
+        self.depthLockHC.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
-        self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
-        #guage (is just another compass for now...)
-        self.guage = CompassWidget()
-        self.GL.addWidget(self.guage, 1, 1, 1, 2, Qt.AlignCenter)
+        self.depthLockHC.addWidget(self.depthLockTextBox, Qt.AlignCenter)
+        self.gaugeVC.addWidget(self.headingLockHC, Qt.AlignCenter)
+        self.GL.addWidget(self.gaugeVC, 1, 1, 1, 2, Qt.AlignCenter)
 
         # Warning Indicators
-        self.warningIndicatorsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
+        self.warningIndicatorsVC = VerticalContainer()
         self.leakIndicator = LeakIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
+        self.warningIndicatorsVC.addWidget(self.leakIndicator, Qt.AlignCenter)
         self.voltageIndicator = VoltageIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
+        self.warningIndicatorsVC.addWidget(self.voltageIndicator, Qt.AlignCenter)
         self.depthIndicator = DepthIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
+        self.warningIndicatorsVC.addWidget(self.depthIndicator, Qt.AlignCenter)
+        self.GL.addLayout(self.warningIndicatorsVC, 2, 1, 1, 1, Qt.AlignCenter)
 
-        #movement control buttons
-        self.rovArmedButton = RovArmedButton()
-        self.movementControlButtonsVerticalContainer.addWidget(self.rovArmedButton, Qt.AlignCenter)
-        self.rovSafeModeButton = RovSafeModeButton()
-        self.movementControlButtonsVerticalContainer.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
-        
-        #arm movement
-        self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
-        self.armLocationSelectVerticalContainer.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
-        self.moveArmButton = MoveArmButton()
-        self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
-        
-        #display raw values
+        # Display Raw Values
+        self.dataValuesVC = VerticalContainer()
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVC.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVC.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVC.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
-        self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
-        
-        # Pilot's Log
-        self.pilotLogTextEntryBox = PilotLogTextEntryBox()
-        self.pilotLogVerticalContainer.addWidget(self.pilotLogTextEntryBox, Qt.AlignCenter)
-        self.pilotLogSaveButton = PilotLogSaveButton()
-        self.pilotLogVerticalContainer.addWidget(self.pilotLogSaveButton, Qt.AlignCenter)
+        self.dataValuesVC.insertWidget(3, self.displayRotations, Qt.AlignCenter)
+        self.GL.addLayout(self.dataValuesVC, 2, 2, 1, 1, Qt.AlignCenter)
 
-        #Threading:
+        # Pilot's Log
+        self.pilotLogVC = VerticalContainer()
+        self.pilotLogTextEntryBox = PilotLogTextEntryBox()
+        self.pilotLogVC.addWidget(self.pilotLogTextEntryBox, Qt.AlignCenter)
+        self.pilotLogSaveButton = PilotLogSaveButton()
+        self.pilotLogVC.addWidget(self.pilotLogSaveButton, Qt.AlignCenter)
+        self.GL.addLayout(self.pilotLogVC, 3, 1, 1, 2)
+
+        # Movement Control Buttons
+        self.movementControlButtonsVC = VerticalContainer()
+        self.rovArmedButton = RovArmedButton()
+        self.movementControlButtonsVC.addWidget(self.rovArmedButton, Qt.AlignCenter)
+        self.rovSafeModeButton = RovSafeModeButton()
+        self.movementControlButtonsVC.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
+        self.GL.addLayout(self.movementControlButtonsVC, 4, 1, 1, 1, Qt.AlignCenter)
+        
+        # Arm Movement
+        self.armLocationSelectVC = VerticalContainer()
+        self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
+        self.armLocationSelectVC.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
+        self.moveArmButton = MoveArmButton()
+        self.armLocationSelectVC.addWidget(self.moveArmButton, Qt.AlignCenter)
+        self.GL.addLayout(self.armLocationSelectVC, 4, 2, 1, 1, Qt.AlignCenter)
+
+        # Threading:
         self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
         self.comms = Comms() #create instance of Qthread class
         self.videoRetrieve.start() #start instance of Qthread class
         self.comms.start() #start instance of Qthread class
         
-        #Slots and Signals
+        # Slots and Signals
         self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
@@ -115,7 +115,7 @@ class MainWindow(QWidget):
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
         
-        #General
+        # General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
 

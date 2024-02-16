@@ -123,16 +123,19 @@ class CompassWidget(QWidget):
     
     angle = pyqtProperty(float, angle, setAngle)
 
+
 class VerticalContainer(QVBoxLayout):
     def __init__(self):
         super(VerticalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
 
+
 class HorizontalContainer(QHBoxLayout):
     def __init__(self):
         super(HorizontalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
-        
+
+
 class RovArmedButton(QPushButton):
     def __init__(self):
         super(RovArmedButton, self).__init__()
@@ -146,7 +149,6 @@ class RovArmedButton(QPushButton):
         self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS if isArmed else GREEN_BUTTON_BACKGROUND_COLOR_SS)
 
 
-
 class RovSafeModeButton(QPushButton):
     def __init__(self):
         super(RovSafeModeButton, self).__init__()
@@ -156,11 +158,13 @@ class RovSafeModeButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
+
 class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
         super(ArmMovementOptionsDropdown, self).__init__()
         self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
         self.setMinimumHeight(BUTTON_MAX_HEIGHT)
+
 
 class MoveArmButton(QPushButton):
     def __init__(self):
@@ -170,12 +174,14 @@ class MoveArmButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
+
 class DisplayAltitude(QLabel):
     def __init__(self):
         super(DisplayAltitude, self).__init__()
         self.setText("Altitude: Initializing...")
     def updateAltitudeSlot(self, alt):
         self.setText("Altitude: " + alt)
+
 
 class DisplayTemperature(QLabel):
     def __init__(self):
@@ -184,6 +190,7 @@ class DisplayTemperature(QLabel):
     def updateTemperatureSlot(self, temp):
         self.setText("Temperature: " + temp)
 
+
 class DisplayVoltage(QLabel):
     def __init__(self):
         super(DisplayVoltage, self).__init__()
@@ -191,12 +198,14 @@ class DisplayVoltage(QLabel):
     def updateVoltageSlot(self, volts):
         self.setText("Voltage: " + str(volts))
 
+
 class DisplayRotations(QLabel):
     def __init__(self):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
     def updateRotationsSlot(self, rotations):
         self.setText("Rotations: " + rotations)
+
 
 class HeadingLockButton(QPushButton):
     def __init__(self):
@@ -207,10 +216,12 @@ class HeadingLockButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
+
 class HeadingLockTextBox(QLineEdit):
     def __init__(self):
         super(HeadingLockTextBox, self).__init__()
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+
 
 class DepthLockButton(QPushButton):
     def __init__(self):
@@ -221,10 +232,12 @@ class DepthLockButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
 
+
 class DepthLockTextBox(QLineEdit):
     def __init__(self):
         super(DepthLockTextBox, self).__init__()
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+
 
 class LeakIndicator(QTextEdit):
     def __init__(self):
@@ -250,9 +263,11 @@ class LeakIndicator(QTextEdit):
         else:
             self.setIndicatorToNotLeak()
 
+
 class LeakWarningPopup(QMessageBox):
     def popup(self):
         self.warning(self, "Leak Detected!", "The ROV has detected a leak within the internal electronics! Return to the surface immediately!", QMessageBox.Ok)
+
 
 class VoltageIndicator(QTextEdit):
     def __init__(self):
@@ -287,9 +302,11 @@ class VoltageIndicator(QTextEdit):
         else:
             self.setIndicatorToBatteryCritical()
 
+
 class BatteryCriticalWarningPopup(QMessageBox):
     def popup(self):
         self.warning(self, "Battery Critical!", "The ROV battery is critically low! Return to the surface immediately!", QMessageBox.Ok)
+
 
 class DepthIndicator(QTextEdit):
     def __init__(self):
@@ -317,6 +334,7 @@ class DepthIndicator(QTextEdit):
         else:
             self.setDepthIndicatorCritical()
 
+
 class PilotLogTextEntryBox(QTextEdit):
     def __init__(self):
         super(PilotLogTextEntryBox, self).__init__()
@@ -335,6 +353,7 @@ class PilotLogTextEntryBox(QTextEdit):
         self.pilotLogFds.close()
         self.setPlaceholderText("Saved!")
         self.clear()
+
 
 class PilotLogSaveButton(QPushButton):
     def __init__(self):
