@@ -10,8 +10,8 @@ GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
 ORANGE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 175, 5, 60%);"
 RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 SMALL_TEXT_BOX_MAX_WIDTH = 40
-COMPASS_FIXED_WIDTH = 150
-COMPASS_FIXED_HEIGHT = 150
+COMPASS_FIXED_WIDTH = 200
+COMPASS_FIXED_HEIGHT = 200
 INDICATOR_FIXED_HEIGHT = 50
 INDICATOR_MIN_WIDTH = 80
 PILOT_LOG_MIN_HEIGHT = 50
@@ -107,7 +107,7 @@ class CompassWidget(QWidget):
     
     def sizeHint(self):
     
-        return QSize(150, 150)
+        return QSize(COMPASS_FIXED_WIDTH, COMPASS_FIXED_HEIGHT)
     
     def angle(self):
         return self._angle
@@ -160,6 +160,7 @@ class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
         super(ArmMovementOptionsDropdown, self).__init__()
         self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
+        self.setMinimumHeight(BUTTON_MAX_HEIGHT)
 
 class MoveArmButton(QPushButton):
     def __init__(self):
