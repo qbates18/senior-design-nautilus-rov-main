@@ -72,13 +72,17 @@ class MainWindow(QWidget):
         self.dataValuesVC.insertWidget(3, self.displayRotations, Qt.AlignCenter)
         self.GL.addLayout(self.dataValuesVC, 2, 2, 1, 1, Qt.AlignCenter)
 
-        # Pilot's Log
-        self.pilotLogVC = VerticalContainer()
+        # Pilot's Log - Text Input
         self.pilotLogTextEntryBox = PilotLogTextEntryBox()
-        self.pilotLogVC.addWidget(self.pilotLogTextEntryBox, Qt.AlignCenter)
+        self.GL.addLayout(self.pilotLogTextEntryBox, 3, 1, 1, 2)
+
+        # Pilot's Log - Save Button + Timer
         self.pilotLogSaveButton = PilotLogSaveButton()
-        self.pilotLogVC.addWidget(self.pilotLogSaveButton, Qt.AlignCenter)
-        self.GL.addLayout(self.pilotLogVC, 3, 1, 1, 2)
+        self.GL.addLayout(self.pilotLogSaveButton, 4, 1, 1, 1, Qt.AlignCenter)
+        self.time = QLabel()
+        self.time.setText("00:00:00")
+        self.GL.addLayout(self.time, 4, 1, 1, 1, Qt.AlignCenter)
+
 
         # Movement Control Buttons
         self.movementControlButtonsVC = VerticalContainer()
@@ -86,7 +90,7 @@ class MainWindow(QWidget):
         self.movementControlButtonsVC.addWidget(self.rovArmedButton, Qt.AlignCenter)
         self.rovSafeModeButton = RovSafeModeButton()
         self.movementControlButtonsVC.addWidget(self.rovSafeModeButton, Qt.AlignCenter)
-        self.GL.addLayout(self.movementControlButtonsVC, 4, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.movementControlButtonsVC, 5, 1, 1, 1, Qt.AlignCenter)
         
         # Arm Movement
         self.armLocationSelectVC = VerticalContainer()
@@ -94,7 +98,7 @@ class MainWindow(QWidget):
         self.armLocationSelectVC.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
         self.moveArmButton = MoveArmButton()
         self.armLocationSelectVC.addWidget(self.moveArmButton, Qt.AlignCenter)
-        self.GL.addLayout(self.armLocationSelectVC, 4, 2, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.armLocationSelectVC, 5, 2, 1, 1, Qt.AlignCenter)
 
         # Threading:
         self.videoRetrieve = VideoRetrieve() #create instance of Qthread class
