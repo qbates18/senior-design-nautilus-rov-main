@@ -81,7 +81,7 @@ class MainWindow(QWidget):
         self.GL.addLayout(self.pilotLogSaveButton, 4, 1, 1, 1, Qt.AlignCenter)
         self.time = QLabel()
         self.time.setText("00:00:00")
-        self.GL.addLayout(self.time, 4, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.time, 4, 2, 1, 1, Qt.AlignCenter)
 
 
         # Movement Control Buttons
