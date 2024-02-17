@@ -11,6 +11,8 @@ BUTTON_MIN_WIDTH = 150
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
 ORANGE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 175, 5, 60%);"
 RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
+BLUE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(75, 150, 255, 60%)"
+GREY_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(128, 128, 128, 60%)"
 SMALL_TEXT_BOX_MAX_WIDTH = 40
 COMPASS_FIXED_WIDTH = 200
 COMPASS_FIXED_HEIGHT = 200
@@ -203,11 +205,14 @@ class DisplayRotations(QLabel):
 class HeadingLockButton(QPushButton):
     def __init__(self):
         super(HeadingLockButton, self).__init__()
-        self.setText("Heading Lock Off")
-        self.setEnabled(False)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setText("Heading Lock Off")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+    def headingLockUpdateSlot(self, isHeadingLockOn):
+        self.setText("Heading Lock On" if isHeadingLockOn else "Heading Lock Off")
+        self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS if isHeadingLockOn else GREY_BUTTON_BACKGROUND_COLOR_SS)
 
 class HeadingLockTextBox(QLineEdit):
     def __init__(self):

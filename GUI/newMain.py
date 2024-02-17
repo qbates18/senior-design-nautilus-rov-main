@@ -114,6 +114,8 @@ class MainWindow(QWidget):
         self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        self.headingLockButton.clicked.connect(self.comms.setHeadingLockSlot)
+        self.comms.headingLockUpdate.connect(self.headingLockButton.headingLockUpdateSlot)
         self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
         
         #General
@@ -152,6 +154,7 @@ class Comms(QThread):
     voltageUpdate = pyqtSignal(float)
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
+    headingLockUpdate = pyqtSignal(bool)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -331,6 +334,9 @@ class Comms(QThread):
     def armRovSlot(self):
         self.arm_value = 0 if self.arm_value else 1 #take care that arm_value isn't turned into a bool because generator.py assumes it to be an int
         self.armUpdate.emit(self.arm_value)
+    def setHeadingLockSlot(self):
+        self.closed_loop_dict["head"] = 0 if self.closed_loop_dict["head"] else 1
+        self.headingLockUpdate.emit(self.closed_loop_dict["head"])
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)

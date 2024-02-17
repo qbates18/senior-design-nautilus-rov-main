@@ -32,5 +32,3 @@ import math
 import random
 from datetime import datetime
 import time
-
-timeDeploymentStarted = datetime.now()
