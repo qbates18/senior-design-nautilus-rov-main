@@ -210,14 +210,20 @@ class HeadingLockButton(QPushButton):
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setText("Heading Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
-    def headingLockUpdateSlot(self, isHeadingLockOn):
-        self.setText("Heading Lock On" if isHeadingLockOn else "Heading Lock Off")
-        self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS if isHeadingLockOn else GREY_BUTTON_BACKGROUND_COLOR_SS)
-
+    def headingLockValueUpdateSlot(self, desiredHeading):
+        if (desiredHeading == -1):
+            self.setText("Heading Lock Off")
+            self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        else:
+            self.setText("Heading Lock Set To " + str(desiredHeading))
+            self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 class HeadingLockTextBox(QLineEdit):
+    headValueFromTextBox = pyqtSignal(str)
     def __init__(self):
         super(HeadingLockTextBox, self).__init__()
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+    def sendValueSlot(self):
+        self.headValueFromTextBox.emit(self.text())
 
 class DepthLockButton(QPushButton):
     def __init__(self):
