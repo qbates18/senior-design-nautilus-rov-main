@@ -1,8 +1,12 @@
 import sys
 from pyQtWidgets import *
+from PyQt5 import QtGui
 from imports import * #eventually the imports file should be cleaned up...
 from Comms import Comms
 from VideoRetrieve import VideoRetrieve
+
+PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
+PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -32,6 +36,9 @@ class MainWindow(QWidget):
         # Camera Feed
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, -1, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
+        #show placeholder image
+        self.feedLabel.setPixmap(QtGui.QPixmap(PLACEHOLDER_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
+
         
         # Compass / Heading Display
         self.compass = CompassWidget()
@@ -96,22 +103,31 @@ class MainWindow(QWidget):
         self.comms.start() #start instance of Qthread class
         
         #Slots and Signals
+        #video update
         self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        #sensor data updates
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
         self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
+        #pilot's log
         self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
+        self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
+        #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value
         self.headingLockTextBox.headValueFromTextBox.connect(self.comms.setHeadingLockSlot) #when the text box emits its current value, comms class gets that value and sets heading lock based on it (setHeadingLockSlot)
         self.comms.headingLockValueUpdate.connect(self.headingLockButton.headingLockValueUpdateSlot) #when the heading lock value is updated (signal sent at the end of setHeadingLockSlot) update the button to reflect the current lock value
-        self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
-        
+        #depth lock
+        self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
+        self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
+        self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
         #General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
@@ -141,5 +157,5 @@ class MainWindow(QWidget):
 if __name__ == "__main__":
     App = QApplication(sys.argv)
     gui = MainWindow()
-    gui.show()
+    gui.showMaximized()
     sys.exit(App.exec())

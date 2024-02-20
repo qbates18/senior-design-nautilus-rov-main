@@ -12,6 +12,7 @@ class Comms(QThread):
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
     headingLockValueUpdate = pyqtSignal(int)
+    depthLockValueUpdate = pyqtSignal(float)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -229,3 +230,24 @@ class Comms(QThread):
                 self.pid_dict["head"] = head_PID(self.head)
                 print("HEADING LOCK SET USING CURRENT HEADING TO: " + str(self.head))
         self.headingLockValueUpdate.emit(int(self.pid_dict["head"].getDesiredValue()) if self.pid_dict["head"] != None else -1) #-1 indicates heading lock has been turned off
+    def setDepthLockSlot(self, desiredDepth):
+        if (self.closed_loop_dict["depth"]):
+            self.closed_loop_dict["depth"] = 0
+            self.pid_dict["depth"] = None
+        else:
+            if (desiredDepth != ""):
+                try:
+                    float(desiredDepth)
+                except:
+                    ValueError
+                    print("Invalid depth value provided!")
+                    return
+                desiredDepth = float(desiredDepth)
+                self.closed_loop_dict["depth"] = 1
+                self.pid_dict["depth"] = depth_PID(desiredDepth)
+                print("DEPTH LOCK SET USING TEXT BOX TO: " + str(desiredDepth))
+            else:
+                self.closed_loop_dict["depth"] = 1
+                self.pid_dict["depth"] = depth_PID(self.depth)
+                print("DEPTH LOCK SET USING CURRENT DEPTH TO: " + str(self.depth))
+        self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off

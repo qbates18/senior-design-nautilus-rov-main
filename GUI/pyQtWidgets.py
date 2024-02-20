@@ -7,7 +7,7 @@ from imports import timeDeploymentStarted
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 200
-BUTTON_MIN_WIDTH = 150
+BUTTON_MIN_WIDTH = 175
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
 ORANGE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 175, 5, 60%);"
 RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
@@ -228,16 +228,26 @@ class HeadingLockTextBox(QLineEdit):
 class DepthLockButton(QPushButton):
     def __init__(self):
         super(DepthLockButton, self).__init__()
-        self.setText("Depth Lock Off")
-        self.setEnabled(False)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setText("Depth Lock Off")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+    def depthLockValueUpdateSlot(self, desiredDepth):
+        if (desiredDepth == -1):
+            self.setText("Depth Lock Off")
+            self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        else:
+            self.setText("Depth Lock Set To " + str(desiredDepth))
+            self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 
 class DepthLockTextBox(QLineEdit):
+    depthValueFromTextBox = pyqtSignal(str)
     def __init__(self):
         super(DepthLockTextBox, self).__init__()
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+    def sendValueSlot(self):
+        self.depthValueFromTextBox.emit(self.text())
 
 class LeakIndicator(QTextEdit):
     def __init__(self):
