@@ -1,9 +1,10 @@
 # print("Try5: analoggaugewidget.py")
 import sys
 import math
-from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -19,10 +20,9 @@ class gaugeWidget(QtWidgets.QMainWindow):
         self.left= 150
         self.width = 500
         self.height = 500
+        self._angle = 0.0
         self.InitWindow()
         self._margins = 10
-        self._pointText = {0: "N", 45: "NE", 90: "E", 135: "SE", 180: "S",
-                           225: "SW", 270: "W", 315: "NW"}
 
     def InitWindow(self):
         self.setWindowTitle(self.title)
@@ -31,15 +31,19 @@ class gaugeWidget(QtWidgets.QMainWindow):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
-        painter.drawArc(100, 100, 300, 300, -45 * 16, 270 * 16)
 
+        self.drawCircleGauge(painter)
+        self.drawNeedle(painter)
+        self.drawMarkings(painter)
+        
+        painter.end()
+
+    def drawNeedle(self, painter):
         painter.setPen(QPen(Qt.gray,  5, Qt.SolidLine))
         painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
-        painter.drawEllipse(240, 240, 25, 25)
+        painter.drawEllipse(237, 237, 25, 25)
 
         painter.setPen(QPen(Qt.gray, 3, Qt.SolidLine))
         painter.setBrush(QBrush(Qt.gray, Qt.SolidPattern))
@@ -52,33 +56,49 @@ class gaugeWidget(QtWidgets.QMainWindow):
         poly = QPolygon(points)
         painter.drawPolygon(poly)
 
-        self.drawMarkings(painter)
-        
-        painter.end()
+        painter.restore()
+
+    def drawCircleGauge(self, painter):
+        painter.save()
+        painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
+        painter.drawArc(100, 100, 300, 300, -45 * 16, 270 * 16)
+
+        painter.restore()
+
+    ##def drawColor(self, painter):
+
 
     def drawMarkings(self, painter):
-    
-        font = QFont(self.font())
-        font.setPixelSize(50)
-        metrics = QFontMetricsF(font)
         
-        painter.setFont(font)
-        painter.setPen(self.palette().color(QPalette.Shadow))
-        
+        painter.translate(self.width/2, self.height/2)
+
         i = 0
+        painter.drawLine(0, 45, 0, 50)
+        '''
         while i < 360:
         
             if i % 45 == 0:
-                painter.drawLine(150, 140, 110, 150)
-                painter.drawText(int(-metrics.width(self._pointText[i])/2.0), -52,
-                                 self._pointText[i])
+                painter.drawLine(0, -45, 0, -50)
             else:
-                painter.drawLine(150, 145, 110, 150)
+                painter.drawLine(0, -45, 0, -50)
             
             painter.rotate(15)
             i += 15
-        
+        '''
         painter.restore()
+    
+    def angle(self):
+        return self._angle
+
+    @pyqtSlot(int)
+    def setAngle(self, angle):
+    
+        if angle != self._angle:
+            self._angle = angle
+            self.angleChanged.emit(angle)
+            self.update()
+    
+    angle = pyqtProperty(float, angle, setAngle)
 
 
 if __name__ == "__main__":
