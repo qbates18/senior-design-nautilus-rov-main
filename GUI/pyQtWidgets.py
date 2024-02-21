@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import datetime
 from imports import timeDeploymentStarted
+from imports import RotationCounter
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 200
@@ -199,8 +200,14 @@ class DisplayRotations(QLabel):
     def __init__(self):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
-    def updateRotationsSlot(self, rotations):
-        self.setText("Rotations: " + rotations)
+        self.rotationCounter = RotationCounter()
+        self.rotations = 0
+    def updateRotationsSlot(self, heading):
+        newRotations = round(self.rotationCounter.calculate_rotation(heading))
+        if newRotations != self.rotations:
+            self.rotations = newRotations
+            self.setText("Rotations: " + str(self.rotations))
+
 
 class HeadingLockButton(QPushButton):
     def __init__(self):

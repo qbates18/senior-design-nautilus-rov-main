@@ -110,6 +110,7 @@ class MainWindow(QWidget):
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
         self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
         #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)

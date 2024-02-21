@@ -1,10 +1,7 @@
 # file: RotationCounter.py
 # description: creates the rotationCounter class, unsurprisingly, to count how many times Nautilus rotates. I have no idea why this is created, as it is currently used nowhere in the rest of the code. 
 
-from imports import *
-import threading
-
-class rotationCounter:
+class RotationCounter:
     def __init__(self):
         self.previous = 0
         self.current = 0
@@ -55,3 +52,11 @@ class rotationCounter:
     #         return 1
     #     if self.current < self.previous and self.current >:
     #         return -1
+
+#below is for testing rotation counter i is a fake compass value
+# if __name__ == "__main__":
+#     rotCounter = RotationCounter()
+#     for i in range(0, 360*2, 20):
+#         print(rotCounter.calculate_rotation(i%360))
+#     for i in range(360, 0, -20):
+#         print(rotCounter.calculate_rotation(i%360))
