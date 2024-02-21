@@ -133,17 +133,16 @@ class VideoRetrieve(QThread):
         return Gst.FlowReturn.OK
     
     def run(self):
-        timeVideoStarted = None
         self.ThreadActive = True
         size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
-        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         framesCounter = 0
+        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         firstStart = True
         while self.ThreadActive:
             if not self.frame_available():
                 continue
             if firstStart:
-                timeVideoStarted = datetime.now().timestamp()
+                timeVideoStarted = datetime.now()
                 firstStart = False
             framesCounter += 1
             frame = self.frame() #capture a frame
@@ -152,7 +151,7 @@ class VideoRetrieve(QThread):
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
             Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio which takes the width and determines the height based on keeping the aspect ratio with that width
             self.ImageUpdate.emit(Pic) #emit the QImage
-        totalTime = datetime.now().timestamp() - timeVideoStarted
+        totalTime = datetime.now().timestamp() - timeVideoStarted.timestamp()
         print("Total time elapsed while receiving camera feed = " + str(totalTime))
         print("Number of Frames received: " + str(framesCounter))
         optimalFps = framesCounter/totalTime

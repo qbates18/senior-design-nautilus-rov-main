@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 
 timeDeploymentStarted = datetime.now() #universal source of truth for the start time of the deployment, to import use from imports import timeDeploymentStarted
+timeVideoStarted = None #universal source of truth for the start time of the video, to import use from imports import timeVideoStarted
 
 # funciton: initialize_log_folder()
 # description: creates a unique folder to store logs, intended to be ran each time the GUI is launched
