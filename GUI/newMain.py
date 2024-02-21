@@ -33,7 +33,7 @@ class MainWindow(QWidget):
         self.headingLockHC.addWidget(self.headingLockButton, Qt.AlignCenter)
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHC.addWidget(self.headingLockTextBox, Qt.AlignCenter)
-        self.compassVC.addWidget(self.headingLockHC, Qt.AlignCenter)
+        self.compassVC.addLayout(self.headingLockHC, Qt.AlignCenter)
         self.GL.addWidget(self.compass, 0, 1, 1, 2, Qt.AlignCenter)
 
         # Gauge (is just another compass for now...)
@@ -47,8 +47,8 @@ class MainWindow(QWidget):
         self.depthLockHC.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
         self.depthLockHC.addWidget(self.depthLockTextBox, Qt.AlignCenter)
-        self.gaugeVC.addWidget(self.headingLockHC, Qt.AlignCenter)
-        self.GL.addWidget(self.gaugeVC, 1, 1, 1, 2, Qt.AlignCenter)
+        self.gaugeVC.addLayout(self.headingLockHC, Qt.AlignCenter)
+        self.GL.addLayout(self.gaugeVC, 1, 1, 1, 2, Qt.AlignCenter)
 
         # Warning Indicators
         self.warningIndicatorsVC = VerticalContainer()
@@ -74,14 +74,14 @@ class MainWindow(QWidget):
 
         # Pilot's Log - Text Input
         self.pilotLogTextEntryBox = PilotLogTextEntryBox()
-        self.GL.addLayout(self.pilotLogTextEntryBox, 3, 1, 1, 2)
+        self.GL.addWidget(self.pilotLogTextEntryBox, 3, 1, 1, 2)
 
         # Pilot's Log - Save Button + Timer
         self.pilotLogSaveButton = PilotLogSaveButton()
-        self.GL.addLayout(self.pilotLogSaveButton, 4, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addWidget(self.pilotLogSaveButton, 4, 1, 1, 1, Qt.AlignCenter)
         self.time = QLabel()
         self.time.setText("00:00:00")
-        self.GL.addLayout(self.time, 4, 2, 1, 1, Qt.AlignCenter)
+        self.GL.addWidget(self.time, 4, 2, 1, 1, Qt.AlignCenter)
 
 
         # Movement Control Buttons
