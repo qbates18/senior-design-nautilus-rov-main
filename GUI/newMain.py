@@ -14,7 +14,6 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.GL = QGridLayout()
 
-        # Widgets:
         # Camera Feed
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, -1, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
@@ -42,10 +41,10 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        self.gauge = CompassWidget()
-        self.depthVerticalContainer.insertWidget(0, self.gauge, Qt.AlignCenter)
+        self.guage = CompassWidget()
+        self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
-        self.depthLockHC.addWidget(self.depthLockButton, Qt.AlignCenter)
+        self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
         self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
 
@@ -55,9 +54,9 @@ class MainWindow(QWidget):
         self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
         #widgets
         self.leakIndicator = LeakIndicator()
-        self.warningIndicatorsVC.addWidget(self.leakIndicator, Qt.AlignCenter)
+        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
         self.voltageIndicator = VoltageIndicator()
-        self.warningIndicatorsVC.addWidget(self.voltageIndicator, Qt.AlignCenter)
+        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
         
@@ -67,11 +66,11 @@ class MainWindow(QWidget):
         self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
         #widgets
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVC.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVC.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVC.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
         self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
 
