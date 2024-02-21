@@ -7,20 +7,35 @@ from imports import timeDeploymentStarted
 from imports import RotationCounter
 
 BUTTON_MAX_HEIGHT = 40
-BUTTON_MAX_WIDTH = 200
+BUTTON_MAX_WIDTH = 175
+BUTTON_MIN_HEIGHT = 40
+SHORTER_BUTTON_MIN_HEIGHT = 30
 BUTTON_MIN_WIDTH = 175
+
+CLOCK_MAX_WIDTH = round(BUTTON_MIN_WIDTH/2)
+CLOCK_MIN_WIDTH = CLOCK_MAX_WIDTH
+
+DEV_BUTTON_MAX_HEIGHT = BUTTON_MAX_HEIGHT
+DEV_BUTTON_MAX_WIDTH = 80
+DEV_BUTTON_MIN_HEIGHT = 30
+DEV_BUTTON_MIN_WIDTH = DEV_BUTTON_MAX_WIDTH
+
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
 ORANGE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 175, 5, 60%);"
 RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 BLUE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(75, 150, 255, 60%)"
 GREY_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(128, 128, 128, 60%)"
+
 SMALL_TEXT_BOX_MAX_WIDTH = 40
+
 COMPASS_FIXED_WIDTH = 200
 COMPASS_FIXED_HEIGHT = 200
-INDICATOR_FIXED_HEIGHT = 50
+
+INDICATOR_FIXED_HEIGHT = 40
 INDICATOR_MIN_WIDTH = 80
-PILOT_LOG_MIN_HEIGHT = 50
-PILOT_LOG_MIN_WIDTH = 50
+
+PILOT_LOG_MIN_WIDTH = 460
+
 LAYOUT_CONTENTS_MARGINS = 5
 LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
@@ -144,6 +159,7 @@ class RovArmedButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(BUTTON_MIN_HEIGHT)
         self.setText("ROV Disarmed")
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
     def armUpdateSlot(self, isArmed):
@@ -160,12 +176,16 @@ class RovSafeModeButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
 class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
         super(ArmMovementOptionsDropdown, self).__init__()
         self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
-        self.setMinimumHeight(BUTTON_MAX_HEIGHT)
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
 class MoveArmButton(QPushButton):
     def __init__(self):
@@ -174,6 +194,7 @@ class MoveArmButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
 class DisplayAltitude(QLabel):
     def __init__(self):
@@ -201,13 +222,12 @@ class DisplayRotations(QLabel):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
         self.rotationCounter = RotationCounter()
-        self.rotations = 0
+        self.rotations = None
     def updateRotationsSlot(self, heading):
         newRotations = round(self.rotationCounter.calculate_rotation(heading))
         if newRotations != self.rotations:
             self.rotations = newRotations
             self.setText("Rotations: " + str(self.rotations))
-
 
 class HeadingLockButton(QPushButton):
     def __init__(self):
@@ -215,6 +235,7 @@ class HeadingLockButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(SHORTER_BUTTON_MIN_HEIGHT)
         self.setText("Heading Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
     def headingLockValueUpdateSlot(self, desiredHeading):
@@ -238,6 +259,7 @@ class DepthLockButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(SHORTER_BUTTON_MIN_HEIGHT)
         self.setText("Depth Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
     def depthLockValueUpdateSlot(self, desiredDepth):
@@ -351,7 +373,6 @@ class PilotLogTextEntryBox(QTextEdit):
     emptyTextWroteUpon = pyqtSignal()
     def __init__(self):
         super(PilotLogTextEntryBox, self).__init__()
-        self.setMinimumHeight(PILOT_LOG_MIN_HEIGHT)
         self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
         self.pilotLogFileName = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'s Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
@@ -377,4 +398,21 @@ class PilotLogSaveButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(BUTTON_MIN_HEIGHT)
         self.setText("Save Captain's Log")
+
+class DisplayTimeElapsed(QLabel):
+    def __init__(self):
+        super(DisplayTimeElapsed, self).__init__()
+        self.setMaximumWidth(CLOCK_MAX_WIDTH)
+        self.setMinimumWidth(CLOCK_MIN_WIDTH)
+        self.setText("Clock: Initializing...")
+
+class DevFeaturesButton(QPushButton):
+    def __init__(self):
+        super(DevFeaturesButton, self).__init__()
+        self.setMaximumWidth(DEV_BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(DEV_BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
+        self.setText("Dev Tools")
