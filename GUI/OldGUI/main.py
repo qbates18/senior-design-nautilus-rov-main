@@ -1,3 +1,5 @@
+### DEPRECATED
+
 # file: main.py
 # description: main file for GUI
 # Nautilus 2021-2022 contributors: Nathan Burke, Mandeep Singh
