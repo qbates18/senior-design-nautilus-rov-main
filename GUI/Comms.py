@@ -7,7 +7,7 @@ class Comms(QThread):
     temperatureUpdate = pyqtSignal(str)
     depthUpdate = pyqtSignal(float)
     headUpdate = pyqtSignal(int)
-    altitudeUpdate = pyqtSignal(str)
+    altitudeUpdate = pyqtSignal(float)
     voltageUpdate = pyqtSignal(float)
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
@@ -151,7 +151,7 @@ class Comms(QThread):
             self.temperatureUpdate.emit(str(tmpr))
             self.tmpr = tmpr
         
-        depth = round(float(depth), 1)
+        depth = round(float(depth))
         if not depth == self.depth:
             self.depthUpdate.emit(depth)
             self.depth = depth
@@ -161,8 +161,9 @@ class Comms(QThread):
             self.headUpdate.emit(int(head))
             self.head = head
         
+        altitude = round(float(altitude))
         if not altitude == self.altitude:
-            self.altitudeUpdate.emit(str(altitude))
+            self.altitudeUpdate.emit(altitude)
             self.altitude = altitude
         
         if not voltage == self.voltage:

@@ -180,21 +180,21 @@ class DisplayAltitude(QLabel):
         super(DisplayAltitude, self).__init__()
         self.setText("Altitude: Initializing...")
     def updateAltitudeSlot(self, alt):
-        self.setText("Altitude: " + alt)
+        self.setText("Altitude: " + str(alt) + " m")
 
 class DisplayTemperature(QLabel):
     def __init__(self):
         super(DisplayTemperature, self).__init__()
         self.setText("Temperature: Initializing...")
     def updateTemperatureSlot(self, temp):
-        self.setText("Temperature: " + temp)
+        self.setText("Temperature: " + temp + " " + u'\N{DEGREE SIGN}' + "C")
 
 class DisplayVoltage(QLabel):
     def __init__(self):
         super(DisplayVoltage, self).__init__()
         self.setText("Voltage: Initializing...")
     def updateVoltageSlot(self, volts):
-        self.setText("Voltage: " + str(volts))
+        self.setText("Voltage: " + str(volts) + " V")
 
 class DisplayRotations(QLabel):
     def __init__(self):
@@ -353,7 +353,7 @@ class PilotLogTextEntryBox(QTextEdit):
         super(PilotLogTextEntryBox, self).__init__()
         self.setMinimumHeight(PILOT_LOG_MIN_HEIGHT)
         self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
-        self.pilotLogFileName = '/home/rsl/Desktop/NautilusPilotLogs/Pilot Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        self.pilotLogFileName = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'s Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
         self.pilotLogFds = open(self.pilotLogFileName, 'a')
         self.pilotLogFds.close()
@@ -361,7 +361,7 @@ class PilotLogTextEntryBox(QTextEdit):
         logText = self.toPlainText()
         if (len(logText) != 0):
             self.pilotLogFds = open(self.pilotLogFileName, 'a')
-            self.pilotLogFds.write("Pilot's Log Entry " + str(self.entryNumber) + "\n" + str(datetime.datetime.now()) + "\n" + "Heading: " + str(comms.getHeading()) + ", Depth: " + str(comms.getDepth()) + ", Altitude: " + str(comms.getAltitude()) + ", Temperature: " + str(comms.getTemperature()) + ", Voltage: " + str(comms.getVoltage()) + ", Leak: " + ("True" if (comms.getLeak()) else "False") + ", Rotations: " + str(comms.getRotation()) + "\n")
+            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n" + str(datetime.datetime.now()) + "\n" + "Heading: " + str(comms.getHeading()) + ", Depth: " + str(comms.getDepth()) + " m, Altitude: " + str(comms.getAltitude()) + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}' + "C, Voltage: " + str(comms.getVoltage()) + " V, Leak: " + ("True" if (comms.getLeak()) else "False") + ", Rotations: " + str(comms.getRotation()) + "\n")
             self.pilotLogFds.write(logText + "\n\n")
             self.entryNumber += 1
             self.pilotLogFds.close()
@@ -377,4 +377,4 @@ class PilotLogSaveButton(QPushButton):
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
-        self.setText("Save Pilot's Log")
+        self.setText("Save Captain's Log")
