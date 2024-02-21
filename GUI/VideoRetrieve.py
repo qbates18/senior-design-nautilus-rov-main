@@ -10,6 +10,7 @@ from gi.repository import Gst
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
+    videoStartSignal = pyqtSignal(datetime)
     def stop(self):
         self.threadActive = False
         self.quit()
@@ -143,6 +144,7 @@ class VideoRetrieve(QThread):
                 continue
             if firstStart:
                 timeVideoStarted = datetime.now()
+                self.videoStartSignal.emit(timeVideoStarted)
                 firstStart = False
             framesCounter += 1
             frame = self.frame() #capture a frame

@@ -3,7 +3,7 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import datetime
-from imports import timeDeploymentStarted
+from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
 
 BUTTON_MAX_HEIGHT = 40
@@ -378,11 +378,19 @@ class PilotLogTextEntryBox(QTextEdit):
         self.entryNumber = 1
         self.pilotLogFds = open(self.pilotLogFileName, 'a')
         self.pilotLogFds.close()
-    def saveTextSlot(self, comms):
+    def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
             self.pilotLogFds = open(self.pilotLogFileName, 'a')
-            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n" + str(datetime.datetime.now()) + "\n" + "Heading: " + str(comms.getHeading()) + ", Depth: " + str(comms.getDepth()) + " m, Altitude: " + str(comms.getAltitude()) + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}' + "C, Voltage: " + str(comms.getVoltage()) + " V, Leak: " + ("True" if (comms.getLeak()) else "False") + ", Rotations: " + str(comms.getRotation()) + "\n")
+            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                                   + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
+                                   + "Heading: " + str(comms.getHeading())
+                                   + ", Depth: " + str(comms.getDepth())
+                                   + " m, Altitude: " + str(comms.getAltitude())
+                                   + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
+                                   + "C, Voltage: " + str(comms.getVoltage())
+                                   + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
+                                   + ", Rotations: " + str(comms.getRotation()) + "\n")
             self.pilotLogFds.write(logText + "\n\n")
             self.entryNumber += 1
             self.pilotLogFds.close()
@@ -422,29 +430,34 @@ class DevFeaturesButton(QPushButton):
 
 # Requires the start time!
 class DeploymentTimer(QWidget):
-	def __init__(self, start):
-		super().__init__()
-		self._start = start
+    def __init__(self, start):
+        super().__init__()
+        self._start = start
 
-		# Timer/Stopwatch Display
-		self.time = QLabel()
-		self.time.setText("00:00:00")
+        # Timer/Stopwatch Display
+        self.time = QLabel()
+        self.time.setMaximumWidth(CLOCK_MAX_WIDTH)
+        self.time.setMinimumWidth(CLOCK_MIN_WIDTH)
+        self.time.setText("00:00:00")
 
-		# Background Timer -- updates the onscreen display every 1000 milliseconds (not shown)
-		timer = QTimer(self)
-		timer.timeout.connect(self.updateTime) # see updateTime for specific behavior
-		timer.start(1000) # this will cause the time to update every 1000 milliseconds
+        # Background Timer -- updates the onscreen display every 1000 milliseconds (not shown)
+        timer = QTimer(self)
+        timer.timeout.connect(self.updateTime) # see updateTime for specific behavior
+        timer.start(1000) # this will cause the time to update every 1000 milliseconds
 
-	# Returns a human-friendly time since deployment started as a string in the form HH:MM:SS
-	def getTime(self):
-		if (self._start is None):
-			return "00:00:00"
-		timeDiff = datetime.datetime.now() - self._start
-		total = timeDiff.total_seconds()
-		hours, remainder = divmod(total, 3600)
-		minutes, seconds = divmod(remainder, 60)
-		return '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))
-		
-	# Updates the text in self.time (the timer/stopwatch) to the current time since deployment started
-	def updateTime(self):
-		self.time.setText(self.getTime())
+    # Returns a human-friendly time since deployment started as a string in the form HH:MM:SS
+    def getTime(self):
+        if (self._start is None):
+            return "00:00:00"
+        timeDiff = datetime.datetime.now() - self._start
+        total = timeDiff.total_seconds()
+        hours, remainder = divmod(total, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))
+    
+    # Updates the text in self.time (the timer/stopwatch) to the current time since deployment started
+    def updateTime(self):
+        self.time.setText(self.getTime())
+    
+    def videoStartedSlot(self, timeStarted):
+        self._start = timeStarted

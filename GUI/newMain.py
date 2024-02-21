@@ -85,8 +85,8 @@ class MainWindow(QWidget):
         self.pilotLogGridContainer.addWidget(self.pilotLogTextEntryBox, 0, 0, 1, -1, Qt.AlignLeft) # -1 means span every column
         self.pilotLogSaveButton = PilotLogSaveButton()
         self.pilotLogGridContainer.addWidget(self.pilotLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
-        self.displayTimeElapsed = DisplayTimeElapsed()
-        self.displayTimeElapsedHorizontalContainer.addWidget(self.displayTimeElapsed, Qt.AlignRight)
+        self.deploymentTimer = DeploymentTimer(timeVideoStarted)
+        self.displayTimeElapsedHorizontalContainer.addWidget(self.deploymentTimer.time, Qt.AlignRight)
         self.devFeaturesButton = DevFeaturesButton()
         self.displayTimeElapsedHorizontalContainer.addWidget(self.devFeaturesButton, Qt.AlignRight)
 
@@ -119,6 +119,8 @@ class MainWindow(QWidget):
         # Slots and Signals
         #video update
         self.videoRetrieve.ImageUpdate.connect(self.ImageUpdateSlot)
+        #video timer start
+        self.videoRetrieve.videoStartSignal.connect(self.deploymentTimer.videoStartedSlot)
         #sensor data updates
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
@@ -130,7 +132,7 @@ class MainWindow(QWidget):
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
         #pilot's log
-        self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms))
+        self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
         self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
