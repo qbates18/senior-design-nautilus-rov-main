@@ -421,12 +421,14 @@ class PilotLogSaveButton(QPushButton):
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
         self.setText("Save Captain's Log")
 
+
 class DisplayTimeElapsed(QLabel):
     def __init__(self):
         super(DisplayTimeElapsed, self).__init__()
         self.setMaximumWidth(CLOCK_MAX_WIDTH)
         self.setMinimumWidth(CLOCK_MIN_WIDTH)
         self.setText("Clock: Initializing...")
+
 
 class DevFeaturesButton(QPushButton):
     def __init__(self):
@@ -436,3 +438,33 @@ class DevFeaturesButton(QPushButton):
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
+
+
+# Requires the start time!
+class DeploymentTimer(QWidget):
+	def __init__(self, start):
+		super().__init__()
+		self._start = start
+
+		# Timer/Stopwatch Display
+		self.time = QLabel()
+		self.time.setText("00:00:00")
+
+		# Background Timer -- updates the onscreen display every 1000 milliseconds (not shown)
+		timer = QTimer(self)
+		timer.timeout.connect(self.updateTime) # see updateTime for specific behavior
+		timer.start(1000) # this will cause the time to update every 1000 milliseconds
+
+	# Returns a human-friendly time since deployment started as a string in the form HH:MM:SS
+	def getTime(self):
+		if (self._start is None):
+			return "00:00:00"
+		timeDiff = datetime.datetime.now() - self._start
+		total = timeDiff.total_seconds()
+		hours, remainder = divmod(total, 3600)
+		minutes, seconds = divmod(remainder, 60)
+		return '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))
+		
+	# Updates the text in self.time (the timer/stopwatch) to the current time since deployment started
+	def updateTime(self):
+		self.time.setText(self.getTime())
