@@ -41,7 +41,7 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        self.guage = CompassWidget()
+        self.guage = gaugeWidget()
         self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
         self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
