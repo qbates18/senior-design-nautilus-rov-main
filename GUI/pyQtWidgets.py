@@ -376,8 +376,7 @@ class PilotLogTextEntryBox(QTextEdit):
         self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
         self.pilotLogFileName = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'s Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
-        self.pilotLogFds = open(self.pilotLogFileName, 'a')
-        self.pilotLogFds.close()
+        self.pilotLogFds = None
     def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
@@ -392,8 +391,8 @@ class PilotLogTextEntryBox(QTextEdit):
                                    + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
                                    + ", Rotations: " + str(comms.getRotation()) + "\n")
             self.pilotLogFds.write(logText + "\n\n")
-            self.entryNumber += 1
             self.pilotLogFds.close()
+            self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()
     def textChangedSlot(self):
