@@ -95,44 +95,47 @@ class Comms(QThread):
                 self.ard.write(nmea_string_utf)
                 # Wait for message from Arduino to be available, then read it
                 receive_string = self.ard.read()
-                while("*" not in str(receive_string)): 
+                while(("*" not in str(receive_string)) and ("&" not in str(receive_string))): 
                     receive_string += self.ard.read()
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)
-                receive_string_tokens = str_receive_string.split(',', 8)
-                initial_token=list(receive_string_tokens[0])
-                end_token=list(receive_string_tokens[len(receive_string_tokens)-1])
-
-                #WRITE RECEIVED MESSAGE TO LOG
-                write_to_log(str_receive_string, self.logFile)
-                #self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
-                # If the recieved message is valid, then update the GUI with new sensor values
-                if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and self.validate_receive_string_tokens(receive_string_tokens)):
-                    # Read the recieved message for updated values
-                    tmpr = receive_string_tokens[2]
-                    depth = receive_string_tokens[3]
-                    head = receive_string_tokens[4]
-                    altitude = receive_string_tokens[5]
-                    leak = receive_string_tokens[6]
-                    voltage = receive_string_tokens[7]
-                    
-                    # Add values to the sub_data dictionary to pass to generator
-                    # config.sub_data.assign("TMPR", tmpr)
-                    # config.sub_data.assign("DEPTH", depth)
-                    # config.sub_data.assign("HEAD", head)
-                    # config.sub_data.assign("ALT", altitude)
-
-                    # Update graphs wtih new data
-                    #^This has been removed for development of PyQt gui as opposed to Tkinter
-
-                    # Update GUI sensor display
-                    self.update_sensor_readout(tmpr, depth, head, altitude, voltage, leak)
-                    #CLOSED LOOP DICT UPDATE AND PID DICT UPDATE FUNCTIONS ARE COMMENTED OUT TEMPORARILY TO FACILLITATE COMMS INTEGRATION, NEITHER ARE IMPLEMENTED IN NEW CODE
-                    #closed_loop_dict = gui.closed_loop_control()
-                    #pid_dict = gui.return_pids()   
-                    pass
+                if ("&" in str_receive_string):#if the string received has an '&' at the end (i.e. it is an error sent up from the arduino, perhaps because it is unable to initialize one of the sensors or something)
+                    print("Error Received From Arduino! \n" + str_receive_string[:-1]) #leave out the last character which is assumed to be the '&' and print the rest of the message 
                 else:
-                    write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
+                    receive_string_tokens = str_receive_string.split(',', 8)
+                    initial_token=list(receive_string_tokens[0])
+                    end_token=list(receive_string_tokens[len(receive_string_tokens)-1])
+
+                    #WRITE RECEIVED MESSAGE TO LOG
+                    write_to_log(str_receive_string, self.logFile)
+                    #self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
+                    # If the recieved message is valid, then update the GUI with new sensor values
+                    if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and self.validate_receive_string_tokens(receive_string_tokens)):
+                        # Read the recieved message for updated values
+                        tmpr = receive_string_tokens[2]
+                        depth = receive_string_tokens[3]
+                        head = receive_string_tokens[4]
+                        altitude = receive_string_tokens[5]
+                        leak = receive_string_tokens[6]
+                        voltage = receive_string_tokens[7]
+                        
+                        # Add values to the sub_data dictionary to pass to generator
+                        # config.sub_data.assign("TMPR", tmpr)
+                        # config.sub_data.assign("DEPTH", depth)
+                        # config.sub_data.assign("HEAD", head)
+                        # config.sub_data.assign("ALT", altitude)
+
+                        # Update graphs wtih new data
+                        #^This has been removed for development of PyQt gui as opposed to Tkinter
+
+                        # Update GUI sensor display
+                        self.update_sensor_readout(tmpr, depth, head, altitude, voltage, leak)
+                        #CLOSED LOOP DICT UPDATE AND PID DICT UPDATE FUNCTIONS ARE COMMENTED OUT TEMPORARILY TO FACILLITATE COMMS INTEGRATION, NEITHER ARE IMPLEMENTED IN NEW CODE
+                        #closed_loop_dict = gui.closed_loop_control()
+                        #pid_dict = gui.return_pids()   
+                        pass
+                    else:
+                        write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
     
     #function: validate_receive_string_tokens(tokens):
     #description: Ensure that each token received from the arduino is a valid integer or float (depending on the expected data type)
