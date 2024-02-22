@@ -137,12 +137,12 @@ class VideoRetrieve(QThread):
         self.ThreadActive = True
         size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
         framesCounter = 0
-        result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
         firstStart = True
         while self.ThreadActive:
             if not self.frame_available():
                 continue
             if firstStart:
+                result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
                 timeVideoStarted = datetime.now()
                 self.videoStartSignal.emit(timeVideoStarted)
                 firstStart = False

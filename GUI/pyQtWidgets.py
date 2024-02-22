@@ -284,7 +284,8 @@ class LeakIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setIndicatorToNotLeak()
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Leak Sensor Initializing...")
         self.leakWasWarned = False
         self.leakWarningPopup = LeakWarningPopup()
     def setIndicatorToLeak(self):
@@ -315,7 +316,8 @@ class VoltageIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setIndicatorToBatteryGood()
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Battery Indicator Initializing...")
         self.batteryCriticalWasWarned = False
         self.batteryCriticalWarningPopup = BatteryCriticalWarningPopup()
     def setIndicatorToBatteryCritical(self):
@@ -351,7 +353,8 @@ class DepthIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setDepthIndicatorGood()
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Depth Indicator Initializing...")
     def setDepthIndicatorGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Depth Good")
