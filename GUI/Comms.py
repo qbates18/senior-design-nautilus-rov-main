@@ -95,8 +95,10 @@ class Comms(QThread):
                 self.ard.write(nmea_string_utf)
                 # Wait for message from Arduino to be available, then read it
                 receive_string = self.ard.read()
-                while(("*" not in str(receive_string)) and ("&" not in str(receive_string))): 
+                while(("*" not in str(receive_string)) and ("&" not in str(receive_string)) and self.threadActive): 
                     receive_string += self.ard.read()
+                if not self.threadActive:
+                    break
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)
                 if ("&" in str_receive_string):#if the string received has an '&' at the end (i.e. it is an error sent up from the arduino, perhaps because it is unable to initialize one of the sensors or something)
@@ -136,7 +138,8 @@ class Comms(QThread):
                         pass
                     else:
                         write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
-    
+        print("Request Video Shutdown")
+        return    
     #function: validate_receive_string_tokens(tokens):
     #description: Ensure that each token received from the arduino is a valid integer or float (depending on the expected data type)
     def validate_receive_string_tokens(self, tokens):
@@ -159,7 +162,7 @@ class Comms(QThread):
             self.depthUpdate.emit(depth)
             self.depth = depth
         
-        head = round(float(head))
+        head = round((float(head)+config.heading_offset) % 360)
         if not head == self.head:
             self.headUpdate.emit(int(head))
             self.head = head
@@ -204,21 +207,21 @@ class Comms(QThread):
             if (desiredHeading != ""):
                 match desiredHeading:
                     case "N":
-                        desiredHeading = 0 + config.heading_offset
+                        desiredHeading = 0
                     case "NE":
-                        desiredHeading = 45 + config.heading_offset
+                        desiredHeading = 45
                     case "E":
-                        desiredHeading = 90 + config.heading_offset
+                        desiredHeading = 90
                     case "SE":
-                        desiredHeading = 135 + config.heading_offset
+                        desiredHeading = 135
                     case "S":
-                        desiredHeading = 180 + config.heading_offset
+                        desiredHeading = 180
                     case "SW":
-                        desiredHeading = 225 + config.heading_offset
+                        desiredHeading = 225
                     case "W":
-                        desiredHeading = 270 + config.heading_offset
+                        desiredHeading = 270
                     case "NW":
-                        desiredHeading = 315 + config.heading_offset
+                        desiredHeading = 315
                 try:
                     int(desiredHeading)
                 except:
@@ -255,3 +258,6 @@ class Comms(QThread):
                 self.pid_dict["depth"] = depth_PID(self.depth)
                 print("DEPTH LOCK SET USING CURRENT DEPTH TO: " + str(self.depth))
         self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
+
+    def stopSlot(self):
+        self.threadActive = False

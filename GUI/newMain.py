@@ -4,11 +4,13 @@ from PyQt5 import QtGui
 from imports import * #eventually the imports file should be cleaned up...
 from Comms import Comms
 from VideoRetrieve import VideoRetrieve
+import time
 
 PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
 PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
 
 class MainWindow(QWidget):
+    stopCommsSignal = pyqtSignal()
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
@@ -41,8 +43,8 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        self.guage = gaugeWidget()
-        self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
+        # self.guage = gaugeWidget()
+        # self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
         self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
@@ -145,6 +147,11 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #ending the program, one thread at a time...
+        self.stopCommsSignal.connect(self.comms.stopSlot)
+        self.comms.finished.connect(self.videoRetrieve.stopSlot)
+        self.videoRetrieve.finished.connect(self.stopProgramSlot)
+
         #General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
@@ -152,23 +159,18 @@ class MainWindow(QWidget):
     def ImageUpdateSlot(self, Image):
         self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
 
-    def StopVideo(self): #calls Video Retrieval thread to stop capturing video
-        self.videoRetrieve.stop()
-    def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
-        self.comms.stop()
-
     def closeEvent(self, event):
         confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
 
         if confirm == QMessageBox.Yes:
-            #stop each thread
-            self.StopComms()
-            print("Comms stopped!")
-            self.StopVideo()
-            print("Video stopped!")
-            event.accept()
+            # use slots and signals to stop each thread
+            print("Request Comms Shutdown")
+            self.stopCommsSignal.emit()
         else:
             event.ignore()
+    
+    def stopProgramSlot(self):
+        self.close()
 
 
 if __name__ == "__main__":

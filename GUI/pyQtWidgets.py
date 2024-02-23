@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 import datetime
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
+from imports import config
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -135,7 +136,6 @@ class CompassWidget(QWidget):
     # was float
     @pyqtSlot(int)
     def setAngle(self, angle):
-    
         if angle != self._angle:
             self._angle = angle
             self.angleChanged.emit(angle)

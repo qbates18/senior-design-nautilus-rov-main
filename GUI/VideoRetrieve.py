@@ -138,6 +138,7 @@ class VideoRetrieve(QThread):
         size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
         framesCounter = 0
         firstStart = True
+        result = None
         while self.ThreadActive:
             if not self.frame_available():
                 continue
@@ -158,4 +159,10 @@ class VideoRetrieve(QThread):
         print("Number of Frames received: " + str(framesCounter))
         optimalFps = framesCounter/totalTime
         print("Optimal fps: " + str(optimalFps))
-        result.release()
+        if result != None:
+            result.release()
+        print("Request Program Shutdown")
+        return
+    
+    def stopSlot(self):
+        self.ThreadActive = False

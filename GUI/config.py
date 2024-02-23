@@ -24,4 +24,4 @@ arm_inputs = Data(["S1_LEFT", "S1_RIGHT", "S2_FORWARD", "S2_BACK", "S3_FORWARD",
 map_dict = None
 map2_dict = None
 
-heading_offset = 0
+heading_offset = 180
