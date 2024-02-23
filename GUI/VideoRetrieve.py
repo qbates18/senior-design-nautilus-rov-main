@@ -139,6 +139,7 @@ class VideoRetrieve(QThread):
         framesCounter = 0
         firstStart = True
         result = None
+        timeVideoStarted = None
         while self.ThreadActive:
             if not self.frame_available():
                 continue
@@ -154,11 +155,11 @@ class VideoRetrieve(QThread):
             ConvertToQtFormat = QImage(Image.data, Image.shape[1], Image.shape[0], QImage.Format_RGB888) #pass in binary values of the image, converting frame to a QImage
             Pic = ConvertToQtFormat.scaled(size[0], size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation) #suggested 640x480 with Qt.KeepAspectRatio which takes the width and determines the height based on keeping the aspect ratio with that width
             self.ImageUpdate.emit(Pic) #emit the QImage
-        totalTime = datetime.now().timestamp() - timeVideoStarted.timestamp()
-        print("Total time elapsed while receiving camera feed = " + str(totalTime))
-        print("Number of Frames received: " + str(framesCounter))
-        optimalFps = framesCounter/totalTime
-        print("Optimal fps: " + str(optimalFps))
+        if (timeVideoStarted != None) and (framesCounter != 0):
+            totalTime = datetime.now().timestamp() - timeVideoStarted.timestamp()
+            print("Total time elapsed while receiving camera feed = " + str(totalTime))
+            print("Number of Frames received: " + str(framesCounter))
+            print("Optimal fps: " + str(framesCounter/totalTime))
         if result != None:
             result.release()
         print("Request Program Shutdown")
