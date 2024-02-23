@@ -468,8 +468,8 @@ class BatteryCriticalWarningPopup(QMessageBox):
 class DepthIndicator(QTextEdit):
     def __init__(self):
         super(DepthIndicator, self).__init__()
-        self.DEPTH_WARNING_THRESHHOLD = 80.0
-        self.DEPTH_MAX_THRESHHOLD = 90.0
+        self.DEPTH_WARNING_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH - (config.NAUTILUS_MAX_RATED_DEPTH*0.2) #warn when only 20% of max rated depth remains
+        self.DEPTH_MAX_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH - (config.NAUTILUS_MAX_RATED_DEPTH*0.1) #warn/notify when only 10% of max rated depth remains
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
