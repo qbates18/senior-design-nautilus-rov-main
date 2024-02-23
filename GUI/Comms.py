@@ -157,7 +157,7 @@ class Comms(QThread):
             self.temperatureUpdate.emit(str(tmpr))
             self.tmpr = tmpr
         
-        depth = round(float(depth))
+        depth = round(float(depth), 1)
         if not depth == self.depth:
             self.depthUpdate.emit(depth)
             self.depth = depth
