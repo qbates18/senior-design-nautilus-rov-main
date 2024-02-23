@@ -27,6 +27,9 @@ RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 BLUE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(75, 150, 255, 60%)"
 GREY_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(128, 128, 128, 60%)"
 
+QCOLOR_BLUE = Qcolor(75, 150, 255, 60)
+QCOLOR_GREY = Qcolor(128, 128, 126, 60)
+
 SMALL_TEXT_BOX_MAX_WIDTH = 40
 
 COMPASS_FIXED_WIDTH = 200
