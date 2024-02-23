@@ -153,7 +153,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 	# If endpoint control is disabled use joint control as default
 	else:
 		servo1 = arm_inputs.read("S1_LEFT") - arm_inputs.read("S1_RIGHT") 
-		s1_mapped = round(map(servo1, -1,1, 60, 90), 1)
+		s1_mapped = round(map(servo1, -1,1, 10, 420), 1)
 		
 		servo2 = arm_inputs.read("S2_FORWARD") - arm_inputs.read("S2_BACK")
 		s2_mapped = round(map(servo2, -1,1, 10, 420), 1)

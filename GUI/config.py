@@ -25,3 +25,4 @@ map_dict = None
 map2_dict = None
 
 heading_offset = 180
+NAUTILUS_MAX_RATED_DEPTH = 100

@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 import datetime
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
+import config
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -26,8 +27,8 @@ RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 BLUE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(75, 150, 255, 60%)"
 GREY_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(128, 128, 128, 60%)"
 
-QCOLOR_BLUE = Qcolor(75, 150, 255, 60)
-QCOLOR_GREY = Qcolor(128, 128, 126, 60)
+QCOLOR_BLUE = QColor(75, 150, 255, 100)
+QCOLOR_GREY = QColor(128, 128, 126, 100)
 
 SMALL_TEXT_BOX_MAX_WIDTH = 40
 
@@ -119,7 +120,7 @@ class CompassWidget(QWidget):
                       QPoint(0, 45), QPoint(-10, 0)])
             )
         
-        painter.setBrush(self.palette().brush(QPalette.Highlight))
+        painter.setBrush(QBrush(QCOLOR_BLUE))
         
         painter.drawPolygon(
             QPolygon([QPoint(-5, -25), QPoint(0, -45), QPoint(5, -25),
@@ -146,6 +147,9 @@ class CompassWidget(QWidget):
     angle = pyqtProperty(float, angle, setAngle)
 
 class gaugeWidget(QWidget):
+
+    angleChanged = pyqtSignal(float)
+
     def __init__(self, parent = None):
         
         QWidget.__init__(self, parent)
@@ -175,14 +179,14 @@ class gaugeWidget(QWidget):
                     (self.height() - self._margins)/120.0)
         painter.scale(scale, scale)
 
-        painter.setPen(QPen(Qt.gray,  2, Qt.SolidLine))
-        painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
+        painter.setPen(QPen(QCOLOR_GREY,  2, Qt.SolidLine))
+        painter.setBrush(QBrush(QCOLOR_BLUE, Qt.SolidPattern))
         painter.drawEllipse(-5, -5, 10, 10)
 
         painter.rotate(self._angle)
 
-        painter.setPen(QPen(Qt.darkCyan, 2, Qt.SolidLine))
-        painter.setBrush(QBrush(Qt.darkCyan, Qt.SolidPattern))
+        painter.setPen(QPen(QCOLOR_BLUE, 2, Qt.SolidLine))
+        painter.setBrush(QBrush(QCOLOR_BLUE, Qt.SolidPattern))
         points = [
             QPoint(0,0),
             QPoint(-36,36),
@@ -214,10 +218,10 @@ class gaugeWidget(QWidget):
         painter.scale(scale, scale)
 
         painter.setPen(QPen(Qt.green, 4, Qt.SolidLine))
-        painter.drawArc(-50, -50, 90, 90, 10 * 16, 215 * 16)
+        painter.drawArc(-44, -44, 92, 92, 10 * 16, 215 * 16)
 
         painter.setPen(QPen(Qt.red, 4, Qt.SolidLine))
-        painter.drawArc(-50, -50, 90, 90, -45 * 16, 58 * 16)
+        painter.drawArc(-44, -44, 92, 92, -45 * 16, 58 * 16)
 
         painter.restore()
 
@@ -247,8 +251,11 @@ class gaugeWidget(QWidget):
     def angle(self):
         return self._angle
 
-    @pyqtSlot(int)
+    @pyqtSlot(float)
     def setAngle(self, angle):
+        angle = ((angle*270)/config.NAUTILUS_MAX_RATED_DEPTH)
+        if angle > 270:
+            angle = 270
     
         if angle != self._angle:
             self._angle = angle

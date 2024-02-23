@@ -42,8 +42,8 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        self.guage = gaugeWidget()
-        self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
+        self.gauge = gaugeWidget()
+        self.depthVerticalContainer.insertWidget(0, self.gauge, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
         self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
@@ -127,6 +127,7 @@ class MainWindow(QWidget):
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
         self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.comms.depthUpdate.connect(self.gauge.setAngle) #slot/signal to connect compass to update function
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
         #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)

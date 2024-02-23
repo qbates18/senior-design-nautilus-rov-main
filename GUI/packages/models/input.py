@@ -5,14 +5,10 @@ class Data:
 
 	def __init__(self, val_names):
 		self.val_dict = {}
-		self.init(val_names)
+		self.val_names = val_names
 
 		for entry in self.val_names:
 			self.val_dict[entry] = 0
-
-
-	def init(self, val_names):
-		self.val_names = val_names
 
 	def assign(self, val_name, value):
 		for entry in self.val_names:
