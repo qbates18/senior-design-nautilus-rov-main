@@ -170,6 +170,8 @@ class MainWindow(QWidget):
             event.ignore()
     
     def stopProgramSlot(self):
+        self.comms.wait()
+        self.videoRetrieve.wait()
         self.close()
 
 
