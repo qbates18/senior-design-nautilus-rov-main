@@ -4,7 +4,6 @@ from PyQt5 import QtGui
 from imports import * #eventually the imports file should be cleaned up...
 from Comms import Comms
 from VideoRetrieve import VideoRetrieve
-import time
 
 PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
 PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
@@ -43,8 +42,8 @@ class MainWindow(QWidget):
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        # self.guage = gaugeWidget()
-        # self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
+        self.guage = gaugeWidget()
+        self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
         self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()

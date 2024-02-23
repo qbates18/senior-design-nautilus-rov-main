@@ -5,7 +5,6 @@ from PyQt5.QtCore import *
 import datetime
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
-from imports import config
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -148,7 +147,7 @@ class gaugeWidget(QWidget):
         
         QWidget.__init__(self, parent)
 
-        self._angle = 150.0
+        self._angle = 0.0
         self._margins = 10
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
@@ -159,27 +158,31 @@ class gaugeWidget(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
 
         self.drawCircleGauge(painter)
-        self.drawColor(painter)
-        self.drawNeedle(painter)
+        #self.drawColor(painter)
         self.drawMarkings(painter)
+        self.drawNeedle(painter)
         
         painter.end()
 
     def drawNeedle(self, painter):
 
         painter.save()
-        painter.setPen(QPen(Qt.gray,  5, Qt.SolidLine))
-        painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
-        painter.drawEllipse(237, 237, 25, 25)
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
 
-        painter.translate(self.width/2, self.height/2)
+        painter.setPen(QPen(Qt.gray,  2, Qt.SolidLine))
+        painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
+        painter.drawEllipse(-5, -5, 10, 10)
+
         painter.rotate(self._angle)
 
-        painter.setPen(QPen(Qt.gray, 5, Qt.SolidLine))
-        painter.setBrush(QBrush(Qt.gray, Qt.SolidPattern))
+        painter.setPen(QPen(Qt.darkCyan, 2, Qt.SolidLine))
+        painter.setBrush(QBrush(Qt.darkCyan, Qt.SolidPattern))
         points = [
             QPoint(0,0),
-            QPoint(-130,130),
+            QPoint(-36,36),
             ]
         poly = QPolygon(points)
         painter.drawPolygon(poly)
@@ -189,38 +192,49 @@ class gaugeWidget(QWidget):
     def drawCircleGauge(self, painter):
         painter.save()
 
-        painter.translate(self.width()/2, self.height()/2)
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
 
-        painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
-        painter.drawArc(-25, -25, 75, 75, -45 * 16, 270 * 16)
+        painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
+        painter.drawArc(-44, -44, 88, 88, -45 * 16, 270 * 16)
 
         painter.restore()
 
     def drawColor(self, painter):
         painter.save()
 
-        painter.setPen(QPen(Qt.green, 7, Qt.SolidLine))
-        painter.drawArc(90, 90, 320, 320, 10 * 16, 215 * 16)
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
 
-        painter.setPen(QPen(Qt.red, 7, Qt.SolidLine))
-        painter.drawArc(90, 90, 320, 320, -45 * 16, 58 * 16)
+        painter.setPen(QPen(Qt.green, 4, Qt.SolidLine))
+        painter.drawArc(-50, -50, 90, 90, 10 * 16, 215 * 16)
+
+        painter.setPen(QPen(Qt.red, 4, Qt.SolidLine))
+        painter.drawArc(-50, -50, 90, 90, -45 * 16, 58 * 16)
 
         painter.restore()
 
     def drawMarkings(self, painter):
         
         painter.save()
-        painter.translate(self.width/2, self.height/2)
-        painter.setPen(QPen(Qt.gray, 3, Qt.SolidLine))
+        painter.translate((self.width()/2), (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
+        painter.setPen(QPen(Qt.gray, 2, Qt.SolidLine))
 
         i = 0
         
-        while i < 285:
+        while i < 283:
         
             if i % 45 == 0:
-                painter.drawLine(-100, 100, -125, 125)
+                painter.drawLine(-30, 30, -38, 38)
             else:
-                painter.drawLine(-100, 100, -125, 125)
+                painter.drawLine(-30, 30, -38, 38)
             
             painter.rotate(15)
             i += 15
