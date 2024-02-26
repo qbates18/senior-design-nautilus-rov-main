@@ -548,7 +548,7 @@ class DevFeaturesButton(QPushButton):
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
-    def openDevTools(self):
+    def openDevToolsSlot(self):
         print("Opening Dev Tools!")
         return
 

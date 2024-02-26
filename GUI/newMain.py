@@ -149,7 +149,7 @@ class MainWindow(QWidget):
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
         #dev tools
-        self.devFeaturesButton.clicked.connect(self.devFeaturesButton.openDevTools)
+        self.devFeaturesButton.clicked.connect(self.devFeaturesButton.openDevToolsSlot)
         #ending the program, one thread at a time...
         self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)
