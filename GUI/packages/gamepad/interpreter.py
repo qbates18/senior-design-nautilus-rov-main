@@ -7,7 +7,6 @@ import numpy as np
 import math
 import scipy
 from scipy import integrate
-import pygame
 import os
 import time
 

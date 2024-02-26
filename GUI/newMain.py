@@ -6,6 +6,7 @@ from Comms import Comms
 from VideoRetrieve import VideoRetrieve
 
 PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
+SHUTDOWN_IMAGE_FILE_NAME = "ShuttingDown.jpg"
 PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
 
 class MainWindow(QWidget):
@@ -147,7 +148,10 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #dev tools
+        self.devFeaturesButton.clicked.connect(self.devFeaturesButton.openDevTools)
         #ending the program, one thread at a time...
+        self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)
         self.comms.finished.connect(self.videoRetrieve.stopSlot)
         self.videoRetrieve.finished.connect(self.stopProgramSlot)
@@ -160,19 +164,31 @@ class MainWindow(QWidget):
         self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
 
     def closeEvent(self, event):
-        confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
-
-        if confirm == QMessageBox.Yes:
-            # use slots and signals to stop each thread
-            print("Request Comms Shutdown")
-            self.stopCommsSignal.emit()
+        if self.threadsFinished:
+            event.accept()
+            return
         else:
-            event.ignore()
+            confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
+            if confirm == QMessageBox.Yes:
+                # use slots and signals to stop each thread
+                print("Request Program Shutdown")
+                self.stopCommsSignal.emit()
+                event.ignore()
+                return
     
     def stopProgramSlot(self):
+        #wait for threads to finish
         self.comms.wait()
         self.videoRetrieve.wait()
-        self.close()
+        #threads are finished, set shutdown image and wait one second (for any remaining I/O)
+        self.feedLabel.setPixmap(QtGui.QPixmap(SHUTDOWN_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
+        print("Program Shutdown Successful")
+        QTimer.singleShot(1000, self.threadsAreFinishedSlot) #wait 2 seconds before fully closing program
+    
+    @pyqtSlot()
+    def threadsAreFinishedSlot(self):
+        self.threadsFinished = True
+        self.close() #now that threads are finished, closeEvent slot will execute the True case and event.accept()
 
 
 if __name__ == "__main__":

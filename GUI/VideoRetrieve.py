@@ -157,12 +157,9 @@ class VideoRetrieve(QThread):
             self.ImageUpdate.emit(Pic) #emit the QImage
         if (timeVideoStarted != None) and (framesCounter != 0):
             totalTime = datetime.now().timestamp() - timeVideoStarted.timestamp()
-            print("Total time elapsed while receiving camera feed = " + str(totalTime))
-            print("Number of Frames received: " + str(framesCounter))
             print("Optimal fps: " + str(framesCounter/totalTime))
         if result != None:
             result.release()
-        print("Request Program Shutdown")
         return
     
     def stopSlot(self):

@@ -49,20 +49,20 @@ class Comms(QThread):
 
         #prepare necessary resources for gamepad
         if config.gamepad_flag:
-            print("gamepad initializing...")
+            #print("gamepad initializing...")
             #gamepad initialization
             generate_dictionaries("map.txt") 
             self.gamepad = Gamepad()
             config.gamepad_flag = self.gamepad.init(0) #why are we doing this
-            print("gamepad initialized")
+            #print("gamepad initialized")
         #prepare necessary resources for second gamepad
         if config.gamepad2_flag:
-            print("second gamepad initializing...")
+            #print("second gamepad initializing...")
             #second gamepad initialization
             generate_dictionaries("map2.txt") 
             self.gamepad2 = Gamepad()
             config.gamepad2_flag = self.gamepad2.init(1)
-            print("second gamepad initialized")
+            #print("second gamepad initialized")
             
         # serial initialization 
         if config.serial_flag:
@@ -138,7 +138,6 @@ class Comms(QThread):
                         pass
                     else:
                         write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
-        print("Request Video Shutdown")
         return    
     #function: validate_receive_string_tokens(tokens):
     #description: Ensure that each token received from the arduino is a valid integer or float (depending on the expected data type)
