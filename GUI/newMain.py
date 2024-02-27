@@ -76,7 +76,7 @@ class MainWindow(QWidget):
         self.displayRotations = DisplayRotations()
         self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
 
-        # Pilot's Log, Deployment Clock, and Dev Features Button
+        # Pilot's Log, Deployment Clock, and Dev Tools Button
         #layouts
         self.pilotLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
         self.GL.addLayout(self.pilotLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
@@ -89,8 +89,8 @@ class MainWindow(QWidget):
         self.pilotLogGridContainer.addWidget(self.pilotLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
         self.deploymentTimer = DeploymentTimer(timeVideoStarted)
         self.displayTimeElapsedHorizontalContainer.addWidget(self.deploymentTimer.time, Qt.AlignRight)
-        self.devFeaturesButton = DevFeaturesButton()
-        self.displayTimeElapsedHorizontalContainer.addWidget(self.devFeaturesButton, Qt.AlignRight)
+        self.devToolsButton = DevToolsButton()
+        self.displayTimeElapsedHorizontalContainer.addWidget(self.devToolsButton, Qt.AlignRight)
 
         # Movement Control Buttons
         #layout
@@ -149,7 +149,8 @@ class MainWindow(QWidget):
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
         #dev tools
-        self.devFeaturesButton.clicked.connect(self.devFeaturesButton.openDevToolsSlot)
+        self.devToolsButton.clicked.connect(self.devToolsButton.openDevToolsSlot)
+        self.devToolsButton.devToolsWindow.devToolsUpdateSignal.connect(self.updateDevToolsValues)
         #ending the program, one thread at a time...
         self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)
@@ -160,9 +161,15 @@ class MainWindow(QWidget):
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
 
+    # Updating Developer Tools Values:
+    def updateDevToolsValues(self, devToolsItemsDict):
+        print(devToolsItemsDict)
+
+    # Updating the Camera frame
     def ImageUpdateSlot(self, Image):
         self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
 
+    # Stopping the program:
     def closeEvent(self, event):
         if self.threadsFinished:
             event.accept()

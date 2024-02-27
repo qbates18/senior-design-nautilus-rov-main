@@ -539,18 +539,67 @@ class DisplayTimeElapsed(QLabel):
         self.setMinimumWidth(CLOCK_MIN_WIDTH)
         self.setText("Clock: Initializing...")
 
-
-class DevFeaturesButton(QPushButton):
+class DevToolsButton(QPushButton):
     def __init__(self):
-        super(DevFeaturesButton, self).__init__()
+        super(DevToolsButton, self).__init__()
         self.setMaximumWidth(DEV_BUTTON_MAX_WIDTH)
         self.setMaximumHeight(DEV_BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
+        self.devToolsWindow = DevToolsWindow()
     def openDevToolsSlot(self):
         print("Opening Dev Tools!")
+        self.devToolsWindow.show()
         return
+
+class DevToolsWindow(QDialog):
+    devToolsUpdateSignal = pyqtSignal(dict)
+    # constructor
+    def __init__(self):
+        super(DevToolsWindow, self).__init__()
+        self.listOfItems = ["first", "second"]
+        self.devToolsItemsDict = {self.listOfItems[0]: None, self.listOfItems[1]: None}
+        self.setWindowTitle("Dev Tools")
+        # setting geometry to the window
+        self.setGeometry(100, 100, 300, 400)
+        # creating a group box
+        self.formGroupBox = QGroupBox("Modify Settings:")
+        
+        self.item0LineEdit = QLineEdit()
+        self.item1LineEdit = QLineEdit()
+
+        self.createForm()
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.getInfo)
+        self.buttonBox.rejected.connect(self.reject)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.formGroupBox)
+        mainLayout.addWidget(self.buttonBox)
+        self.setLayout(mainLayout)
+   
+    # get info method called when form is accepted
+    def getInfo(self):
+        # printing the form information
+        self.devToolsItemsDict[self.listOfItems[0]] = self.item0LineEdit.text()
+        self.devToolsItemsDict[self.listOfItems[1]] = self.item1LineEdit.text()
+        # closing the window
+        self.close()
+        self.devToolsUpdateSignal.emit(self.devToolsItemsDict)
+        return
+    
+    # create form method
+    def createForm(self):
+        # creating a form layout
+        layout = QFormLayout()
+        # adding rows
+        layout.addRow(QLabel(self.listOfItems[0]), self.item0LineEdit)
+        layout.addRow(QLabel(self.listOfItems[1]), self.item1LineEdit)
+        
+        #set the layout
+        self.formGroupBox.setLayout(layout)
 
 
 # Requires the start time!
