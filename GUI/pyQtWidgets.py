@@ -518,34 +518,20 @@ class PilotLogTextEntryBox(QTextEdit):
     def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
-            if os.path.isdir(self.logFolderString):
-                self.pilotLogFds = open(self.pilotLogFileName, 'a')
-                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
-                                    + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                    + "Heading: " + str(comms.getHeading())
-                                    + ", Depth: " + str(comms.getDepth())
-                                    + " m, Altitude: " + str(comms.getAltitude())
-                                    + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                    + "C, Voltage: " + str(comms.getVoltage())
-                                    + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                    + ", Rotations: " + str(comms.getRotation()) + "\n")
-                self.pilotLogFds.write(logText + "\n\n")
-                self.pilotLogFds.close()
-            else:
+            if not os.path.isdir(self.logFolderString):
                 os.mkdir(self.logFolderString)
-                self.pilotLogFds = open(self.pilotLogFileName, 'a')
-                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
-                                    + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                    + "Heading: " + str(comms.getHeading())
-                                    + ", Depth: " + str(comms.getDepth())
-                                    + " m, Altitude: " + str(comms.getAltitude())
-                                    + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                    + "C, Voltage: " + str(comms.getVoltage())
-                                    + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                    + ", Rotations: " + str(comms.getRotation()) + "\n")
-                self.pilotLogFds.write(logText + "\n\n")
-                self.pilotLogFds.close()
-
+            self.pilotLogFds = open(self.pilotLogFileName, 'a')
+            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                                + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
+                                + "Heading: " + str(comms.getHeading())
+                                + ", Depth: " + str(comms.getDepth())
+                                + " m, Altitude: " + str(comms.getAltitude())
+                                + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
+                                + "C, Voltage: " + str(comms.getVoltage())
+                                + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
+                                + ", Rotations: " + str(comms.getRotation()) + "\n")
+            self.pilotLogFds.write(logText + "\n\n")
+            self.pilotLogFds.close()
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()

@@ -2,11 +2,14 @@ from pyQtWidgets import QThread, pyqtSignal, QImage, Qt
 import numpy as np
 import cv2
 import datetime
+from datetime import date
 from imports import *
 
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
+
+dateOnly = date.today()
 
 class VideoRetrieve(QThread):
     ImageUpdate = pyqtSignal(QImage)
@@ -140,11 +143,17 @@ class VideoRetrieve(QThread):
         firstStart = True
         result = None
         timeVideoStarted = None
+        dateObj = dateOnly
+        dateStr = str(dateObj)
+        videoFolderString = '/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + dateStr
+        if not os.path.isdir(videoFolderString):
+            os.mkdir(videoFolderString)
+        videoFileName = videoFolderString + "/" + str(timeDeploymentStarted)
         while self.ThreadActive:
             if not self.frame_available():
                 continue
             if firstStart:
-                result = cv2.VideoWriter('/home/rsl/Desktop/NautilusVideoRecordings/Deployment Video ' + str(timeDeploymentStarted), cv2.VideoWriter_fourcc(*'XVID'),16, size)
+                result = cv2.VideoWriter(videoFileName, cv2.VideoWriter_fourcc(*'XVID'),16, size)
                 timeVideoStarted = datetime.now()
                 self.videoStartSignal.emit(timeVideoStarted)
                 firstStart = False
