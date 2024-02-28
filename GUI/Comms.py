@@ -22,6 +22,7 @@ class Comms(QThread):
         self.map2_dict = {} # Dictionary for controller 2 for arm control
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
+        self.pidGainsValuesDict = {}
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
@@ -257,6 +258,9 @@ class Comms(QThread):
                 self.pid_dict["depth"] = depth_PID(self.depth)
                 print("DEPTH LOCK SET USING CURRENT DEPTH TO: " + str(self.depth))
         self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
+    
+    def devToolsItemsDictUpdateSlot(self, devToolsDict):
+        self.pidGainsValuesDict = devToolsDict
 
     def stopSlot(self):
         self.threadActive = False

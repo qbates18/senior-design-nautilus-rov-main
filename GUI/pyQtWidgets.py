@@ -3,6 +3,7 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import datetime
+import os
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
 import config
@@ -45,6 +46,8 @@ LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_RIGHT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
+
+dateOnly = datetime.date.today()
 
 class CompassWidget(QWidget):
 
@@ -156,20 +159,21 @@ class gaugeWidget(QWidget):
 
         self._angle = 0.0
         self._margins = 10
+        self._pointText = {0: "0", 215: "90"}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.begin(self)
+        #painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         self.drawCircleGauge(painter)
-        #self.drawColor(painter)
+        self.drawColor(painter)
         self.drawMarkings(painter)
         self.drawNeedle(painter)
         
-        painter.end()
+        #painter.end()
 
     def drawNeedle(self, painter):
 
@@ -218,10 +222,10 @@ class gaugeWidget(QWidget):
         painter.scale(scale, scale)
 
         painter.setPen(QPen(Qt.green, 4, Qt.SolidLine))
-        painter.drawArc(-44, -44, 92, 92, 10 * 16, 215 * 16)
+        painter.drawArc(-47, -47, 94, 94, 10 * 16, 215 * 16)
 
         painter.setPen(QPen(Qt.red, 4, Qt.SolidLine))
-        painter.drawArc(-44, -44, 92, 92, -45 * 16, 58 * 16)
+        painter.drawArc(-47, -47, 94, 94, -45 * 16, 58 * 16)
 
         painter.restore()
 
@@ -232,6 +236,14 @@ class gaugeWidget(QWidget):
         scale = min((self.width() - self._margins)/120.0,
                     (self.height() - self._margins)/120.0)
         painter.scale(scale, scale)
+
+        font = QFont(self.font())
+        font.setPixelSize(10)
+        metrics = QFontMetricsF(font)
+        
+        painter.setFont(font)
+        painter.setPen(self.palette().color(QPalette.Shadow))
+
         painter.setPen(QPen(Qt.gray, 2, Qt.SolidLine))
 
         i = 0
@@ -497,24 +509,43 @@ class PilotLogTextEntryBox(QTextEdit):
     def __init__(self):
         super(PilotLogTextEntryBox, self).__init__()
         self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
-        self.pilotLogFileName = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'s Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        dateObj = dateOnly
+        dateStr = str(dateObj)
+        self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
+        self.pilotLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
         self.pilotLogFds = None
     def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
-            self.pilotLogFds = open(self.pilotLogFileName, 'a')
-            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
-                                   + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                   + "Heading: " + str(comms.getHeading())
-                                   + ", Depth: " + str(comms.getDepth())
-                                   + " m, Altitude: " + str(comms.getAltitude())
-                                   + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                   + "C, Voltage: " + str(comms.getVoltage())
-                                   + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                   + ", Rotations: " + str(comms.getRotation()) + "\n")
-            self.pilotLogFds.write(logText + "\n\n")
-            self.pilotLogFds.close()
+            if os.path.isdir(self.logFolderString):
+                self.pilotLogFds = open(self.pilotLogFileName, 'a')
+                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                                    + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
+                                    + "Heading: " + str(comms.getHeading())
+                                    + ", Depth: " + str(comms.getDepth())
+                                    + " m, Altitude: " + str(comms.getAltitude())
+                                    + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
+                                    + "C, Voltage: " + str(comms.getVoltage())
+                                    + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
+                                    + ", Rotations: " + str(comms.getRotation()) + "\n")
+                self.pilotLogFds.write(logText + "\n\n")
+                self.pilotLogFds.close()
+            else:
+                os.mkdir(self.logFolderString)
+                self.pilotLogFds = open(self.pilotLogFileName, 'a')
+                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                                    + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
+                                    + "Heading: " + str(comms.getHeading())
+                                    + ", Depth: " + str(comms.getDepth())
+                                    + " m, Altitude: " + str(comms.getAltitude())
+                                    + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
+                                    + "C, Voltage: " + str(comms.getVoltage())
+                                    + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
+                                    + ", Rotations: " + str(comms.getRotation()) + "\n")
+                self.pilotLogFds.write(logText + "\n\n")
+                self.pilotLogFds.close()
+
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()

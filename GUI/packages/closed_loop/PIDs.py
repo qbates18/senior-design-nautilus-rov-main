@@ -2,7 +2,7 @@
 # description: defines the altitude, depth, and heading PID classes, which enables closed loop control of the ROV's motion with respect to those three sensors
 
 from simple_pid import PID
-import time
+from config import defaultDepthKp, defaultDepthKd, defaultDepthKi, defaultHeadKp, defaultHeadKi, defaultHeadKd
 
 
 class altitude_PID:
@@ -27,7 +27,10 @@ class depth_PID:
     def __init__(self, desiredDepth):
         self.vertical_thruster_amount = 4
         self.desiredDepth = float(desiredDepth)
-        self.pid_instance = PID(-7, -1, -3, setpoint=self.desiredDepth)
+        self.Kp = defaultDepthKp
+        self.Ki = defaultDepthKi
+        self.Kd = defaultDepthKd
+        self.pid_instance = PID(self.Kp, self.Ki, self.Kd, setpoint=self.desiredDepth)
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-34.32*self.vertical_thruster_amount, 44.13*self.vertical_thruster_amount)
         self.force_to_joystick_ratio_neg = 1/(34.32*self.vertical_thruster_amount)
@@ -43,13 +46,17 @@ class depth_PID:
         return self.desiredDepth
 
 
+
 class head_PID:
     def __init__(self, desiredHead):
         self.desiredHead = float(desiredHead)
         self.vector_thruster_amount = 4
         self.vector_thrust_contribution = 0.5
         self.max_moment = 156.9*self.vector_thrust_contribution*self.vector_thruster_amount
-        self.pid_instance = PID(4, 1, 1, setpoint=self.desiredHead)
+        self.Kp = defaultHeadKp
+        self.Ki = defaultHeadKi
+        self.Kd = defaultHeadKd
+        self.pid_instance = PID(self.Kp, self.Ki, self.Kd, setpoint=self.desiredHead)
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-self.max_moment, self.max_moment)
         self.force_to_joystick_ratio = 1/self.max_moment

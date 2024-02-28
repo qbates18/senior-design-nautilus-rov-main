@@ -26,3 +26,11 @@ map2_dict = None
 
 heading_offset = 180
 NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of February 2024
+
+defaultDepthKp = -7
+defaultDepthKi = -1
+defaultDepthKd = -3
+
+defaultHeadKp = 4
+defaultHeadKi = 1
+defaultHeadKd = 1

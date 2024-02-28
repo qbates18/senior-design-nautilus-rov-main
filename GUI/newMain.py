@@ -150,7 +150,7 @@ class MainWindow(QWidget):
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
         #dev tools
         self.devToolsButton.clicked.connect(self.devToolsButton.openDevToolsSlot)
-        self.devToolsButton.devToolsWindow.devToolsUpdateSignal.connect(self.updateDevToolsValues)
+        self.devToolsButton.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
         #ending the program, one thread at a time...
         self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)
