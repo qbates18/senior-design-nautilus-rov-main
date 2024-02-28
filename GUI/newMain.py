@@ -61,6 +61,8 @@ class MainWindow(QWidget):
         self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
+        self.commsIndicator = CommsIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.commsIndicator, Qt.AlignCenter)
         
         # Display Raw Values
         #layout
@@ -134,6 +136,7 @@ class MainWindow(QWidget):
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
         #captain's log
         self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)

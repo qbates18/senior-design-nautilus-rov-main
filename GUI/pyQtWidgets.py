@@ -252,6 +252,8 @@ class gaugeWidget(QWidget):
         
             if i % 45 == 0:
                 painter.drawLine(-30, 30, -38, 38)
+                #painter.drawText(15, -52,
+                                 #self._pointText[i])
             else:
                 painter.drawLine(-30, 30, -38, 38)
             
@@ -504,6 +506,26 @@ class DepthIndicator(QTextEdit):
         else:
             self.setDepthIndicatorCritical()
 
+class CommsIndicator(QTextEdit):
+    def __init__(self):
+        super(CommsIndicator, self).__init__()
+        self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
+        self.setMinimumWidth(INDICATOR_MIN_WIDTH)
+        self.setReadOnly(True)
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Comms Indicator Initializing...")
+    def setCommsIndicatorGood(self):
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Communications Good")
+    def setCommsIndicatorCritical(self):
+        self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Communications Lost!")
+    def commsIndicatorUpdateSlot(self, commsGood):
+        if commsGood:
+            self.setCommsIndicatorGood()
+        else:
+            self.setCommsIndicatorCritical()
+
 class CaptainLogTextEntryBox(QTextEdit):
     emptyTextWroteUpon = pyqtSignal()
     def __init__(self):
@@ -520,8 +542,8 @@ class CaptainLogTextEntryBox(QTextEdit):
         if (len(logText) != 0):
             if not os.path.isdir(self.logFolderString):
                 os.mkdir(self.logFolderString)
-            self.pilotLogFds = open(self.pilotLogFileName, 'a')
-            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+            self.captainLogFds = open(self.captainLogFileName, 'a')
+            self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                 + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
                                 + "Heading: " + str(comms.getHeading())
                                 + ", Depth: " + str(comms.getDepth())
@@ -530,8 +552,8 @@ class CaptainLogTextEntryBox(QTextEdit):
                                 + "C, Voltage: " + str(comms.getVoltage())
                                 + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
                                 + ", Rotations: " + str(comms.getRotation()) + "\n")
-            self.pilotLogFds.write(logText + "\n\n")
-            self.pilotLogFds.close()
+            self.captainLogFds.write(logText + "\n\n")
+            self.captainLogFds.close()
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()

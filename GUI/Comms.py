@@ -13,6 +13,7 @@ class Comms(QThread):
     armUpdate = pyqtSignal(bool)
     headingLockValueUpdate = pyqtSignal(int)
     depthLockValueUpdate = pyqtSignal(float)
+    commsStatusUpdate = pyqtSignal(bool)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -73,6 +74,8 @@ class Comms(QThread):
     # description: called to send control strings over serial
     def run(self):
         self.threadActive = True
+        lastSuccessfulMessage = None
+        commsStatusGood = False
         while (self.threadActive):
             # listen for gamepad
             if config.gamepad_flag:
@@ -98,8 +101,16 @@ class Comms(QThread):
                 receive_string = self.ard.read()
                 while(("*" not in str(receive_string)) and ("&" not in str(receive_string)) and self.threadActive): 
                     receive_string += self.ard.read()
+                    if commsStatusGood:
+                        if datetime.now().timestamp() - lastSuccessfulMessage > 1: #if have been waiting in this loop for one second or more, emit signal that comms has been lost
+                            commsStatusGood = False
+                            self.commsStatusUpdate.emit(commsStatusGood)
                 if not self.threadActive:
                     break
+                lastSuccessfulMessage = datetime.now().timestamp()
+                if not commsStatusGood:
+                    commsStatusGood = True
+                    self.commsStatusUpdate.emit(commsStatusGood)
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)
                 if ("&" in str_receive_string):#if the string received has an '&' at the end (i.e. it is an error sent up from the arduino, perhaps because it is unable to initialize one of the sensors or something)
