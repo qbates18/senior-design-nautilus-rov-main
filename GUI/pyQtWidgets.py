@@ -39,7 +39,7 @@ COMPASS_FIXED_HEIGHT = 200
 INDICATOR_FIXED_HEIGHT = 40
 INDICATOR_MIN_WIDTH = 80
 
-PILOT_LOG_MIN_WIDTH = 460
+CAPTAIN_LOG_MIN_WIDTH = 460
 
 LAYOUT_CONTENTS_MARGINS = 5
 LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
@@ -504,23 +504,23 @@ class DepthIndicator(QTextEdit):
         else:
             self.setDepthIndicatorCritical()
 
-class PilotLogTextEntryBox(QTextEdit):
+class CaptainLogTextEntryBox(QTextEdit):
     emptyTextWroteUpon = pyqtSignal()
     def __init__(self):
-        super(PilotLogTextEntryBox, self).__init__()
-        self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
+        super(CaptainLogTextEntryBox, self).__init__()
+        self.setMinimumWidth(CAPTAIN_LOG_MIN_WIDTH)
         dateObj = dateOnly
         dateStr = str(dateObj)
         self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
-        self.pilotLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
         self.entryNumber = 1
-        self.pilotLogFds = None
+        self.captainLogFds = None
     def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
             if os.path.isdir(self.logFolderString):
-                self.pilotLogFds = open(self.pilotLogFileName, 'a')
-                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                self.captainLogFds = open(self.captainLogFileName, 'a')
+                self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                     + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
                                     + "Heading: " + str(comms.getHeading())
                                     + ", Depth: " + str(comms.getDepth())
@@ -529,12 +529,12 @@ class PilotLogTextEntryBox(QTextEdit):
                                     + "C, Voltage: " + str(comms.getVoltage())
                                     + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
                                     + ", Rotations: " + str(comms.getRotation()) + "\n")
-                self.pilotLogFds.write(logText + "\n\n")
-                self.pilotLogFds.close()
+                self.captainLogFds.write(logText + "\n\n")
+                self.captainLogFds.close()
             else:
                 os.mkdir(self.logFolderString)
-                self.pilotLogFds = open(self.pilotLogFileName, 'a')
-                self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                self.captainLogFds = open(self.captainLogFileName, 'a')
+                self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                     + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
                                     + "Heading: " + str(comms.getHeading())
                                     + ", Depth: " + str(comms.getDepth())
@@ -543,8 +543,8 @@ class PilotLogTextEntryBox(QTextEdit):
                                     + "C, Voltage: " + str(comms.getVoltage())
                                     + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
                                     + ", Rotations: " + str(comms.getRotation()) + "\n")
-                self.pilotLogFds.write(logText + "\n\n")
-                self.pilotLogFds.close()
+                self.captainLogFds.write(logText + "\n\n")
+                self.captainLogFds.close()
 
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
@@ -553,9 +553,9 @@ class PilotLogTextEntryBox(QTextEdit):
         if (len(self.toPlainText()) == 1):
             self.setPlaceholderText("")
 
-class PilotLogSaveButton(QPushButton):
+class CaptainLogSaveButton(QPushButton):
     def __init__(self):
-        super(PilotLogSaveButton, self).__init__()
+        super(CaptainLogSaveButton, self).__init__()
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)

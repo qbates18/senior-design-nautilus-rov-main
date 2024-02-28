@@ -76,17 +76,17 @@ class MainWindow(QWidget):
         self.displayRotations = DisplayRotations()
         self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
 
-        # Pilot's Log, Deployment Clock, and Dev Tools Button
+        # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
-        self.pilotLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
-        self.GL.addLayout(self.pilotLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
+        self.captainLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
+        self.GL.addLayout(self.captainLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
         self.displayTimeElapsedHorizontalContainer = HorizontalContainer()
-        self.pilotLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
+        self.captainLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
         #widgets
-        self.pilotLogTextEntryBox = PilotLogTextEntryBox()
-        self.pilotLogGridContainer.addWidget(self.pilotLogTextEntryBox, 0, 0, 1, -1, Qt.AlignLeft) # -1 means span every column
-        self.pilotLogSaveButton = PilotLogSaveButton()
-        self.pilotLogGridContainer.addWidget(self.pilotLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
+        self.captainLogTextEntryBox = CaptainLogTextEntryBox()
+        self.captainLogGridContainer.addWidget(self.captainLogTextEntryBox, 0, 0, 1, -1, Qt.AlignLeft) # -1 means span every column
+        self.captainLogSaveButton = CaptainLogSaveButton()
+        self.captainLogGridContainer.addWidget(self.captainLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
         self.deploymentTimer = DeploymentTimer(timeVideoStarted)
         self.displayTimeElapsedHorizontalContainer.addWidget(self.deploymentTimer.time, Qt.AlignRight)
         self.devToolsButton = DevToolsButton()
@@ -134,9 +134,9 @@ class MainWindow(QWidget):
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
-        #pilot's log
-        self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
-        self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
+        #captain's log
+        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
+        self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
