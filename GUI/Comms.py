@@ -74,7 +74,7 @@ class Comms(QThread):
     # description: called to send control strings over serial
     def run(self):
         self.threadActive = True
-        lastSuccessfulMessage = None
+        lastSuccessfulMessage = 0
         commsStatusGood = False
         while (self.threadActive):
             # listen for gamepad
@@ -241,12 +241,10 @@ class Comms(QThread):
                     return
                 desiredHeading = int(desiredHeading) % 360
                 self.closed_loop_dict["head"] = 1
-                self.pid_dict["head"] = head_PID(desiredHeading)
-                print("HEADING LOCK SET USING TEXT BOX TO: " + str(desiredHeading))
+                self.pid_dict["head"] = head_PID(desiredHeading, self.pidGainsValuesDict["Heading Kp"], self.pidGainsValuesDict["Heading Ki"], self.pidGainsValuesDict["Heading Kd"])
             else:
                 self.closed_loop_dict["head"] = 1
-                self.pid_dict["head"] = head_PID(self.head)
-                print("HEADING LOCK SET USING CURRENT HEADING TO: " + str(self.head))
+                self.pid_dict["head"] = head_PID(self.head, self.pidGainsValuesDict["Heading Kp"], self.pidGainsValuesDict["Heading Ki"], self.pidGainsValuesDict["Heading Kd"])
         self.headingLockValueUpdate.emit(int(self.pid_dict["head"].getDesiredValue()) if self.pid_dict["head"] != None else -1) #-1 indicates heading lock has been turned off
     def setDepthLockSlot(self, desiredDepth):
         if (self.closed_loop_dict["depth"]):
@@ -262,15 +260,14 @@ class Comms(QThread):
                     return
                 desiredDepth = float(desiredDepth)
                 self.closed_loop_dict["depth"] = 1
-                self.pid_dict["depth"] = depth_PID(desiredDepth)
-                print("DEPTH LOCK SET USING TEXT BOX TO: " + str(desiredDepth))
+                self.pid_dict["depth"] = depth_PID(desiredDepth, self.pidGainsValuesDict["Depth Kp"], self.pidGainsValuesDict["Depth Ki"], self.pidGainsValuesDict["Depth Kd"])
             else:
                 self.closed_loop_dict["depth"] = 1
-                self.pid_dict["depth"] = depth_PID(self.depth)
-                print("DEPTH LOCK SET USING CURRENT DEPTH TO: " + str(self.depth))
+                self.pid_dict["depth"] = depth_PID(self.depth, self.pidGainsValuesDict["Depth Kp"], self.pidGainsValuesDict["Depth Ki"], self.pidGainsValuesDict["Depth Kd"])
         self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
     
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
+        print("SET PID GAINS VALUES DICT")
         self.pidGainsValuesDict = devToolsDict
 
     def stopSlot(self):

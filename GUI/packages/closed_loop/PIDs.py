@@ -2,8 +2,7 @@
 # description: defines the altitude, depth, and heading PID classes, which enables closed loop control of the ROV's motion with respect to those three sensors
 
 from simple_pid import PID
-from config import defaultDepthKp, defaultDepthKd, defaultDepthKi, defaultHeadKp, defaultHeadKi, defaultHeadKd
-
+from config import defaultPidGainsValuesDict
 
 class altitude_PID:
     def __init__(self, desiredAltitude):
@@ -24,13 +23,11 @@ class altitude_PID:
 
 
 class depth_PID:
-    def __init__(self, desiredDepth):
+    def __init__(self, desiredDepth, p=defaultPidGainsValuesDict["Depth Kp"], i=defaultPidGainsValuesDict["Depth Ki"], d=defaultPidGainsValuesDict["Depth Kd"]):
         self.vertical_thruster_amount = 4
         self.desiredDepth = float(desiredDepth)
-        self.Kp = defaultDepthKp
-        self.Ki = defaultDepthKi
-        self.Kd = defaultDepthKd
-        self.pid_instance = PID(self.Kp, self.Ki, self.Kd, setpoint=self.desiredDepth)
+        self.pid_instance = PID(p, i, d, setpoint=self.desiredDepth)
+        print("Depth PID created with pid = " + str(p) + str(i) + str(d))
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-34.32*self.vertical_thruster_amount, 44.13*self.vertical_thruster_amount)
         self.force_to_joystick_ratio_neg = 1/(34.32*self.vertical_thruster_amount)
@@ -48,15 +45,13 @@ class depth_PID:
 
 
 class head_PID:
-    def __init__(self, desiredHead):
+    def __init__(self, desiredHead, p=defaultPidGainsValuesDict["Heading Kp"], i=defaultPidGainsValuesDict["Heading Ki"], d=defaultPidGainsValuesDict["Heading Kd"]):
         self.desiredHead = float(desiredHead)
         self.vector_thruster_amount = 4
         self.vector_thrust_contribution = 0.5
         self.max_moment = 156.9*self.vector_thrust_contribution*self.vector_thruster_amount
-        self.Kp = defaultHeadKp
-        self.Ki = defaultHeadKi
-        self.Kd = defaultHeadKd
-        self.pid_instance = PID(self.Kp, self.Ki, self.Kd, setpoint=self.desiredHead)
+        self.pid_instance = PID(p, i, d, setpoint=self.desiredHead)
+        print("Head PID created with pid = " + str(p) + str(i) + str(d))
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-self.max_moment, self.max_moment)
         self.force_to_joystick_ratio = 1/self.max_moment

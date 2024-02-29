@@ -27,10 +27,10 @@ map2_dict = None
 heading_offset = 180
 NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of February 2024
 
-defaultDepthKp = -7
-defaultDepthKi = -1
-defaultDepthKd = -3
-
-defaultHeadKp = 4
-defaultHeadKi = 1
-defaultHeadKd = 1
+devToolsItemsNamesList = ["Heading Kp", "Heading Ki", "Heading Kd", "Depth Kp", "Depth Ki", "Depth Kd"]
+defaultPidGainsValuesDict = {devToolsItemsNamesList[0]: 4, #heading Kp
+                             devToolsItemsNamesList[1]: 1, #heading Ki
+                             devToolsItemsNamesList[2]: 1, #heading Kd
+                             devToolsItemsNamesList[3]: -7, #depth Kp
+                             devToolsItemsNamesList[4]: -1, #depth Ki
+                             devToolsItemsNamesList[5]: -3} #depth Kd

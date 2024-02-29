@@ -597,16 +597,15 @@ class DevToolsWindow(QDialog):
     # constructor
     def __init__(self):
         super(DevToolsWindow, self).__init__()
-        self.listOfItems = ["first", "second"]
-        self.devToolsItemsDict = {self.listOfItems[0]: None, self.listOfItems[1]: None}
+        self.listOfItems = config.devToolsItemsNamesList #name for each thing pid item the dev tools window needs to be able to edit
+        self.devToolsItemsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window
         self.setGeometry(100, 100, 300, 400)
         # creating a group box
         self.formGroupBox = QGroupBox("Modify Settings:")
         
-        self.item0LineEdit = QLineEdit()
-        self.item1LineEdit = QLineEdit()
+        self.lineEditsDict = self.initializeLineEditsDict()
 
         self.createForm()
 
@@ -618,28 +617,41 @@ class DevToolsWindow(QDialog):
         mainLayout.addWidget(self.formGroupBox)
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
-   
-    # get info method called when form is accepted
-    def getInfo(self):
-        # printing the form information
-        self.devToolsItemsDict[self.listOfItems[0]] = self.item0LineEdit.text()
-        self.devToolsItemsDict[self.listOfItems[1]] = self.item1LineEdit.text()
+        self.devToolsUpdateSignal.emit(self.devToolsItemsDict) #emit an initial signal to give the comms class dictionary starting values
+    def initializeLineEditsDict(self):
+        dict = {}
+        for item in self.listOfItems:
+            dict[item] = QLineEdit(str(self.devToolsItemsDict[item]))
+        return dict
+    def getInfo(self): # get info method called when form is accepted
+        for item in self.listOfItems:
+            self.devToolsItemsDict[item] = self.lineEditsDict[item].text()
         # closing the window
-        self.close()
-        self.devToolsUpdateSignal.emit(self.devToolsItemsDict)
+        if self.validateEntries():
+            self.devToolsUpdateSignal.emit(self.devToolsItemsDict)
+            self.close()
         return
-    
-    # create form method
-    def createForm(self):
+    def reject(self): #reset text values to match up with dictionary upon rejecting
+        for item in self.listOfItems:
+            self.lineEditsDict[item].setText(str(self.devToolsItemsDict[item]))
+    def validateEntries(self):
+        valid = True
+        for item in self.listOfItems:
+            if self.devToolsItemsDict[item].lstrip("-").isdigit():
+                self.devToolsItemsDict[item] = int(self.devToolsItemsDict[item])
+            else:
+                self.lineEditsDict[item].setText("Invalid!")
+                valid = False
+        return valid
+    def createForm(self): # create form method
         # creating a form layout
         layout = QFormLayout()
         # adding rows
-        layout.addRow(QLabel(self.listOfItems[0]), self.item0LineEdit)
-        layout.addRow(QLabel(self.listOfItems[1]), self.item1LineEdit)
+        for item in self.listOfItems:
+            layout.addRow(QLabel(item), self.lineEditsDict[item])
         
         #set the layout
         self.formGroupBox.setLayout(layout)
-
 
 # Requires the start time!
 class DeploymentTimer(QWidget):
