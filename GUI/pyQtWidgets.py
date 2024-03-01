@@ -7,7 +7,6 @@ import os
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
 import config
-import time
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
