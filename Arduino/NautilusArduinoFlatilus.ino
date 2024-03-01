@@ -36,7 +36,7 @@
   #define LIGHT_TOGGLE 37
   #define SAMPLER_TOGGLE 6
   #define LEAK 19
-  #define FLATILUS 0 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
+  #define FLATILUS 1 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
 
   byte PORT_AFT_VECTOR_PIN = 4;
   byte PORT_FWD_VECTOR_PIN = 5;
@@ -50,7 +50,7 @@
 /*
   GLOBAL DEFINES
 */
-  #define FLUID_DENSITY 997// kg/m^3 (997 freshwater, 1029 for seawater)
+  #define FLUID_DENSITY 1029// kg/m^3 (997 freshwater, 1029 for seawater)
   #define accelLimit 20 // microseconds (limits how fast the specktrum brushless motors accelerate) [FLATILUS ONLY]
 
 /*
@@ -58,9 +58,9 @@
 */
   MS5837 pres_sens;                  // pressure sensor
   TSYS01 tmpr_sens;                  // temperature sensor
-  Adafruit_LSM303DLH_Mag_Unified head_sens = Adafruit_LSM303DLH_Mag_Unified(12345); // old imu, currently on nautilus
-  Adafruit_LIS2MDL magnometer = Adafruit_LIS2MDL(54321); //new IMU, currently on flatilus
-  Adafruit_INA260 ina260 = Adafruit_INA260(); //voltage sensor on nautilus
+  Adafruit_LSM303DLH_Mag_Unified head_sens = Adafruit_LSM303DLH_Mag_Unified(12345); // old imu, currently on nautilus <-- swapped to flatilus
+  Adafruit_LIS2MDL magnometer = Adafruit_LIS2MDL(54321); //new IMU, currently on flatilus <-- swapped to nautilus
+  Adafruit_INA260 ina260 = Adafruit_INA260(); //voltage sensor on nautilus 
   HCPCA9685 HCPCA9685(0x41); // adafruit 16 channel servo driver on address 0x41 (default is 0x40, nautilus magnometer has same)
   Parser parser;
   Generator generator;
@@ -121,56 +121,56 @@ void setup(){
     delay(5000);
 
   // Initialize voltage Sensor
-    if(!FLATILUS){
-    if (!ina260.begin()) {
-        Serial.println("Couldn't find INA260 chip");;
-        while (1);
-      }
-      Serial.println("Found INA260 chip");
-    } else {
-      pinMode(A0,INPUT);
+  
+    //if(!FLATILUS){}
+    while (!ina260.begin()) {
+        Serial.println("Couldn't find INA260 chip&");;
+        delay(1000);
     }
-   
-  // Initialize pressure sensor
+    Serial.println("Found INA260 chip");
+    
+    
+  // Initialize pressure sensor 
+  
     while (!pres_sens.init()) {
-      Serial.println("Pressure init failed!");
+      Serial.println("Pressure init failed!&");
       Serial.println("\n");
       delay(3000);
     }
-    Serial.println("Pressure init");
+    Serial.println("Pressure init&");
     pres_sens.setFluidDensity(FLUID_DENSITY); // kg/m^3 (freshwater, 1029 for seawater)
     
   // Initialize temperature sensor
     tmpr_sens.init();
-    Serial.println("Temp init");
+    Serial.println("Temp init&");
 
   // Initialize IMU (heading) sensor
-    if(!FLATILUS){
+    if(FLATILUS){ //used to be !FLATILUS, but changed to reflect temporary hardware swap
       if (!head_sens.begin()) { 
-        Serial.println("IMU init failed!");
+        Serial.println("IMU init failed!&");
       } else{
-        Serial.println("IMU init");
+        Serial.println("IMU init&");
       }
     } else {
       if(!magnometer.begin()){
-        Serial.println("IMU init failed!");
+        Serial.println("IMU init failed!&");
       } else{
-        Serial.println("IMU init");
+        Serial.println("IMU init&");
       }
     }
     
 
   // Initialize echosounder (altimiter)
     while (!ping.initialize()) {
-        Serial.println("\nPing device failed to initialize!");
+        Serial.println("\nPing device failed to initialize!&");
         delay(1000); 
     }
-    Serial.println("Ping init");
+    Serial.println("Ping init&");
   
   // Initialize adafruit servo controller
     HCPCA9685.Init(SERVO_MODE);
     HCPCA9685.Sleep(false);
-    Serial.println("Servo Controller initialized");
+    Serial.println("Servo Controller initialized&");
 
   // Initialize camera tilt servo
     cam_tilt.attach(CAM_TILT);
@@ -189,7 +189,7 @@ void setup(){
 }
 
 void loop() {
-  float heading, voltage, adVoltage, mDistance;
+  float heading, voltage, adVoltage, altitude;
   sensors_event_t event;
 
   // ------ READ MESSAGE FROM TOPSIDE ------
@@ -321,15 +321,16 @@ void loop() {
     // pressure/depth
       pres_sens.read(); //can take about 40ms
 
+
     // temperature
       tmpr_sens.read(); //can take about 40ms
 
     // echosounder
       ping.update();
-      mDistance = ping.distance() / 1000;
+      altitude = ping.distance() / 1000;
 
     // IMU Sensor (heading)
-      if(!FLATILUS){
+      if(FLATILUS){ //used to be !FLATILUS, but changed to reflect temporary hardware swap
         head_sens.getEvent(&event);
       } else {
         magnometer.getEvent(&event);
@@ -343,16 +344,17 @@ void loop() {
         }
 
     // voltage
-      if(!FLATILUS){
+      //if(!FLATILUS){
         voltage = ina260.readBusVoltage() / 1000;
-      } else {
-        adVoltage = float(analogRead(A0)) * 5 / 1023; //convert from analog signal to voltage
-        voltage = adVoltage * 37500 / 7500 ; // MH voltage sensor is a basic voltage divider circuit, 7500 and 30000 are resistances
-      }
+      // } else {
+      //   adVoltage = float(analogRead(A0)) * 5 / 1023; //convert from analog signal to voltage
+      //   voltage = adVoltage * 37500 / 7500 ; // MH voltage sensor is a basic voltage divider circuit, 7500 and 30000 are resistances
+      // }
 
-
+    delay(50);
   // Generate NMEA message and send back up through serial to topside laptop
-    Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, mDistance, leak, voltage));
+    Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, altitude, leak, voltage));
+
     ack++;
 
   first_loop_flag = true;
