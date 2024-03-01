@@ -7,6 +7,7 @@ import os
 from imports import timeDeploymentStarted, timeVideoStarted
 from imports import RotationCounter
 import config
+import time
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -588,7 +589,6 @@ class DevToolsButton(QPushButton):
         self.setText("Dev Tools")
         self.devToolsWindow = DevToolsWindow()
     def openDevToolsSlot(self):
-        print("Opening Dev Tools!")
         self.devToolsWindow.show()
         return
 
@@ -597,49 +597,47 @@ class DevToolsWindow(QDialog):
     # constructor
     def __init__(self):
         super(DevToolsWindow, self).__init__()
-        self.listOfItems = config.devToolsItemsNamesList #name for each thing pid item the dev tools window needs to be able to edit
-        self.devToolsItemsDict = config.defaultPidGainsValuesDict
+        self.devToolsPidValsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window
         self.setGeometry(100, 100, 300, 400)
         # creating a group box
-        self.formGroupBox = QGroupBox("Modify Settings:")
+        self.formGroupBox = QGroupBox("Modify PID Gains:")
         
         self.lineEditsDict = self.initializeLineEditsDict()
 
         self.createForm()
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.buttonBox.accepted.connect(self.getInfo)
-        self.buttonBox.rejected.connect(self.reject)
+        self.buttonBox.accepted.connect(self.acceptChangesToPids)
+        self.buttonBox.rejected.connect(self.denyChangesToPids)
 
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(self.formGroupBox)
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
-        self.devToolsUpdateSignal.emit(self.devToolsItemsDict) #emit an initial signal to give the comms class dictionary starting values
     def initializeLineEditsDict(self):
         dict = {}
-        for item in self.listOfItems:
-            dict[item] = QLineEdit(str(self.devToolsItemsDict[item]))
+        for item in self.devToolsPidValsDict:
+            dict[item] = QLineEdit(str(self.devToolsPidValsDict[item]))
         return dict
-    def getInfo(self): # get info method called when form is accepted
-        for item in self.listOfItems:
-            self.devToolsItemsDict[item] = self.lineEditsDict[item].text()
+    def acceptChangesToPids(self): # get info method called when form is accepted
         # closing the window
         if self.validateEntries():
-            self.devToolsUpdateSignal.emit(self.devToolsItemsDict)
+            self.devToolsUpdateSignal.emit(self.devToolsPidValsDict)
             self.close()
         return
-    def reject(self): #reset text values to match up with dictionary upon rejecting
-        for item in self.listOfItems:
-            self.lineEditsDict[item].setText(str(self.devToolsItemsDict[item]))
+    def denyChangesToPids(self): #reset text values to match up with dictionary upon rejecting
+        for item in self.devToolsPidValsDict:
+            self.lineEditsDict[item].setText(str(self.devToolsPidValsDict[item])) #on cancelling, reset displayed text to whatever is in the dictionary, don't emit anything so no changes are made to comms class dict, and close the window.
+        self.close()
+        return
     def validateEntries(self):
         valid = True
-        for item in self.listOfItems:
-            if self.devToolsItemsDict[item].lstrip("-").isdigit():
-                self.devToolsItemsDict[item] = int(self.devToolsItemsDict[item])
-            else:
+        for item in self.devToolsPidValsDict:
+            try:
+                self.devToolsPidValsDict[item] = float(self.lineEditsDict[item].text()) #transfer what the user typed into the pid values dict to be emitted.
+            except ValueError:
                 self.lineEditsDict[item].setText("Invalid!")
                 valid = False
         return valid
@@ -647,7 +645,7 @@ class DevToolsWindow(QDialog):
         # creating a form layout
         layout = QFormLayout()
         # adding rows
-        for item in self.listOfItems:
+        for item in self.devToolsPidValsDict:
             layout.addRow(QLabel(item), self.lineEditsDict[item])
         
         #set the layout

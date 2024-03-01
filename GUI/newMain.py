@@ -185,6 +185,8 @@ class MainWindow(QWidget):
                 self.stopCommsSignal.emit()
                 event.ignore()
                 return
+            if confirm == QMessageBox.No:
+                event.ignore()
     
     def stopProgramSlot(self):
         #wait for threads to finish
@@ -193,7 +195,7 @@ class MainWindow(QWidget):
         #threads are finished, set shutdown image and wait one second (for any remaining I/O)
         self.feedLabel.setPixmap(QtGui.QPixmap(SHUTDOWN_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
         print("Program Shutdown Successful")
-        QTimer.singleShot(1000, self.threadsAreFinishedSlot) #wait 2 seconds before fully closing program
+        QTimer.singleShot(1000, self.threadsAreFinishedSlot) #wait 1 seconds before fully closing program
     
     @pyqtSlot()
     def threadsAreFinishedSlot(self):

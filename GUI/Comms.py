@@ -23,7 +23,7 @@ class Comms(QThread):
         self.map2_dict = {} # Dictionary for controller 2 for arm control
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
-        self.pidGainsValuesDict = {}
+        self.pidGainsValuesDict = config.defaultPidGainsValuesDict
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
@@ -31,13 +31,13 @@ class Comms(QThread):
         self.logFile = None
         #Comms:
         self.arm_value = 0
-        self.rotationValue = None
-        self.tmpr = None
-        self.depth = None
-        self.head = None
-        self.voltage = None
-        self.altitude = None
-        self.leak = None
+        self.rotationValue = 0
+        self.tmpr = 0
+        self.depth = 0
+        self.head = 0
+        self.voltage = 0
+        self.altitude = 0
+        self.leak = 0
         self.startup()
     def stop(self):
         self.threadActive = False
@@ -237,7 +237,6 @@ class Comms(QThread):
                     int(desiredHeading)
                 except:
                     ValueError
-                    print("Invalid heading value provided!")
                     return
                 desiredHeading = int(desiredHeading) % 360
                 self.closed_loop_dict["head"] = 1
@@ -256,7 +255,6 @@ class Comms(QThread):
                     float(desiredDepth)
                 except:
                     ValueError
-                    print("Invalid depth value provided!")
                     return
                 desiredDepth = float(desiredDepth)
                 self.closed_loop_dict["depth"] = 1
@@ -267,7 +265,6 @@ class Comms(QThread):
         self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
     
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
-        print("SET PID GAINS VALUES DICT")
         self.pidGainsValuesDict = devToolsDict
 
     def stopSlot(self):
