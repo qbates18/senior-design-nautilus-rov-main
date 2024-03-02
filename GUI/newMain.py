@@ -134,8 +134,14 @@ class MainWindow(QWidget):
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
         #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.leakIndicator.commsStatusSlot)
+
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.voltageIndicator.commsStatusSlot)
+
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.depthIndicator.commsStatusSlot)
+
         self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
         #captain's log
         self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))

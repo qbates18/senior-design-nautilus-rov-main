@@ -51,20 +51,16 @@ class Comms(QThread):
 
         #prepare necessary resources for gamepad
         if config.gamepad_flag:
-            #print("gamepad initializing...")
             #gamepad initialization
             generate_dictionaries("map.txt") 
             self.gamepad = Gamepad()
             config.gamepad_flag = self.gamepad.init(0) #why are we doing this
-            #print("gamepad initialized")
         #prepare necessary resources for second gamepad
         if config.gamepad2_flag:
-            #print("second gamepad initializing...")
             #second gamepad initialization
             generate_dictionaries("map2.txt") 
             self.gamepad2 = Gamepad()
             config.gamepad2_flag = self.gamepad2.init(1)
-            #print("second gamepad initialized")
             
         # serial initialization 
         if config.serial_flag:
@@ -82,14 +78,10 @@ class Comms(QThread):
                 self.gamepad.listen(self.gamepad2)
                 interpret(self.gamepad)
                 interpret2(self.gamepad2)
-                pass
-            else:      
-                pass
 
             # Generate string to send subsea
             self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.get_arm(), config.arm_inputs)
             nmea_string_stripped = self.nmea_string.replace(" ", "")
-
             # Write the generated message to log
             write_to_log(nmea_string_stripped, self.logFile)
             # Encode the string to something that can be handled by serial
@@ -111,6 +103,8 @@ class Comms(QThread):
                 if not commsStatusGood:
                     commsStatusGood = True
                     self.commsStatusUpdate.emit(commsStatusGood)
+                    self.leakUpdate.emit(self.leak)
+
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)
                 if ("&" in str_receive_string):#if the string received has an '&' at the end (i.e. it is an error sent up from the arduino, perhaps because it is unable to initialize one of the sensors or something)
@@ -122,7 +116,7 @@ class Comms(QThread):
 
                     #WRITE RECEIVED MESSAGE TO LOG
                     write_to_log(str_receive_string, self.logFile)
-                    #self.DisplayMessageReceivedTextBoxUpdate.emit(str_receive_string)
+                    
                     # If the recieved message is valid, then update the GUI with new sensor values
                     if(initial_token[len(initial_token)-1]=='$' and '*' in end_token and self.validate_receive_string_tokens(receive_string_tokens)):
                         # Read the recieved message for updated values
@@ -132,22 +126,8 @@ class Comms(QThread):
                         altitude = receive_string_tokens[5]
                         leak = receive_string_tokens[6]
                         voltage = receive_string_tokens[7]
-                        
-                        # Add values to the sub_data dictionary to pass to generator
-                        # config.sub_data.assign("TMPR", tmpr)
-                        # config.sub_data.assign("DEPTH", depth)
-                        # config.sub_data.assign("HEAD", head)
-                        # config.sub_data.assign("ALT", altitude)
 
-                        # Update graphs wtih new data
-                        #^This has been removed for development of PyQt gui as opposed to Tkinter
-
-                        # Update GUI sensor display
                         self.update_sensor_readout(tmpr, depth, head, altitude, voltage, leak)
-                        #CLOSED LOOP DICT UPDATE AND PID DICT UPDATE FUNCTIONS ARE COMMENTED OUT TEMPORARILY TO FACILLITATE COMMS INTEGRATION, NEITHER ARE IMPLEMENTED IN NEW CODE
-                        #closed_loop_dict = gui.closed_loop_control()
-                        #pid_dict = gui.return_pids()   
-                        pass
                     else:
                         write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
         return    
@@ -160,12 +140,12 @@ class Comms(QThread):
             except ValueError:
                 return False
         return True
-
+    #function: update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
+    #description: round (if desired) and then emit the value if it is new (i.e. different from self.value).
     def update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
-        #self.rotationValue = self.rotationCounter.calculate_rotation(head)
-		#self.rotLbl['text'] = "ROT: " + str(format(self.rotationValue, '.2f'))
         if not tmpr == self.tmpr:
-            self.temperatureUpdate.emit(str(tmpr))
+            tmpr = str(tmpr)
+            self.temperatureUpdate.emit(tmpr)
             self.tmpr = tmpr
         
         depth = round(float(depth), 1)
@@ -175,7 +155,8 @@ class Comms(QThread):
         
         head = round((float(head)+config.heading_offset) % 360)
         if not head == self.head:
-            self.headUpdate.emit(int(head))
+            head = int(head)
+            self.headUpdate.emit(head)
             self.head = head
         
         altitude = round(float(altitude))
@@ -184,11 +165,13 @@ class Comms(QThread):
             self.altitude = altitude
         
         if not voltage == self.voltage:
-            self.voltageUpdate.emit(float(voltage))
+            voltage = float(voltage)
+            self.voltageUpdate.emit(voltage)
             self.voltage = voltage
         
         if not leak == self.leak:
-            self.leakUpdate.emit(int(float(leak[1:]))) #get rid of leading space, cast to float, cast to int, emit int
+            leak = int(float(leak[1:])) #get rid of leading space, cast to float, cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
+            self.leakUpdate.emit(leak)
             self.leak = leak
     def getHeading(self):
         return self.head
@@ -240,10 +223,16 @@ class Comms(QThread):
                     return
                 desiredHeading = int(desiredHeading) % 360
                 self.closed_loop_dict["head"] = 1
-                self.pid_dict["head"] = head_PID(desiredHeading, self.pidGainsValuesDict["Heading Kp"], self.pidGainsValuesDict["Heading Ki"], self.pidGainsValuesDict["Heading Kd"])
+                self.pid_dict["head"] = head_PID(desiredHeading,
+                                                 self.pidGainsValuesDict["Heading Kp"],
+                                                 self.pidGainsValuesDict["Heading Ki"],
+                                                 self.pidGainsValuesDict["Heading Kd"])
             else:
                 self.closed_loop_dict["head"] = 1
-                self.pid_dict["head"] = head_PID(self.head, self.pidGainsValuesDict["Heading Kp"], self.pidGainsValuesDict["Heading Ki"], self.pidGainsValuesDict["Heading Kd"])
+                self.pid_dict["head"] = head_PID(self.head,
+                                                 self.pidGainsValuesDict["Heading Kp"],
+                                                 self.pidGainsValuesDict["Heading Ki"],
+                                                 self.pidGainsValuesDict["Heading Kd"])
         self.headingLockValueUpdate.emit(int(self.pid_dict["head"].getDesiredValue()) if self.pid_dict["head"] != None else -1) #-1 indicates heading lock has been turned off
     def setDepthLockSlot(self, desiredDepth):
         if (self.closed_loop_dict["depth"]):
@@ -258,10 +247,16 @@ class Comms(QThread):
                     return
                 desiredDepth = float(desiredDepth)
                 self.closed_loop_dict["depth"] = 1
-                self.pid_dict["depth"] = depth_PID(desiredDepth, self.pidGainsValuesDict["Depth Kp"], self.pidGainsValuesDict["Depth Ki"], self.pidGainsValuesDict["Depth Kd"])
+                self.pid_dict["depth"] = depth_PID(desiredDepth,
+                                                   self.pidGainsValuesDict["Depth Kp"],
+                                                   self.pidGainsValuesDict["Depth Ki"],
+                                                   self.pidGainsValuesDict["Depth Kd"])
             else:
                 self.closed_loop_dict["depth"] = 1
-                self.pid_dict["depth"] = depth_PID(self.depth, self.pidGainsValuesDict["Depth Kp"], self.pidGainsValuesDict["Depth Ki"], self.pidGainsValuesDict["Depth Kd"])
+                self.pid_dict["depth"] = depth_PID(self.depth,
+                                                   self.pidGainsValuesDict["Depth Kp"],
+                                                   self.pidGainsValuesDict["Depth Ki"],
+                                                   self.pidGainsValuesDict["Depth Kd"])
         self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
     
     def devToolsItemsDictUpdateSlot(self, devToolsDict):

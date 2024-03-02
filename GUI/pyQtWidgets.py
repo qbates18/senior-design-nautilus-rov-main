@@ -428,6 +428,9 @@ class LeakIndicator(QTextEdit):
     def setIndicatorToNotLeak(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("No Leak Detected")
+    def setIndicatorToLeakUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Leak Status Unknown")
     def leakUpdateSlot(self, leak):
         if (leak):
             self.setIndicatorToLeak()
@@ -436,6 +439,9 @@ class LeakIndicator(QTextEdit):
                 self.leakWarningPopup.popup()
         else:
             self.setIndicatorToNotLeak()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToLeakUnknown()
 
 class LeakWarningPopup(QMessageBox):
     def popup(self):
@@ -463,6 +469,9 @@ class VoltageIndicator(QTextEdit):
     def setIndicatorToBatteryGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Good")
+    def setIndicatorToBatteryUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Battery Status Unknown")
     def voltageUpdateSlot(self, volts):
         if (volts>self.BATTERY_LOW_PER_CELL*self.NUMBER_OF_CELLS):
             self.setIndicatorToBatteryGood()
@@ -474,6 +483,9 @@ class VoltageIndicator(QTextEdit):
             self.batteryCriticalWarningPopup.popup()
         else:
             self.setIndicatorToBatteryCritical()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToBatteryUnknown()
 
 class BatteryCriticalWarningPopup(QMessageBox):
     def popup(self):
@@ -498,6 +510,9 @@ class DepthIndicator(QTextEdit):
     def setDepthIndicatorCritical(self):
         self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Exceeded Max Depth!")
+    def setIndicatorToDepthUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Depth Unknown")
     def depthUpdateSlot(self, depth):
         if (depth<self.DEPTH_WARNING_THRESHHOLD):
             self.setDepthIndicatorGood()
@@ -505,6 +520,9 @@ class DepthIndicator(QTextEdit):
             self.setDepthIndicatorWarning()
         else:
             self.setDepthIndicatorCritical()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToDepthUnknown()
 
 class CommsIndicator(QTextEdit):
     def __init__(self):

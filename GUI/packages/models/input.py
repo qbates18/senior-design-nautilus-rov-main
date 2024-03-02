@@ -11,17 +11,30 @@ class Data:
 			self.val_dict[entry] = 0
 
 	def assign(self, val_name, value):
-		for entry in self.val_names:
-			if val_name == entry:
-				self.val_dict[entry] = value
-				return True
-		return False
+		if val_name in self.val_names:
+			self.val_dict[val_name] = value
+			return True
+		else:
+			return False
+
+		#old way:
+		# for entry in self.val_names:
+		# 	if val_name == entry:
+		# 		self.val_dict[entry] = value
+		# 		return True
+		# return False
 
 	def read(self, val_name):
-		for entry in self.val_names:
-			if val_name == entry:
-				return self.val_dict[entry] 
-		return 0
+		if val_name in self.val_names:
+			return self.val_dict[val_name]
+		else:
+			return 0
+		
+		#old way
+		# for entry in self.val_names:
+		# 	if val_name == entry:
+		# 		return self.val_dict[entry] 
+		# return 0
 
 	def printclass(self):
 		for entry in self.val_names:
