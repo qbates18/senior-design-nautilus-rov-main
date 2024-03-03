@@ -159,7 +159,9 @@ class gaugeWidget(QWidget):
 
         self._angle = 0.0
         self._margins = 10
-        self._pointText = {0: "0", 215: "90"}
+        self._pointText = {0: " ", 15: " ", 30: " ", 45: " ", 75: "100", 90: " ", 
+                           105: " ", 120: " ", 135: "SE", 150: " ", 165: " ", 180: "",
+                           195: " ", 210: " ", 225: "0", 240: " ", 255: " ", 270: " "}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
@@ -252,10 +254,11 @@ class gaugeWidget(QWidget):
         
             if i % 45 == 0:
                 painter.drawLine(-30, 30, -38, 38)
-                #painter.drawText(15, -52,
-                                 #self._pointText[i])
+                painter.drawText((int(-metrics.width(self._pointText[i])/2.0)), -60,
+                                 self._pointText[i])
             else:
                 painter.drawLine(-30, 30, -38, 38)
+                
             
             painter.rotate(15)
             i += 15
