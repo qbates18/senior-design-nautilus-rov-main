@@ -624,7 +624,6 @@ class DevToolsWindow(QDialog):
     # constructor
     def __init__(self):
         super(DevToolsWindow, self).__init__()
-        self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.devToolsPidValsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window
