@@ -614,16 +614,13 @@ class DevToolsButton(QPushButton):
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
-        self.devToolsWindow = DevToolsWindow()
-    def openDevToolsSlot(self):
-        self.devToolsWindow.show()
-        return
 
 class DevToolsWindow(QDialog):
     devToolsUpdateSignal = pyqtSignal(dict)
     # constructor
     def __init__(self):
         super(DevToolsWindow, self).__init__()
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.devToolsPidValsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window
@@ -643,6 +640,9 @@ class DevToolsWindow(QDialog):
         mainLayout.addWidget(self.formGroupBox)
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
+    def openDevToolsSlot(self):
+        self.show()
+        return
     def initializeLineEditsDict(self):
         dict = {}
         for item in self.devToolsPidValsDict:

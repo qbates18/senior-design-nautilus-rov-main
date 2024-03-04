@@ -104,6 +104,9 @@ class Comms(QThread):
                     commsStatusGood = True
                     self.commsStatusUpdate.emit(commsStatusGood)
                     self.leakUpdate.emit(self.leak)
+                    self.voltageUpdate.emit(self.voltage)
+                    self.depthUpdate.emit(self.depth)
+                    
 
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)

@@ -98,7 +98,8 @@ class MainWindow(QWidget):
         self.displayTimeElapsedHorizontalContainer.addWidget(self.deploymentTimer.time, Qt.AlignRight)
         self.devToolsButton = DevToolsButton()
         self.displayTimeElapsedHorizontalContainer.addWidget(self.devToolsButton, Qt.AlignRight)
-
+        self.devToolsWindow = DevToolsWindow()
+        
         # Movement Control Buttons
         #layout
         self.movementControlButtonsVerticalContainer = VerticalContainer()
@@ -165,8 +166,8 @@ class MainWindow(QWidget):
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
         #dev tools
-        self.devToolsButton.clicked.connect(self.devToolsButton.openDevToolsSlot)
-        self.devToolsButton.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
+        self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
+        self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
         #ending the program, one thread at a time...
         self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)
@@ -213,7 +214,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def threadsAreFinishedSlot(self):
         self.threadsFinished = True
-        self.devToolsButton.devToolsWindow.close() #close the devtools window if it's open
+        self.devToolsWindow.close() #close the devtools window if it's open
         self.close() #now that threads are finished, closeEvent slot will execute the True case and event.accept()
 
 
