@@ -35,7 +35,7 @@ class Comms(QThread):
         self.tmpr = 0
         self.depth = 0
         self.head = 0
-        self.voltage = 0
+        self.voltage = None #leave as none to prevent critical battery warning on startup
         self.altitude = 0
         self.leak = 0
         self.startup()
@@ -104,7 +104,7 @@ class Comms(QThread):
                     commsStatusGood = True
                     self.commsStatusUpdate.emit(commsStatusGood)
                     self.leakUpdate.emit(self.leak)
-                    self.voltageUpdate.emit(self.voltage)
+                    if self.voltage != None: self.voltageUpdate.emit(self.voltage)
                     self.depthUpdate.emit(self.depth)
                     
 

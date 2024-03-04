@@ -138,7 +138,7 @@ class VideoRetrieve(QThread):
     
     def run(self):
         self.ThreadActive = True
-        size = (1348, 1011) # (width, height) (1348,1011) Ratio: (1.333333333, 1)
+        size = config.VideoSize
         framesCounter = 0
         firstStart = True
         result = None

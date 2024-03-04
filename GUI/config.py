@@ -33,3 +33,5 @@ defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Depth Kp": -7.0,
                              "Depth Ki": -1.0,
                              "Depth Kd": -3.0}
+
+VideoSize = (1324, 993) # (width, height) (1348,1011) for Wayland and (1324, 993) for X11 Ratio: (1.333333333, 1)

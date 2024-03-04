@@ -7,7 +7,7 @@ from VideoRetrieve import VideoRetrieve
 
 PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
 SHUTDOWN_IMAGE_FILE_NAME = "ShuttingDown.jpg"
-PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
+PLACEHOLDER_IMAGE_SIZE = config.VideoSize
 
 class MainWindow(QWidget):
     stopCommsSignal = pyqtSignal()
