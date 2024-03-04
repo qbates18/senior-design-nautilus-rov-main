@@ -102,45 +102,47 @@ void setup(){
 
   // Initialize voltage Sensor
     while (!ina260.begin()) {
-        Serial.println("Couldn't find INA260 chip&");;
-        delay(1000);
+        Serial.println("\nCouldn't find INA260 chip!&");
+        delay(3000);
     }
     Serial.println("Found INA260 chip&");
     
   // Initialize pressure sensor 
     while (!pres_sens.init()) {
-      Serial.println("Pressure init failed!&");
-      Serial.println("\n");
+      Serial.println("\nPressure init failed!&");
       delay(3000);
     }
-    Serial.println("Pressure init&");
     pres_sens.setFluidDensity(FLUID_DENSITY);
+    Serial.println("Pressure init successful&");
     
   // Initialize temperature sensor
-    tmpr_sens.init();
-    Serial.println("Temp init&");
+    while (!tmpr_sens.init()) {
+      Serial.println("\nTemperature init failed!&");
+      delay(3000);
+    }
+    Serial.println("Temperature init successful&");
 
   // Initialize IMU (heading) sensor
     if(FLATILUS){
-      if (!head_sens.begin()) { 
+      while (!head_sens.begin()) { 
         Serial.println("IMU init failed!&");
-      } else{
-        Serial.println("IMU init&");
+        delay(3000);
       }
+      Serial.println("IMU init successful&");
     } else {
-      if(!magnometer.begin()){
+      while (!magnometer.begin()){
         Serial.println("IMU init failed!&");
-      } else{
-        Serial.println("IMU init&");
+        delay(3000);
       }
+      Serial.println("IMU init successful&");
     }
     
   // Initialize echosounder (altimiter)
     while (!ping.initialize()) {
-        Serial.println("\nPing device failed to initialize!&");
-        delay(1000); 
+        Serial.println("\nEchosounder failed to initialize!&");
+        delay(3000); 
     }
-    Serial.println("Ping init&");
+    Serial.println("Echosounder initialize successful&");
   
   // Initialize adafruit servo controller
     HCPCA9685.Init(SERVO_MODE);
