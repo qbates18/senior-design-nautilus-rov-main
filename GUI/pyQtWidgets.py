@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import datetime
 import os
-from imports import timeDeploymentStarted, timeVideoStarted
+from imports import timeDeploymentStarted
 from imports import RotationCounter
 import config
 
@@ -333,6 +333,13 @@ class MoveArmButton(QPushButton):
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
+class DisplayDepth(QLabel):
+    def __init__(self):
+        super(DisplayDepth, self).__init__()
+        self.setText("Depth: Initializing...")
+    def updateDepthSlot(self, depth):
+        self.setText("Depth: " + str(depth) + " m")
+
 class DisplayAltitude(QLabel):
     def __init__(self):
         super(DisplayAltitude, self).__init__()
@@ -345,7 +352,7 @@ class DisplayTemperature(QLabel):
         super(DisplayTemperature, self).__init__()
         self.setText("Temperature: Initializing...")
     def updateTemperatureSlot(self, temp):
-        self.setText("Temperature: " + temp + " " + u'\N{DEGREE SIGN}' + "C")
+        self.setText("Temperature: " + str(temp) + " " + u'\N{DEGREE SIGN}' + "C")
 
 class DisplayVoltage(QLabel):
     def __init__(self):
@@ -421,8 +428,8 @@ class LeakIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
-        self.setText("Leak Sensor Initializing...")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Leak Indicator Initializing...")
         self.leakWasWarned = False
         self.leakWarningPopup = LeakWarningPopup()
     def setIndicatorToLeak(self):
@@ -459,7 +466,7 @@ class VoltageIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Indicator Initializing...")
         self.batteryCriticalWasWarned = False
         self.batteryCriticalWarningPopup = BatteryCriticalWarningPopup()
@@ -502,7 +509,7 @@ class DepthIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Depth Indicator Initializing...")
     def setDepthIndicatorGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
@@ -533,7 +540,7 @@ class CommsIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Comms Indicator Initializing...")
     def setCommsIndicatorGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
@@ -555,7 +562,7 @@ class CaptainLogTextEntryBox(QTextEdit):
         dateObj = dateOnly
         dateStr = str(dateObj)
         self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
-        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
         self.captainLogFds = None
     def saveTextSlot(self, comms, timer):
@@ -617,6 +624,7 @@ class DevToolsWindow(QDialog):
     # constructor
     def __init__(self):
         super(DevToolsWindow, self).__init__()
+        self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.devToolsPidValsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window

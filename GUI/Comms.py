@@ -4,7 +4,7 @@ from pyQtWidgets import QThread, pyqtSignal
 class Comms(QThread):
     #signals:
     #DisplayMessageReceivedTextBoxUpdate = pyqtSignal(str)
-    temperatureUpdate = pyqtSignal(str)
+    temperatureUpdate = pyqtSignal(float)
     depthUpdate = pyqtSignal(float)
     headUpdate = pyqtSignal(int)
     altitudeUpdate = pyqtSignal(float)
@@ -143,8 +143,8 @@ class Comms(QThread):
     #function: update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
     #description: round (if desired) and then emit the value if it is new (i.e. different from self.value).
     def update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
+        tmpr = round(float(tmpr), 1)
         if not tmpr == self.tmpr:
-            tmpr = str(tmpr)
             self.temperatureUpdate.emit(tmpr)
             self.tmpr = tmpr
         
@@ -153,24 +153,23 @@ class Comms(QThread):
             self.depthUpdate.emit(depth)
             self.depth = depth
         
-        head = round((float(head)+config.heading_offset) % 360)
+        head = int(round((float(head)+config.heading_offset) % 360))
         if not head == self.head:
-            head = int(head)
             self.headUpdate.emit(head)
             self.head = head
         
-        altitude = round(float(altitude))
+        altitude = round(float(altitude), 1)
         if not altitude == self.altitude:
             self.altitudeUpdate.emit(altitude)
             self.altitude = altitude
         
+        voltage = round(float(voltage), 1)
         if not voltage == self.voltage:
-            voltage = float(voltage)
             self.voltageUpdate.emit(voltage)
             self.voltage = voltage
         
         if not leak == self.leak:
-            leak = int(float(leak[1:])) #get rid of leading space, cast to float, cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
+            leak = int(float(leak[1:])) #get rid of leading space, cast to float (because it's a string in the form of "x.xx"), cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
             self.leakUpdate.emit(leak)
             self.leak = leak
     def getHeading(self):
@@ -257,7 +256,7 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Depth Kp"],
                                                    self.pidGainsValuesDict["Depth Ki"],
                                                    self.pidGainsValuesDict["Depth Kd"])
-        self.depthLockValueUpdate.emit(int(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
+        self.depthLockValueUpdate.emit(float(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
     
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
         self.pidGainsValuesDict = devToolsDict

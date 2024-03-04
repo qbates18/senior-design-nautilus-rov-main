@@ -55,12 +55,15 @@ class MainWindow(QWidget):
         self.warningIndicatorsVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
         #widgets
-        self.leakIndicator = LeakIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
-        self.voltageIndicator = VoltageIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
+        
+        self.leakIndicator = LeakIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
+
+        self.voltageIndicator = VoltageIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
+
         self.commsIndicator = CommsIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.commsIndicator, Qt.AlignCenter)
         
@@ -69,14 +72,16 @@ class MainWindow(QWidget):
         self.dataValuesVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
         #widgets
+        self.displayDepth = DisplayDepth()
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(3, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
-        self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(4, self.displayRotations, Qt.AlignCenter)
 
         # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
@@ -126,11 +131,13 @@ class MainWindow(QWidget):
         #video timer start
         self.videoRetrieve.videoStartSignal.connect(self.deploymentTimer.videoStartedSlot)
         #sensor data updates
+        self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.comms.depthUpdate.connect(self.gauge.setAngle) #slot/signal to connect gauge to update function
+
+        self.comms.depthUpdate.connect(self.displayDepth.updateDepthSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
-        self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
-        self.comms.depthUpdate.connect(self.gauge.setAngle) #slot/signal to connect compass to update function
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
         #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
@@ -206,6 +213,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def threadsAreFinishedSlot(self):
         self.threadsFinished = True
+        self.devToolsButton.devToolsWindow.close() #close the devtools window if it's open
         self.close() #now that threads are finished, closeEvent slot will execute the True case and event.accept()
 
 
