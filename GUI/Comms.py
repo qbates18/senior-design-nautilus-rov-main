@@ -25,7 +25,7 @@ class Comms(QThread):
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
         self.pidGainsValuesDict = config.defaultPidGainsValuesDict
-        self.safemode = False
+        self.safemode = True
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
@@ -198,6 +198,7 @@ class Comms(QThread):
     def safemodeSlot(self):
         self.safemode = not self.safemode
         self.safemodeUpdate.emit(self.safemode)
+        print("comms just emitted, safe mode is: " + str(self.safemode))
     def setHeadingLockSlot(self, desiredHeading):
         if (self.closed_loop_dict["head"]):
             self.closed_loop_dict["head"] = 0

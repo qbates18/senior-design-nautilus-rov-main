@@ -151,7 +151,7 @@ class MainWindow(QWidget):
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
         #safe mode
         self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
-        self.comms.safemodeUpdate.connect(self.SafeModeButton.safemodeUpdateSlot)
+        self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)
 
         #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value

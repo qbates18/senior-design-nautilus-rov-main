@@ -306,7 +306,6 @@ class RovSafeModeButton(QPushButton):
     def __init__(self):
         super(RovSafeModeButton, self).__init__()
         self.setText("Safe Mode On")
-        self.setEnabled(True)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
@@ -314,7 +313,7 @@ class RovSafeModeButton(QPushButton):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
     def safemodeUpdateSlot(self, isOn):
         self.setText("Safe Mode On" if isOn else "Safe Mode Off")
-        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else ORANGE_BUTTON_BACKGROUND_COLOR_SS)
 
 
 class ArmMovementOptionsDropdown(QComboBox):
@@ -500,8 +499,8 @@ class BatteryCriticalWarningPopup(QMessageBox):
 class DepthIndicator(QTextEdit):
     def __init__(self):
         super(DepthIndicator, self).__init__()
-        self.DEPTH_WARNING_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH - (config.NAUTILUS_MAX_RATED_DEPTH*0.2) #warn when only 20% of max rated depth remains
-        self.DEPTH_MAX_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH - (config.NAUTILUS_MAX_RATED_DEPTH*0.1) #warn/notify when only 10% of max rated depth remains
+        self.DEPTH_WARNING_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH * 0.9 #warn when only 90% of the safe depth level remains
+        self.DEPTH_MAX_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH #warn/notify when exceeded safe depth level
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
