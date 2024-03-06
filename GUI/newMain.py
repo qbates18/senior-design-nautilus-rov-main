@@ -168,6 +168,7 @@ class MainWindow(QWidget):
         #dev tools
         self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
         self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
+        self.comms.addArduinoErrorMessageUpdate.connect(self.devToolsWindow.arduinoErrorsTextEdit.addErrorSlot) #add messages with ampersands to the devtools window, these messages are supposed to be errors received from the arduino
         #ending the program, one thread at a time...
         self.threadsFinished = False
         self.stopCommsSignal.connect(self.comms.stopSlot)

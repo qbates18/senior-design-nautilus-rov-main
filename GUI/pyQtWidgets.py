@@ -49,6 +49,9 @@ LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
 
 dateOnly = datetime.date.today()
 
+maxDepth = config.NAUTILUS_MAX_RATED_DEPTH
+strMaxDepth = str(maxDepth)
+
 class CompassWidget(QWidget):
 
     angleChanged = pyqtSignal(float)
@@ -157,11 +160,16 @@ class gaugeWidget(QWidget):
         
         QWidget.__init__(self, parent)
 
+        strRoundHalf = str(round(maxDepth/2))
+        strMaxReach = str(round(maxDepth - maxDepth/6))
+        strValue1 = str(round(maxDepth/6))
+        strValue2 = str(round(maxDepth/2 - maxDepth/6))
+        strValue3 = str(round(maxDepth/2 + maxDepth/6))
+
         self._angle = 0.0
         self._margins = 10
-        self._pointText = {0: " ", 15: " ", 30: " ", 45: " ", 75: "100", 90: " ", 
-                           105: " ", 120: " ", 135: "SE", 150: " ", 165: " ", 180: "",
-                           195: " ", 210: " ", 225: "0", 240: " ", 255: " ", 270: " "}
+        self._pointText = {0: strRoundHalf, 45: strValue3, 90: strMaxReach, 135: strMaxDepth,
+                           180: "", 225: "0", 270: strValue1, 315: strValue2}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
@@ -224,10 +232,10 @@ class gaugeWidget(QWidget):
         painter.scale(scale, scale)
 
         painter.setPen(QPen(Qt.green, 4, Qt.SolidLine))
-        painter.drawArc(-47, -47, 94, 94, 10 * 16, 215 * 16)
+        painter.drawArc(-47, -47, 94, 94, -5 * 16, 230 * 16)
 
         painter.setPen(QPen(Qt.red, 4, Qt.SolidLine))
-        painter.drawArc(-47, -47, 94, 94, -45 * 16, 58 * 16)
+        painter.drawArc(-47, -47, 94, 94, -45 * 16, 43 * 16)
 
         painter.restore()
 
@@ -249,15 +257,16 @@ class gaugeWidget(QWidget):
         painter.setPen(QPen(Qt.gray, 2, Qt.SolidLine))
 
         i = 0
-        
-        while i < 283:
+
+        while i < 360: # 18 markings
         
             if i % 45 == 0:
-                painter.drawLine(-30, 30, -38, 38)
-                painter.drawText((int(-metrics.width(self._pointText[i])/2.0)), -60,
+                painter.drawText((int(-metrics.width(self._pointText[i])/2.0)), -55,
                                  self._pointText[i])
-            else:
-                painter.drawLine(-30, 30, -38, 38)
+                if i != 315:
+                    painter.drawLine(-30, 30, -37, 37)
+            elif i < 270:
+                painter.drawLine(-30, 30, -37, 37)
                 
             
             painter.rotate(15)
@@ -623,21 +632,24 @@ class DevToolsWindow(QDialog):
         self.devToolsPidValsDict = config.defaultPidGainsValuesDict
         self.setWindowTitle("Dev Tools")
         # setting geometry to the window
-        self.setGeometry(100, 100, 300, 400)
-        # creating a group box
+        self.setGeometry(100, 100, 700, 350)
+        # creating group boxes/layouts
+        self.formLayout = QVBoxLayout()
         self.formGroupBox = QGroupBox("Modify PID Gains:")
+        self.arduinoErrorsGroupBox = QGroupBox("Arduino Errors:")
         
         self.lineEditsDict = self.initializeLineEditsDict()
-
-        self.createForm()
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.buttonBox.accepted.connect(self.acceptChangesToPids)
         self.buttonBox.rejected.connect(self.denyChangesToPids)
 
-        mainLayout = QVBoxLayout()
-        mainLayout.addWidget(self.formGroupBox)
-        mainLayout.addWidget(self.buttonBox)
+        self.createArduinoErrorsDisplay()
+        self.createForm()
+
+        mainLayout = QHBoxLayout()
+        mainLayout.addWidget(self.arduinoErrorsGroupBox)
+        mainLayout.addLayout(self.formLayout)
         self.setLayout(mainLayout)
     def openDevToolsSlot(self):
         self.show()
@@ -676,6 +688,21 @@ class DevToolsWindow(QDialog):
         
         #set the layout
         self.formGroupBox.setLayout(layout)
+        self.formLayout.addWidget(self.formGroupBox)
+        self.formLayout.addWidget(self.buttonBox)
+    def createArduinoErrorsDisplay(self):
+        self.arduinoErrorsTextEdit = ArduinoErrorsTextEdit()
+        layout = VerticalContainer()
+        layout.addWidget(self.arduinoErrorsTextEdit)
+        self.arduinoErrorsGroupBox.setLayout(layout)
+
+class ArduinoErrorsTextEdit(QTextEdit):
+    def __init__(self):
+        super(ArduinoErrorsTextEdit, self).__init__()
+        self.setReadOnly(True)
+    def addErrorSlot(self, error):
+        self.insertPlainText(str(datetime.datetime.now() - timeDeploymentStarted)[:-5] + ": " + error + "\n")
+
 
 # Requires the start time!
 class DeploymentTimer(QWidget):

@@ -158,7 +158,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 		servo2 = arm_inputs.read("S2_FORWARD") - arm_inputs.read("S2_BACK")
 		s2_mapped = round(map(servo2, -1,1, 10, 420), 1)
 		
-		servo3 = arm_inputs.read("S3_FORWARD") - arm_inputs.read("S3_BACK")
+		servo3 = arm_inputs.read("S3_LEFT") - arm_inputs.read("S3_RIGHT")
 		s3_mapped = round(map(servo3, -1,1, 10, 420), 1)
 		
 	# Servo 4 is the end effector, independent of joint/endpoint control

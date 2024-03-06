@@ -14,6 +14,7 @@ class Comms(QThread):
     headingLockValueUpdate = pyqtSignal(int)
     depthLockValueUpdate = pyqtSignal(float)
     commsStatusUpdate = pyqtSignal(bool)
+    addArduinoErrorMessageUpdate = pyqtSignal(str)
     def __init__(self):
         super(Comms, self).__init__()
         self.threadActive = False
@@ -111,7 +112,7 @@ class Comms(QThread):
                 # Parse the message received from the subsea Arduino
                 str_receive_string = str(receive_string)
                 if ("&" in str_receive_string):#if the string received has an '&' at the end (i.e. it is an error sent up from the arduino, perhaps because it is unable to initialize one of the sensors or something)
-                    print("\nError Received From Arduino!\n" + str_receive_string + "\n") #print the message
+                    self.addArduinoErrorMessageUpdate.emit(str_receive_string)
                 else:
                     receive_string_tokens = str_receive_string.split(',', 8)
                     initial_token=list(receive_string_tokens[0])
