@@ -24,7 +24,7 @@ s5_mapped = 0
 
 # function: generate()
 # description: generate a message to send commands to the ROV using the National Marine Electronics Association (NMEA) string protocol
-def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_inputs):
+def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_disarm_value, arm_inputs):
 	global ack_id
 	global l_tog_flag
 	global s_tog_flag
@@ -56,7 +56,11 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_disarm_value, arm_i
 		if input.read("UP") > 0 and input.read("DOWN") == 0:
 			output = add_next(output, str(format(input.read("UP"), '.3f')))
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
-			output = add_next(output, str(format(input.read("DOWN"), '.3f')))
+			# If safe mode is on and the current depth is dangerous
+			if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # current depth dangerous, also implied that depth lock is off and controls are going down
+				output = add_next(output, str(format(0, '.3f'))) # do nothing?
+			else:
+				output = add_next(output, str(format(input.read("DOWN"), '.3f')))
 		else:
 			output = add_next(output, str(format(0, '.3f')))
 	# If the altitude lock is enabled use altitude closed loop control

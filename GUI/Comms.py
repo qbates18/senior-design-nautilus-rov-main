@@ -11,6 +11,7 @@ class Comms(QThread):
     voltageUpdate = pyqtSignal(float)
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
+    safemodeUpdate = pyqtSignal(bool)
     headingLockValueUpdate = pyqtSignal(int)
     depthLockValueUpdate = pyqtSignal(float)
     commsStatusUpdate = pyqtSignal(bool)
@@ -25,6 +26,7 @@ class Comms(QThread):
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
         self.pidGainsValuesDict = config.defaultPidGainsValuesDict
+        self.safemode = True
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
@@ -81,7 +83,7 @@ class Comms(QThread):
                 interpret2(self.gamepad2)
 
             # Generate string to send subsea
-            self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.get_arm(), config.arm_inputs)
+            self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.safemode, self.depth, self.get_arm(), config.arm_inputs)
             nmea_string_stripped = self.nmea_string.replace(" ", "")
             # Write the generated message to log
             write_to_log(nmea_string_stripped, self.logFile)
@@ -196,6 +198,10 @@ class Comms(QThread):
     def armRovSlot(self):
         self.arm_value = 0 if self.arm_value else 1 #take care that arm_value isn't turned into a bool because generator.py assumes it to be an int
         self.armUpdate.emit(self.arm_value)
+    def safemodeSlot(self):
+        self.safemode = not self.safemode
+        self.safemodeUpdate.emit(self.safemode)
+        print("comms just emitted, safe mode is: " + str(self.safemode))
     def setHeadingLockSlot(self, desiredHeading):
         if (self.closed_loop_dict["head"]):
             self.closed_loop_dict["head"] = 0

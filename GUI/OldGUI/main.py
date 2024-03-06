@@ -74,7 +74,8 @@ def processes():
         pass
 
     # Generate string to send subsea
-    nmea_string = generate(config.top_data, config.sub_data, closed_loop_dict, pid_dict, gui.return_arm(), config.arm_inputs)
+    # as of 03/2024 this set of parameters is no longer used and this code will have to be updated to properly connect to that function
+    nmea_string = generate(config.top_data, config.sub_data, closed_loop_dict, pid_dict, gui.return_arm(), config.arm_inputs) 
     nmea_string_stripped = nmea_string.replace(" ", "")
 
     # Write the generated message to log

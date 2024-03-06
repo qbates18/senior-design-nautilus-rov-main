@@ -36,7 +36,7 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Guage and Depth Lock (is just another compass for now...)
+        # Depth Guage and Depth Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
@@ -157,6 +157,10 @@ class MainWindow(QWidget):
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        #safe mode
+        self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
+        self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)
+
         #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value
         self.headingLockTextBox.headValueFromTextBox.connect(self.comms.setHeadingLockSlot) #when the text box emits its current value, comms class gets that value and sets heading lock based on it (setHeadingLockSlot)
