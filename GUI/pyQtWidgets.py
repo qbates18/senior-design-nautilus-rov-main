@@ -2,6 +2,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtProperty
 import datetime
 import os
 from imports import timeDeploymentStarted, timeVideoStarted
@@ -301,7 +302,6 @@ class RovArmedButton(QPushButton):
         self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS if isArmed else GREEN_BUTTON_BACKGROUND_COLOR_SS)
 
 
-
 class RovSafeModeButton(QPushButton):
     def __init__(self):
         super(RovSafeModeButton, self).__init__()
@@ -311,6 +311,11 @@ class RovSafeModeButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
+    def safemodeUpdateSlot(self, isOn):
+        self.setText("Safe Mode On" if isOn else "Safe Mode Off")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else GREY_BUTTON_BACKGROUND_COLOR_SS)
+
 
 class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
@@ -320,6 +325,7 @@ class ArmMovementOptionsDropdown(QComboBox):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+
 
 class MoveArmButton(QPushButton):
     def __init__(self):
