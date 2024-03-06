@@ -25,8 +25,8 @@ map_dict = None
 map2_dict = None
 
 heading_offset = 180
-NAUTILUS_MAX_RATED_DEPTH = 3 #100 as of February 2024
-NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle at
+NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of March 2024
+NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle at and depth warning indicator should turn red at (it will turn orange at NAUTILUS_MAX_RATED_DEPTH * NAUTILUS_SAFE_DEPTH * 0.9)
 
 defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Heading Ki": 1.0,

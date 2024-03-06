@@ -538,9 +538,9 @@ class DepthIndicator(QTextEdit):
         self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Depth Unknown")
     def depthUpdateSlot(self, depth):
-        if (depth<self.DEPTH_WARNING_THRESHHOLD):
+        if (depth<=self.DEPTH_WARNING_THRESHHOLD):
             self.setDepthIndicatorGood()
-        elif (depth<self.DEPTH_MAX_THRESHHOLD):
+        elif (depth<=self.DEPTH_MAX_THRESHHOLD):
             self.setDepthIndicatorWarning()
         else:
             self.setDepthIndicatorCritical()
