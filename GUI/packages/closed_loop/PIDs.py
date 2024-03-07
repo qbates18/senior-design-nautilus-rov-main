@@ -61,8 +61,8 @@ class head_PID:
         if abs(currentValue-self.pid_instance.setpoint) <= 180:
             output = self.pid_instance(currentValue)
         else:
-            if currentValue > self.pid_instance.setpoint:
-                lower_input_value = (360 - currentValue)
+            if currentValue > self.pid_instance.setpoint: #THIS DOESN"T MAKE SENSE?
+                lower_input_value = (currentValue - 360) #old:  360 - currentValue
                 output = self.pid_instance(lower_input_value)
             else:
                 higher_input_value = (360 + currentValue)

@@ -159,7 +159,7 @@ class Comms(QThread):
             self.depthUpdate.emit(depth)
             self.depth = depth
         
-        head = int(round((float(head)+config.heading_offset) % 360))
+        head = int(round((360 - float(head) + config.heading_offset) % 360))
         if not head == self.head:
             self.headUpdate.emit(head)
             self.head = head

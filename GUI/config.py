@@ -24,7 +24,7 @@ arm_inputs = Data(["S1_LEFT", "S1_RIGHT", "S2_FORWARD", "S2_BACK", "S3_LEFT", "S
 map_dict = None
 map2_dict = None
 
-heading_offset = 180
+heading_offset = 13
 NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of March 2024
 NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle at and depth warning indicator should turn red at (it will turn orange at NAUTILUS_MAX_RATED_DEPTH * NAUTILUS_SAFE_DEPTH * 0.9)
 
