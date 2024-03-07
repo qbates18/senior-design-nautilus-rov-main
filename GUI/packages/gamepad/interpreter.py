@@ -35,15 +35,15 @@ time_step = .001
 # description: calculates joint values to move end effector in XYZ as commanded by controller inputs
 # input: 
 def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
-    global thetas, deltaThetas, previousThetaDots, L1, L2, gain
+	global thetas, deltaThetas, previousThetaDots, L1, L2, gain
 
-    xDots = np.array([[xDot], [yDot], [zDot]])
+	xDots = np.array([[xDot], [yDot], [zDot]])
 
 	# ------ Create inverse jacobian matrix ------
-    t1 = thetas[0][0]
-    t2 = thetas[1][0]
-    t3 = -thetas[1][0]
-    t4 = thetas[2][0]
+	t1 = thetas[0][0]
+	t2 = thetas[1][0]
+	t3 = -thetas[1][0]
+	t4 = thetas[2][0]
 	
 	# original
     #a = -(L1 * math.sin(t1 + t2)) / 2 - (L1 * math.sin(t1 - t2)) / 2 - L2 * math.sin(t1 + t4)
@@ -66,32 +66,32 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 	i = 0
 	
 	jacobian = np.array([[a, b, c], [d, e, f], [g, h, i]])
-    inv_jacobian = np.linalg.inv(jacobian)
+	inv_jacobian = np.linalg.inv(jacobian)
 
 	# ------ Calculate the theta dots ------
-    thetaDots = np.matmul(inv_jacobian, xDots)
-    thetaDots = thetaDots * gain
+	thetaDots = np.matmul(inv_jacobian, xDots)
+	thetaDots = thetaDots * gain
 
 	# ------ Calculate the change in theta ------
-    for x in range(3):        
-        deltaThetas[x][0] = gain * (time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5)
-    previousThetaDots = thetaDots
+	for x in range(3):        
+		deltaThetas[x][0] = gain * (time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5)
+	previousThetaDots = thetaDots
 
 	# ------ Calculate the XYZ coordinates of the end effector ------
-    thetas = thetas + deltaThetas
-    print((thetas * 180) / math.pi)
-    t1 = thetas[0][0]
-    t2 = thetas[1][0]
-    t3 = -thetas[1][0]
-    t4 = thetas[2][0]
+	thetas = thetas + deltaThetas
+	print((thetas * 180) / math.pi)
+	t1 = thetas[0][0]
+	t2 = thetas[1][0]
+	t3 = -thetas[1][0]
+	t4 = thetas[2][0]
 	x = L0 * math.cos(t1) - L4 * (math.sin(t1) * math.sin(t4) - math.cos(t4) * (math.cos(t1) * math.sin(t2) * math.sin(t3) - math.cos(t1) * math.cos(t2) * math.cos(t3))) - L3 * (math.cos(t1) * math.cos(t2) * math.sin(t3) + math.cos(t1) * math.cos(t3) * math.sin(t2)) + L2 * math.cos(t1) * math.cos(t2)
 	y = L3 * (math.cos(t2) * math.sin(t1) * math.sin(t3) + math.cos(t3) * math.sin(t1) * math.sin(t2)) - L0 * math.sin(t1) - L4 * (math.cos(t1) * math.sin(t4) + math.cos(t4) * (math.sin(t1) * math.sin(t2) * math.sin(t3) - math.cos(t2) * math.cos(t3) * math.sin(t1))) - L2 * math.cos(t2) * math.sin(t1)
 	z = L1 - L3 * math.cos(t2 + t3) - L2 * math.sin(t2) + L4 * math.sin(t2 + t3) * math.cos(t4)
-    print("X: {}\n".format(x))
-    print("Y: {}\n".format(y))
-    print("Z: {}\n".format(z))
+	print("X: {}\n".format(x))
+	print("Y: {}\n".format(y))
+	print("Z: {}\n".format(z))
 
-    return deltaThetas
+	return deltaThetas
 
 
 
