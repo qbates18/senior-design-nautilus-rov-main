@@ -12,8 +12,9 @@
 #
 # Distributed under terms of the MIT license.
 
-import pygame
 import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide" #stops pygame message from printing to console on startup
+import pygame
 import time
 import math 
 

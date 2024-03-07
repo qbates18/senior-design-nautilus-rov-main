@@ -6,9 +6,11 @@ from Comms import Comms
 from VideoRetrieve import VideoRetrieve
 
 PLACEHOLDER_IMAGE_FILE_NAME = "CameraLogo.jpg"
-PLACEHOLDER_IMAGE_SIZE = (1348, 1011) #this should matchup with the size set in the run function of VideoRetrieve.py
+SHUTDOWN_IMAGE_FILE_NAME = "ShuttingDown.jpg"
+PLACEHOLDER_IMAGE_SIZE = config.VideoSize
 
 class MainWindow(QWidget):
+    stopCommsSignal = pyqtSignal()
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
@@ -34,15 +36,15 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Guage and Depth Lock (is just another compass for now...)
+        # Depth Guage and Depth Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
         self.depthLockHorizontalContainer = HorizontalContainer()
         self.depthVerticalContainer.insertLayout(1, self.depthLockHorizontalContainer, Qt.AlignCenter)
         #widgets
-        self.guage = CompassWidget()
-        self.depthVerticalContainer.insertWidget(0, self.guage, Qt.AlignCenter)
+        self.gauge = gaugeWidget()
+        self.depthVerticalContainer.insertWidget(0, self.gauge, Qt.AlignCenter)
         self.depthLockButton = DepthLockButton()
         self.depthLockHorizontalContainer.addWidget(self.depthLockButton, Qt.AlignCenter)
         self.depthLockTextBox = DepthLockTextBox()
@@ -53,43 +55,51 @@ class MainWindow(QWidget):
         self.warningIndicatorsVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
         #widgets
-        self.leakIndicator = LeakIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
-        self.voltageIndicator = VoltageIndicator()
-        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
+        
+        self.leakIndicator = LeakIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.leakIndicator, Qt.AlignCenter)
+
+        self.voltageIndicator = VoltageIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.voltageIndicator, Qt.AlignCenter)
+
+        self.commsIndicator = CommsIndicator()
+        self.warningIndicatorsVerticalContainer.addWidget(self.commsIndicator, Qt.AlignCenter)
         
         # Display Raw Values
         #layout
         self.dataValuesVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
         #widgets
+        self.displayDepth = DisplayDepth()
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVerticalContainer.insertWidget(0, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVerticalContainer.insertWidget(1, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVerticalContainer.insertWidget(2, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(3, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
-        self.dataValuesVerticalContainer.insertWidget(3, self.displayRotations, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(4, self.displayRotations, Qt.AlignCenter)
 
-        # Pilot's Log, Deployment Clock, and Dev Features Button
+        # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
-        self.pilotLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
-        self.GL.addLayout(self.pilotLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
+        self.captainLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
+        self.GL.addLayout(self.captainLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
         self.displayTimeElapsedHorizontalContainer = HorizontalContainer()
-        self.pilotLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
+        self.captainLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
         #widgets
-        self.pilotLogTextEntryBox = PilotLogTextEntryBox()
-        self.pilotLogGridContainer.addWidget(self.pilotLogTextEntryBox, 0, 0, 1, -1, Qt.AlignLeft) # -1 means span every column
-        self.pilotLogSaveButton = PilotLogSaveButton()
-        self.pilotLogGridContainer.addWidget(self.pilotLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
+        self.captainLogTextEntryBox = CaptainLogTextEntryBox()
+        self.captainLogGridContainer.addWidget(self.captainLogTextEntryBox, 0, 0, 1, -1, Qt.AlignLeft) # -1 means span every column
+        self.captainLogSaveButton = CaptainLogSaveButton()
+        self.captainLogGridContainer.addWidget(self.captainLogSaveButton, 1, 0, 1, 1, Qt.AlignLeft)
         self.deploymentTimer = DeploymentTimer(timeVideoStarted)
         self.displayTimeElapsedHorizontalContainer.addWidget(self.deploymentTimer.time, Qt.AlignRight)
-        self.devFeaturesButton = DevFeaturesButton()
-        self.displayTimeElapsedHorizontalContainer.addWidget(self.devFeaturesButton, Qt.AlignRight)
-
+        self.devToolsButton = DevToolsButton()
+        self.displayTimeElapsedHorizontalContainer.addWidget(self.devToolsButton, Qt.AlignRight)
+        self.devToolsWindow = DevToolsWindow()
+        
         # Movement Control Buttons
         #layout
         self.movementControlButtonsVerticalContainer = VerticalContainer()
@@ -122,21 +132,35 @@ class MainWindow(QWidget):
         #video timer start
         self.videoRetrieve.videoStartSignal.connect(self.deploymentTimer.videoStartedSlot)
         #sensor data updates
+        self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
+        self.comms.depthUpdate.connect(self.gauge.setAngle) #slot/signal to connect gauge to update function
+
+        self.comms.depthUpdate.connect(self.displayDepth.updateDepthSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
-        self.comms.headUpdate.connect(self.compass.setAngle) #slot/signal to connect compass to update function
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
         #indicators
         self.comms.leakUpdate.connect(self.leakIndicator.leakUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.leakIndicator.commsStatusSlot)
+
         self.comms.voltageUpdate.connect(self.voltageIndicator.voltageUpdateSlot)
+        self.comms.commsStatusUpdate.connect(self.voltageIndicator.commsStatusSlot)
+
         self.comms.depthUpdate.connect(self.depthIndicator.depthUpdateSlot)
-        #pilot's log
-        self.pilotLogSaveButton.clicked.connect(lambda: self.pilotLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
-        self.pilotLogTextEntryBox.textChanged.connect(self.pilotLogTextEntryBox.textChangedSlot)
+        self.comms.commsStatusUpdate.connect(self.depthIndicator.commsStatusSlot)
+
+        self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
+        #captain's log
+        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
+        self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        #safe mode
+        self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
+        self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)
+
         #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value
         self.headingLockTextBox.headValueFromTextBox.connect(self.comms.setHeadingLockSlot) #when the text box emits its current value, comms class gets that value and sets heading lock based on it (setHeadingLockSlot)
@@ -145,30 +169,58 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #dev tools
+        self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
+        self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
+        self.comms.addArduinoErrorMessageUpdate.connect(self.devToolsWindow.arduinoErrorsTextEdit.addErrorSlot) #add messages with ampersands to the devtools window, these messages are supposed to be errors received from the arduino
+        #ending the program, one thread at a time...
+        self.threadsFinished = False
+        self.stopCommsSignal.connect(self.comms.stopSlot)
+        self.comms.finished.connect(self.videoRetrieve.stopSlot)
+        self.videoRetrieve.finished.connect(self.stopProgramSlot)
+
         #General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
 
+    # Updating Developer Tools Values:
+    def updateDevToolsValues(self, devToolsItemsDict):
+        print(devToolsItemsDict)
+
+    # Updating the Camera frame
     def ImageUpdateSlot(self, Image):
         self.feedLabel.setPixmap(QPixmap.fromImage(Image)) #display a frame on the feedLabel object in the GUI
 
-    def StopVideo(self): #calls Video Retrieval thread to stop capturing video
-        self.videoRetrieve.stop()
-    def StopComms(self): #calls Comms thread to stop sending and receiving messages with arduino
-        self.comms.stop()
-
+    # Stopping the program:
     def closeEvent(self, event):
-        confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
-
-        if confirm == QMessageBox.Yes:
-            #stop each thread
-            self.StopComms()
-            print("Comms stopped!")
-            self.StopVideo()
-            print("Video stopped!")
+        if self.threadsFinished:
             event.accept()
+            return
         else:
-            event.ignore()
+            confirm = QMessageBox.question(self, "Quit?", "Are you sure you want to quit the application?", QMessageBox.Yes, QMessageBox.No)
+            if confirm == QMessageBox.Yes:
+                # use slots and signals to stop each thread
+                print("Request Program Shutdown")
+                self.stopCommsSignal.emit()
+                event.ignore()
+                return
+            if confirm == QMessageBox.No:
+                event.ignore()
+    
+    def stopProgramSlot(self):
+        #wait for threads to finish
+        self.comms.wait()
+        self.videoRetrieve.wait()
+        #threads are finished, set shutdown image and wait one second (for any remaining I/O)
+        self.feedLabel.setPixmap(QtGui.QPixmap(SHUTDOWN_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
+        print("Program Shutdown Successful")
+        QTimer.singleShot(1000, self.threadsAreFinishedSlot) #wait 1 seconds before fully closing program
+    
+    @pyqtSlot()
+    def threadsAreFinishedSlot(self):
+        self.threadsFinished = True
+        self.devToolsWindow.close() #close the devtools window if it's open
+        self.close() #now that threads are finished, closeEvent slot will execute the True case and event.accept()
 
 
 if __name__ == "__main__":

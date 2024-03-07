@@ -2,9 +2,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtProperty
 import datetime
-from imports import timeDeploymentStarted, timeVideoStarted
+import os
+from imports import timeDeploymentStarted
 from imports import RotationCounter
+import config
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -26,6 +29,9 @@ RED_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(255, 30, 30, 60%);"
 BLUE_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(75, 150, 255, 60%)"
 GREY_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(128, 128, 128, 60%)"
 
+QCOLOR_BLUE = QColor(75, 150, 255, 100)
+QCOLOR_GREY = QColor(128, 128, 126, 100)
+
 SMALL_TEXT_BOX_MAX_WIDTH = 40
 
 COMPASS_FIXED_WIDTH = 200
@@ -34,13 +40,18 @@ COMPASS_FIXED_HEIGHT = 200
 INDICATOR_FIXED_HEIGHT = 40
 INDICATOR_MIN_WIDTH = 80
 
-PILOT_LOG_MIN_WIDTH = 460
+CAPTAIN_LOG_MIN_WIDTH = 460
 
 LAYOUT_CONTENTS_MARGINS = 5
 LAYOUT_CONTENTS_MARGINS_LEFT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_RIGHT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
+
+dateOnly = datetime.date.today()
+
+maxDepth = config.NAUTILUS_MAX_RATED_DEPTH
+strMaxDepth = str(maxDepth)
 
 class CompassWidget(QWidget):
 
@@ -116,7 +127,7 @@ class CompassWidget(QWidget):
                       QPoint(0, 45), QPoint(-10, 0)])
             )
         
-        painter.setBrush(self.palette().brush(QPalette.Highlight))
+        painter.setBrush(QBrush(QCOLOR_BLUE))
         
         painter.drawPolygon(
             QPolygon([QPoint(-5, -25), QPoint(0, -45), QPoint(5, -25),
@@ -135,13 +146,149 @@ class CompassWidget(QWidget):
     # was float
     @pyqtSlot(int)
     def setAngle(self, angle):
-    
         if angle != self._angle:
             self._angle = angle
             self.angleChanged.emit(angle)
             self.update()
     
     angle = pyqtProperty(float, angle, setAngle)
+
+class gaugeWidget(QWidget):
+
+    angleChanged = pyqtSignal(float)
+
+    def __init__(self, parent = None):
+        
+        QWidget.__init__(self, parent)
+
+        strRoundHalf = str(round(maxDepth/2))
+        strMaxReach = str(round(maxDepth - maxDepth/6))
+        strValue1 = str(round(maxDepth/6))
+        strValue2 = str(round(maxDepth/2 - maxDepth/6))
+        strValue3 = str(round(maxDepth/2 + maxDepth/6))
+
+        self._angle = 0.0
+        self._margins = 10
+        self._pointText = {0: strRoundHalf, 45: strValue3, 90: strMaxReach, 135: strMaxDepth,
+                           180: "", 225: "0", 270: strValue1, 315: strValue2}
+        self.setFixedWidth(COMPASS_FIXED_WIDTH)
+        self.setFixedHeight(COMPASS_FIXED_HEIGHT)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        #painter.begin(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        self.drawCircleGauge(painter)
+        self.drawColor(painter)
+        self.drawMarkings(painter)
+        self.drawNeedle(painter)
+        
+        #painter.end()
+
+    def drawNeedle(self, painter):
+
+        painter.save()
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
+
+        painter.setPen(QPen(QCOLOR_GREY,  2, Qt.SolidLine))
+        painter.setBrush(QBrush(QCOLOR_BLUE, Qt.SolidPattern))
+        painter.drawEllipse(-5, -5, 10, 10)
+
+        painter.rotate(self._angle)
+
+        painter.setPen(QPen(QCOLOR_BLUE, 2, Qt.SolidLine))
+        painter.setBrush(QBrush(QCOLOR_BLUE, Qt.SolidPattern))
+        points = [
+            QPoint(0,0),
+            QPoint(-36,36),
+            ]
+        poly = QPolygon(points)
+        painter.drawPolygon(poly)
+
+        painter.restore()
+
+    def drawCircleGauge(self, painter):
+        painter.save()
+
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
+
+        painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
+        painter.drawArc(-44, -44, 88, 88, -45 * 16, 270 * 16)
+
+        painter.restore()
+
+    def drawColor(self, painter):
+        painter.save()
+
+        painter.translate(self.width()/2, (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
+
+        painter.setPen(QPen(Qt.green, 4, Qt.SolidLine))
+        painter.drawArc(-47, -47, 94, 94, -5 * 16, 230 * 16)
+
+        painter.setPen(QPen(Qt.red, 4, Qt.SolidLine))
+        painter.drawArc(-47, -47, 94, 94, -45 * 16, 43 * 16)
+
+        painter.restore()
+
+    def drawMarkings(self, painter):
+        
+        painter.save()
+        painter.translate((self.width()/2), (self.height()/2)+10)
+        scale = min((self.width() - self._margins)/120.0,
+                    (self.height() - self._margins)/120.0)
+        painter.scale(scale, scale)
+
+        font = QFont(self.font())
+        font.setPixelSize(10)
+        metrics = QFontMetricsF(font)
+        
+        painter.setFont(font)
+        painter.setPen(self.palette().color(QPalette.Shadow))
+
+        painter.setPen(QPen(Qt.gray, 2, Qt.SolidLine))
+
+        i = 0
+
+        while i < 360: # 18 markings
+        
+            if i % 45 == 0:
+                painter.drawText((int(-metrics.width(self._pointText[i])/2.0)), -55,
+                                 self._pointText[i])
+                if i != 315:
+                    painter.drawLine(-30, 30, -37, 37)
+            elif i < 270:
+                painter.drawLine(-30, 30, -37, 37)
+                
+            
+            painter.rotate(15)
+            i += 15
+        
+        painter.restore()
+    
+    def angle(self):
+        return self._angle
+
+    @pyqtSlot(float)
+    def setAngle(self, angle):
+        angle = ((angle*270)/config.NAUTILUS_MAX_RATED_DEPTH)
+        if angle > 270:
+            angle = 270
+    
+        if angle != self._angle:
+            self._angle = angle
+            self.angleChanged.emit(angle)
+            self.update()
+    
 
 class VerticalContainer(QVBoxLayout):
     def __init__(self):
@@ -167,16 +314,19 @@ class RovArmedButton(QPushButton):
         self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS if isArmed else GREEN_BUTTON_BACKGROUND_COLOR_SS)
 
 
-
 class RovSafeModeButton(QPushButton):
     def __init__(self):
         super(RovSafeModeButton, self).__init__()
         self.setText("Safe Mode On")
-        self.setEnabled(True)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
+    def safemodeUpdateSlot(self, isOn):
+        self.setText("Safe Mode On" if isOn else "Safe Mode Off")
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+
 
 class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
@@ -187,6 +337,7 @@ class ArmMovementOptionsDropdown(QComboBox):
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
+
 class MoveArmButton(QPushButton):
     def __init__(self):
         super(MoveArmButton, self).__init__()
@@ -195,6 +346,13 @@ class MoveArmButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+
+class DisplayDepth(QLabel):
+    def __init__(self):
+        super(DisplayDepth, self).__init__()
+        self.setText("Depth: Initializing...")
+    def updateDepthSlot(self, depth):
+        self.setText("Depth: " + str(depth) + " m")
 
 class DisplayAltitude(QLabel):
     def __init__(self):
@@ -208,7 +366,7 @@ class DisplayTemperature(QLabel):
         super(DisplayTemperature, self).__init__()
         self.setText("Temperature: Initializing...")
     def updateTemperatureSlot(self, temp):
-        self.setText("Temperature: " + temp + " " + u'\N{DEGREE SIGN}' + "C")
+        self.setText("Temperature: " + str(temp) + " " + u'\N{DEGREE SIGN}' + "C")
 
 class DisplayVoltage(QLabel):
     def __init__(self):
@@ -284,7 +442,8 @@ class LeakIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setIndicatorToNotLeak()
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Leak Indicator Initializing...")
         self.leakWasWarned = False
         self.leakWarningPopup = LeakWarningPopup()
     def setIndicatorToLeak(self):
@@ -293,6 +452,9 @@ class LeakIndicator(QTextEdit):
     def setIndicatorToNotLeak(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("No Leak Detected")
+    def setIndicatorToLeakUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Leak Status Unknown")
     def leakUpdateSlot(self, leak):
         if (leak):
             self.setIndicatorToLeak()
@@ -301,6 +463,9 @@ class LeakIndicator(QTextEdit):
                 self.leakWarningPopup.popup()
         else:
             self.setIndicatorToNotLeak()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToLeakUnknown()
 
 class LeakWarningPopup(QMessageBox):
     def popup(self):
@@ -315,7 +480,8 @@ class VoltageIndicator(QTextEdit):
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setIndicatorToBatteryGood()
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Battery Indicator Initializing...")
         self.batteryCriticalWasWarned = False
         self.batteryCriticalWarningPopup = BatteryCriticalWarningPopup()
     def setIndicatorToBatteryCritical(self):
@@ -327,6 +493,9 @@ class VoltageIndicator(QTextEdit):
     def setIndicatorToBatteryGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Battery Good")
+    def setIndicatorToBatteryUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Battery Status Unknown")
     def voltageUpdateSlot(self, volts):
         if (volts>self.BATTERY_LOW_PER_CELL*self.NUMBER_OF_CELLS):
             self.setIndicatorToBatteryGood()
@@ -338,6 +507,9 @@ class VoltageIndicator(QTextEdit):
             self.batteryCriticalWarningPopup.popup()
         else:
             self.setIndicatorToBatteryCritical()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToBatteryUnknown()
 
 class BatteryCriticalWarningPopup(QMessageBox):
     def popup(self):
@@ -346,12 +518,13 @@ class BatteryCriticalWarningPopup(QMessageBox):
 class DepthIndicator(QTextEdit):
     def __init__(self):
         super(DepthIndicator, self).__init__()
-        self.DEPTH_WARNING_THRESHHOLD = 80.0
-        self.DEPTH_MAX_THRESHHOLD = 90.0
+        self.DEPTH_WARNING_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH * 0.9 #warn when only 90% of the safe depth level remains
+        self.DEPTH_MAX_THRESHHOLD = config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH #warn/notify when exceeded safe depth level
         self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
         self.setMinimumWidth(INDICATOR_MIN_WIDTH)
         self.setReadOnly(True)
-        self.setDepthIndicatorGood()
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Depth Indicator Initializing...")
     def setDepthIndicatorGood(self):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Depth Good")
@@ -361,37 +534,68 @@ class DepthIndicator(QTextEdit):
     def setDepthIndicatorCritical(self):
         self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
         self.setText("Exceeded Max Depth!")
+    def setIndicatorToDepthUnknown(self):
+        self.setStyleSheet(ORANGE_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Depth Unknown")
     def depthUpdateSlot(self, depth):
-        if (depth<self.DEPTH_WARNING_THRESHHOLD):
+        if (depth<=self.DEPTH_WARNING_THRESHHOLD):
             self.setDepthIndicatorGood()
-        elif (depth<self.DEPTH_MAX_THRESHHOLD):
+        elif (depth<=self.DEPTH_MAX_THRESHHOLD):
             self.setDepthIndicatorWarning()
         else:
             self.setDepthIndicatorCritical()
+    def commsStatusSlot(self, status):
+        if not status:
+            self.setIndicatorToDepthUnknown()
 
-class PilotLogTextEntryBox(QTextEdit):
+class CommsIndicator(QTextEdit):
+    def __init__(self):
+        super(CommsIndicator, self).__init__()
+        self.setFixedHeight(INDICATOR_FIXED_HEIGHT)
+        self.setMinimumWidth(INDICATOR_MIN_WIDTH)
+        self.setReadOnly(True)
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Comms Indicator Initializing...")
+    def setCommsIndicatorGood(self):
+        self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Communications Good")
+    def setCommsIndicatorCritical(self):
+        self.setStyleSheet(RED_BUTTON_BACKGROUND_COLOR_SS)
+        self.setText("Communications Lost!")
+    def commsIndicatorUpdateSlot(self, commsGood):
+        if commsGood:
+            self.setCommsIndicatorGood()
+        else:
+            self.setCommsIndicatorCritical()
+
+class CaptainLogTextEntryBox(QTextEdit):
     emptyTextWroteUpon = pyqtSignal()
     def __init__(self):
-        super(PilotLogTextEntryBox, self).__init__()
-        self.setMinimumWidth(PILOT_LOG_MIN_WIDTH)
-        self.pilotLogFileName = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'s Log ' + str(timeDeploymentStarted) #this should be changed so that the datetime on the video saved is the exact same as the datetime on the captains logfile to easily match them with one another
+        super(CaptainLogTextEntryBox, self).__init__()
+        self.setMinimumWidth(CAPTAIN_LOG_MIN_WIDTH)
+        dateObj = dateOnly
+        dateStr = str(dateObj)
+        self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
+        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
-        self.pilotLogFds = None
+        self.captainLogFds = None
     def saveTextSlot(self, comms, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
-            self.pilotLogFds = open(self.pilotLogFileName, 'a')
-            self.pilotLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
-                                   + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                   + "Heading: " + str(comms.getHeading())
-                                   + ", Depth: " + str(comms.getDepth())
-                                   + " m, Altitude: " + str(comms.getAltitude())
-                                   + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                   + "C, Voltage: " + str(comms.getVoltage())
-                                   + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                   + ", Rotations: " + str(comms.getRotation()) + "\n")
-            self.pilotLogFds.write(logText + "\n\n")
-            self.pilotLogFds.close()
+            if not os.path.isdir(self.logFolderString):
+                os.mkdir(self.logFolderString)
+            self.captainLogFds = open(self.captainLogFileName, 'a')
+            self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
+                                + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
+                                + "Heading: " + str(comms.getHeading())
+                                + ", Depth: " + str(comms.getDepth())
+                                + " m, Altitude: " + str(comms.getAltitude())
+                                + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
+                                + "C, Voltage: " + str(comms.getVoltage())
+                                + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
+                                + ", Rotations: " + str(comms.getRotation()) + "\n")
+            self.captainLogFds.write(logText + "\n\n")
+            self.captainLogFds.close()
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()
@@ -399,9 +603,9 @@ class PilotLogTextEntryBox(QTextEdit):
         if (len(self.toPlainText()) == 1):
             self.setPlaceholderText("")
 
-class PilotLogSaveButton(QPushButton):
+class CaptainLogSaveButton(QPushButton):
     def __init__(self):
-        super(PilotLogSaveButton, self).__init__()
+        super(CaptainLogSaveButton, self).__init__()
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
@@ -416,15 +620,93 @@ class DisplayTimeElapsed(QLabel):
         self.setMinimumWidth(CLOCK_MIN_WIDTH)
         self.setText("Clock: Initializing...")
 
-
-class DevFeaturesButton(QPushButton):
+class DevToolsButton(QPushButton):
     def __init__(self):
-        super(DevFeaturesButton, self).__init__()
+        super(DevToolsButton, self).__init__()
         self.setMaximumWidth(DEV_BUTTON_MAX_WIDTH)
         self.setMaximumHeight(DEV_BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
+
+class DevToolsWindow(QDialog):
+    devToolsUpdateSignal = pyqtSignal(dict)
+    # constructor
+    def __init__(self):
+        super(DevToolsWindow, self).__init__()
+        self.devToolsPidValsDict = config.defaultPidGainsValuesDict
+        self.setWindowTitle("Dev Tools")
+        # setting geometry to the window
+        self.setGeometry(100, 100, 700, 350)
+        # creating group boxes/layouts
+        self.formLayout = QVBoxLayout()
+        self.formGroupBox = QGroupBox("Modify PID Gains:")
+        self.arduinoErrorsGroupBox = QGroupBox("Arduino Errors:")
+        
+        self.lineEditsDict = self.initializeLineEditsDict()
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.acceptChangesToPids)
+        self.buttonBox.rejected.connect(self.denyChangesToPids)
+
+        self.createArduinoErrorsDisplay()
+        self.createForm()
+
+        mainLayout = QHBoxLayout()
+        mainLayout.addWidget(self.arduinoErrorsGroupBox)
+        mainLayout.addLayout(self.formLayout)
+        self.setLayout(mainLayout)
+    def openDevToolsSlot(self):
+        self.show()
+        return
+    def initializeLineEditsDict(self):
+        dict = {}
+        for item in self.devToolsPidValsDict:
+            dict[item] = QLineEdit(str(self.devToolsPidValsDict[item]))
+        return dict
+    def acceptChangesToPids(self): # get info method called when form is accepted
+        # closing the window
+        if self.validateEntries():
+            self.devToolsUpdateSignal.emit(self.devToolsPidValsDict)
+            self.close()
+        return
+    def denyChangesToPids(self): #reset text values to match up with dictionary upon rejecting
+        for item in self.devToolsPidValsDict:
+            self.lineEditsDict[item].setText(str(self.devToolsPidValsDict[item])) #on cancelling, reset displayed text to whatever is in the dictionary, don't emit anything so no changes are made to comms class dict, and close the window.
+        self.close()
+        return
+    def validateEntries(self):
+        valid = True
+        for item in self.devToolsPidValsDict:
+            try:
+                self.devToolsPidValsDict[item] = float(self.lineEditsDict[item].text()) #transfer what the user typed into the pid values dict to be emitted.
+            except ValueError:
+                self.lineEditsDict[item].setText("Invalid!")
+                valid = False
+        return valid
+    def createForm(self): # create form method
+        # creating a form layout
+        layout = QFormLayout()
+        # adding rows
+        for item in self.devToolsPidValsDict:
+            layout.addRow(QLabel(item), self.lineEditsDict[item])
+        
+        #set the layout
+        self.formGroupBox.setLayout(layout)
+        self.formLayout.addWidget(self.formGroupBox)
+        self.formLayout.addWidget(self.buttonBox)
+    def createArduinoErrorsDisplay(self):
+        self.arduinoErrorsTextEdit = ArduinoErrorsTextEdit()
+        layout = VerticalContainer()
+        layout.addWidget(self.arduinoErrorsTextEdit)
+        self.arduinoErrorsGroupBox.setLayout(layout)
+
+class ArduinoErrorsTextEdit(QTextEdit):
+    def __init__(self):
+        super(ArduinoErrorsTextEdit, self).__init__()
+        self.setReadOnly(True)
+    def addErrorSlot(self, error):
+        self.insertPlainText(str(datetime.datetime.now() - timeDeploymentStarted)[:-5] + ": " + error + "\n")
 
 
 # Requires the start time!
