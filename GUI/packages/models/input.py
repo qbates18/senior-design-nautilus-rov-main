@@ -28,6 +28,7 @@ class Data:
 		if val_name in self.val_names:
 			return self.val_dict[val_name]
 		else:
+			print("UNABLE TO FIND VALUE FOR " + str(val_name))
 			return 0
 		
 		#old way

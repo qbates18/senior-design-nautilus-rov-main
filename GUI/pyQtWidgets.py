@@ -8,6 +8,7 @@ import os
 from imports import timeDeploymentStarted
 from imports import RotationCounter
 import config
+from config import sub_data
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
@@ -380,12 +381,11 @@ class DisplayRotations(QLabel):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
         self.rotationCounter = RotationCounter()
-        self.rotations = None
     def updateRotationsSlot(self, heading):
         newRotations = round(self.rotationCounter.calculate_rotation(heading))
-        if newRotations != self.rotations:
-            self.rotations = newRotations
-            self.setText("Rotations: " + str(self.rotations))
+        if newRotations != sub_data.read("ROT"):
+            sub_data.assign("ROT", newRotations)
+            self.setText("Rotations: " + str(newRotations))
 
 class HeadingLockButton(QPushButton):
     def __init__(self):
@@ -579,7 +579,7 @@ class CaptainLogTextEntryBox(QTextEdit):
         self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
         self.captainLogFds = None
-    def saveTextSlot(self, comms, timer):
+    def saveTextSlot(self, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
             if not os.path.isdir(self.logFolderString):
@@ -587,13 +587,13 @@ class CaptainLogTextEntryBox(QTextEdit):
             self.captainLogFds = open(self.captainLogFileName, 'a')
             self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                 + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                + "Heading: " + str(comms.getHeading())
-                                + ", Depth: " + str(comms.getDepth())
-                                + " m, Altitude: " + str(comms.getAltitude())
-                                + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                + "C, Voltage: " + str(comms.getVoltage())
-                                + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                + ", Rotations: " + str(comms.getRotation()) + "\n")
+                                + "Heading: " + str(sub_data.read("HEAD"))
+                                + ", Depth: " + str(sub_data.read("DEPTH"))
+                                + " m, Altitude: " + str(sub_data.read("ALT"))
+                                + " m, Temperature: " + str(sub_data.read("TMPR")) + " " + u'\N{DEGREE SIGN}'
+                                + "C, Voltage: " + str(sub_data.read("VOLT"))
+                                + " V, Leak: " + ("True" if (sub_data.read("LEAK")) else "False")
+                                + ", Rotations: " + str(sub_data.read("ROT")) + "\n")
             self.captainLogFds.write(logText + "\n\n")
             self.captainLogFds.close()
             self.entryNumber += 1

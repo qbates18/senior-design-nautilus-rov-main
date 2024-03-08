@@ -152,7 +152,7 @@ class MainWindow(QWidget):
 
         self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
         #captain's log
-        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
+        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)

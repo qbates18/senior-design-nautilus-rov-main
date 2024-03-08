@@ -1,5 +1,6 @@
 from imports import *
 from pyQtWidgets import QThread, pyqtSignal
+from config import sub_data
 
 class Comms(QThread):
     #signals:
@@ -26,21 +27,12 @@ class Comms(QThread):
         self.closed_loop_dict={"head" : 0, "depth" : 0, "altitude" : 0}
         self.pid_dict={"head": None, "depth": None, "altitude": None}
         self.pidGainsValuesDict = config.defaultPidGainsValuesDict
-        self.safemode = True
         self.gamepad = None
         self.gamepad2 = None
         self.port = '/dev/ttyUSB0' # Should be /dev/ttyUSB0, but every time the FXTI is unpluged and repluged in the it increments by 1 (such as to /dev/ttyUSB1) (more info check README.md)
         self.ard = None # Short for Arduino, this becomes the object which deals with serial communication with the ROV
         self.logFile = None
-        #Comms:
-        self.arm_value = 0
-        self.rotationValue = 0
-        self.tmpr = 0
-        self.depth = 0
-        self.head = 0
-        self.voltage = None #leave as none to prevent critical battery warning on startup
-        self.altitude = 0
-        self.leak = 0
+
         self.startup()
     def stop(self):
         self.threadActive = False
@@ -83,7 +75,7 @@ class Comms(QThread):
                 interpret2(self.gamepad2)
 
             # Generate string to send subsea
-            self.nmea_string = generate(config.top_data, config.sub_data, self.closed_loop_dict, self.pid_dict, self.safemode, self.depth, self.get_arm(), config.arm_inputs)
+            self.nmea_string = generate(config.top_data, sub_data, self.closed_loop_dict, self.pid_dict, config.arm_inputs)
             nmea_string_stripped = self.nmea_string.replace(" ", "")
             # Write the generated message to log
             write_to_log(nmea_string_stripped, self.logFile)
@@ -106,9 +98,9 @@ class Comms(QThread):
                 if not commsStatusGood:
                     commsStatusGood = True
                     self.commsStatusUpdate.emit(commsStatusGood)
-                    self.leakUpdate.emit(self.leak)
-                    if self.voltage != None: self.voltageUpdate.emit(self.voltage)
-                    self.depthUpdate.emit(self.depth)
+                    self.leakUpdate.emit(sub_data.read("LEAK"))
+                    if sub_data.read("VOLT") != None: self.voltageUpdate.emit(sub_data.read("VOLT"))
+                    self.depthUpdate.emit(sub_data.read("DEPTH"))
                     
 
                 # Parse the message received from the subsea Arduino
@@ -133,7 +125,7 @@ class Comms(QThread):
                         leak = receive_string_tokens[6]
                         voltage = receive_string_tokens[7]
 
-                        self.update_sensor_readout(tmpr, depth, head, altitude, voltage, leak)
+                        self.update_sensor_values(tmpr, depth, head, altitude, voltage, leak)
                     else:
                         write_to_log("THE PREVIOUS LOG WAS EVALUATED AS INVALID!!", self.logFile)
         return    
@@ -146,62 +138,34 @@ class Comms(QThread):
             except ValueError:
                 return False
         return True
-    #function: update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
+    #function: update_sensor_values(self, tmpr, depth, head, altitude, voltage, leak):
     #description: round (if desired) and then emit the value if it is new (i.e. different from self.value).
-    def update_sensor_readout(self, tmpr, depth, head, altitude, voltage, leak):
-        tmpr = round(float(tmpr), 1)
-        if not tmpr == self.tmpr:
-            self.temperatureUpdate.emit(tmpr)
-            self.tmpr = tmpr
+    def update_sensor_values(self, tmpr, depth, head, altitude, voltage, leak):
+        #emit values for use by the GUI
+        processedLeak = int(float(leak[1:]))
+        processedHead = int(round((360 - float(head) + config.heading_offset) % 360))
+
+        self.temperatureUpdate.emit(round(float(tmpr), 1))
+        self.depthUpdate.emit(round(float(depth), 1))
+        self.headUpdate.emit(processedHead)
+        self.altitudeUpdate.emit(round(float(altitude), 1))
+        self.voltageUpdate.emit(round(float(voltage), 1))
+        self.leakUpdate.emit(processedLeak) #get rid of leading space, cast to float (because it's a string in the form of "x.xx"), cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
         
-        depth = round(float(depth), 1)
-        if not depth == self.depth:
-            self.depthUpdate.emit(depth)
-            self.depth = depth
-        
-        head = int(round((360 - float(head) + config.heading_offset) % 360))
-        if not head == self.head:
-            self.headUpdate.emit(head)
-            self.head = head
-        
-        altitude = round(float(altitude), 1)
-        if not altitude == self.altitude:
-            self.altitudeUpdate.emit(altitude)
-            self.altitude = altitude
-        
-        voltage = round(float(voltage), 1)
-        if not voltage == self.voltage:
-            self.voltageUpdate.emit(voltage)
-            self.voltage = voltage
-        
-        if not leak == self.leak:
-            leak = int(float(leak[1:])) #get rid of leading space, cast to float (because it's a string in the form of "x.xx"), cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
-            self.leakUpdate.emit(leak)
-            self.leak = leak
-    def getHeading(self):
-        return self.head
-    def getVoltage(self):
-        return self.voltage
-    def getAltitude(self):
-        return self.altitude
-    def getDepth(self):
-        return self.depth
-    def getTemperature(self):
-        return self.tmpr
-    def getLeak(self):
-        return self.leak
-    def getRotation(self):
-        return self.rotationValue
-    #Return true if ROV is armed, false if ROV is disarmed
-    def get_arm(self):
-        return self.arm_value
+        #update the values used by generator function
+        sub_data.assign("TMPR", tmpr)
+        sub_data.assign("DEPTH", depth)
+        sub_data.assign("HEAD", processedHead)
+        sub_data.assign("ALT", altitude)
+        sub_data.assign("VOLT", voltage)
+        sub_data.assign("LEAK", processedLeak)
+
     def armRovSlot(self):
-        self.arm_value = 0 if self.arm_value else 1 #take care that arm_value isn't turned into a bool because generator.py assumes it to be an int
-        self.armUpdate.emit(self.arm_value)
+        sub_data.assign("ARM", 0 if sub_data.read("ARM") else 1) #take care that arm_value isn't turned into a bool because generator.py assumes it to be an int
+        self.armUpdate.emit(sub_data.read("ARM"))
     def safemodeSlot(self):
-        self.safemode = not self.safemode
-        self.safemodeUpdate.emit(self.safemode)
-        print("comms just emitted, safe mode is: " + str(self.safemode))
+        sub_data.assign("SAFE", not sub_data.read("SAFE"))
+        self.safemodeUpdate.emit(sub_data.read("SAFE"))
     def setHeadingLockSlot(self, desiredHeading):
         if (self.closed_loop_dict["head"]):
             self.closed_loop_dict["head"] = 0
@@ -238,7 +202,8 @@ class Comms(QThread):
                                                  self.pidGainsValuesDict["Heading Kd"])
             else:
                 self.closed_loop_dict["head"] = 1
-                self.pid_dict["head"] = head_PID(self.head,
+                print("CREATING HEAD PID WITH DESIRED HEADING: " + str(sub_data.read("HEAD")))
+                self.pid_dict["head"] = head_PID(sub_data.read("HEAD"),
                                                  self.pidGainsValuesDict["Heading Kp"],
                                                  self.pidGainsValuesDict["Heading Ki"],
                                                  self.pidGainsValuesDict["Heading Kd"])
@@ -262,7 +227,7 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Depth Kd"])
             else:
                 self.closed_loop_dict["depth"] = 1
-                self.pid_dict["depth"] = depth_PID(self.depth,
+                self.pid_dict["depth"] = depth_PID(sub_data.read("DEPTH"),
                                                    self.pidGainsValuesDict["Depth Kp"],
                                                    self.pidGainsValuesDict["Depth Ki"],
                                                    self.pidGainsValuesDict["Depth Kd"])
