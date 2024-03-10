@@ -233,6 +233,31 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Depth Kd"])
         self.depthLockValueUpdate.emit(float(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
     
+    def setAltitudeLockSlot(self, desiredAltitude):
+        if (self.closed_loop_dict["altitude"]):
+            self.closed_loop_dict["altitude"] = 0
+            self.pid_dict["altitude"] = None
+        else:
+            if (desiredAltitude != ""):
+                try:
+                    float(desiredAltitude)
+                except:
+                    ValueError
+                    return
+                desiredAltitude = float(desiredAltitude)
+                self.closed_loop_dict["altitude"] = 1
+                self.pid_dict["altitude"] = altitude_PID(desiredAltitude,
+                                                   self.pidGainsValuesDict["Altitude Kp"],
+                                                   self.pidGainsValuesDict["Altitude Ki"],
+                                                   self.pidGainsValuesDict["Altitude Kd"])
+            else:
+                self.closed_loop_dict["altitude"] = 1
+                self.pid_dict["altitude"] = altitude_PID(sub_data.read("ALTITUDE"),
+                                                   self.pidGainsValuesDict["Altitude Kp"],
+                                                   self.pidGainsValuesDict["Altitude Ki"],
+                                                   self.pidGainsValuesDict["Altitude Kd"])
+        self.depthLockValueUpdate.emit(float(self.pid_dict["altitude"].getDesiredValue()) if self.pid_dict["altitude"] != None else -1)
+
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
         self.pidGainsValuesDict = devToolsDict
 

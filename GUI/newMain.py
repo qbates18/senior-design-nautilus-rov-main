@@ -36,7 +36,7 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Guage and Depth Lock
+        # Depth Guage, Depth Lock, Altitude Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
@@ -50,10 +50,21 @@ class MainWindow(QWidget):
         self.depthLockTextBox = DepthLockTextBox()
         self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
 
+        #Altitude Lock
+        self.altitudeVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.altitudeVerticalContainer, 2, 1, 1, 2, Qt.AlignCenter)
+        self.altitudeLockHorizontalContainer = HorizontalContainer()
+        self.altitudeVerticalContainer.insertLayout(0, self.altitudeLockHorizontalContainer, Qt.AlignCenter)
+
+        self.altitudeLockButton = altitudeLockButton()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockButton, Qt. AlignCenter)
+        self.altitudeLockTextBox = altitudeLockTextBox()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockTextBox, Qt. AlignCenter)
+
         # Warning Indicators
         #layout
         self.warningIndicatorsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 3, 1, 1, 1, Qt.AlignCenter)
         #widgets
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
@@ -70,7 +81,7 @@ class MainWindow(QWidget):
         # Display Raw Values
         #layout
         self.dataValuesVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.dataValuesVerticalContainer, 3, 2, 1, 1, Qt.AlignCenter)
         #widgets
         self.displayDepth = DisplayDepth()
         self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
@@ -86,7 +97,7 @@ class MainWindow(QWidget):
         # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
         self.captainLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
-        self.GL.addLayout(self.captainLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
+        self.GL.addLayout(self.captainLogGridContainer, 4, 1, 1, 2, Qt.AlignCenter)
         self.displayTimeElapsedHorizontalContainer = HorizontalContainer()
         self.captainLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
         #widgets

@@ -436,6 +436,31 @@ class DepthLockTextBox(QLineEdit):
     def sendValueSlot(self):
         self.depthValueFromTextBox.emit(self.text())
 
+class altitudeLockButton(QPushButton):
+    def __init__(self):
+        super(altitudeLockButton, self).__init__()
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(SHORTER_BUTTON_MIN_HEIGHT)
+        self.setText("Altitude Lock Off")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+    def altitudeLockValueUpdateSlot(self, desiredAltitude):
+        if (desiredAltitude == -1):
+            self.setText("Altitude Lock Off")
+            self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        else:
+            self.setText("Altitude Lock Set To " + str(desiredAltitude))
+            self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
+
+class altitudeLockTextBox(QLineEdit):
+    altitudeValueFromTextBox = pyqtSignal(str)
+    def __init__(self):
+        super(altitudeLockTextBox, self).__init__()
+        self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+    def sendValueSlot(self):
+        self.altitudeValueFromTextBox.emit(self.text())
+
 class LeakIndicator(QTextEdit):
     def __init__(self):
         super(LeakIndicator, self).__init__()
