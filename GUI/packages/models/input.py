@@ -8,7 +8,7 @@ class Data:
 		self.val_names = val_names
 
 		for entry in self.val_names:
-			self.val_dict[entry] = 0
+			self.val_dict[entry] = None
 
 	def assign(self, val_name, value):
 		if val_name in self.val_names:
@@ -28,6 +28,7 @@ class Data:
 		if val_name in self.val_names:
 			return self.val_dict[val_name]
 		else:
+			print("UNABLE TO FIND VALUE FOR " + str(val_name))
 			return 0
 		
 		#old way

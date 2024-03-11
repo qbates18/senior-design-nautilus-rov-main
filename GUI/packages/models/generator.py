@@ -24,18 +24,23 @@ s5_mapped = 0
 
 # function: generate()
 # description: generate a message to send commands to the ROV using the National Marine Electronics Association (NMEA) string protocol
-def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_disarm_value, arm_inputs):
+def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	global ack_id
 	global l_tog_flag
 	global s_tog_flag
 	global s1_mapped, s2_mapped, s3_mapped, s4_mapped, s5_mapped  
 	
 
-	temp_pres = subData.read("PRES")
 	temp_tmpr = subData.read("TMPR")
-	temp_alt = subData.read("ALT")
+	temp_depth = subData.read("DEPTH")
 	temp_head = subData.read("HEAD")
+	temp_alt = subData.read("ALT")
+	temp_voltage = subData.read("VOLT")
+	temp_leak = subData.read("LEAK")
+	temp_safemode = subData.read("SAFE")
+	temp_arm = subData.read("ARM")
 
+	
 	# ------ Token1: Start of string ------
 	output =  "$"
 
@@ -57,7 +62,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 			output = add_next(output, str(format(input.read("UP"), '.3f')))
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
 			# If safe mode is on and the current depth is dangerous
-			if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # current depth dangerous, also implied that depth lock is off and controls are going down
+			if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # current depth dangerous, also implied that depth lock is off and controls are going down
 				output = add_next(output, str(format(0, '.3f'))) # do nothing?
 			else:
 				output = add_next(output, str(format(input.read("DOWN"), '.3f')))
@@ -68,7 +73,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 		output = add_next(output, str(format(pid_dict["altitude"].calculate_next(temp_alt), '.3f'))) 
 	# If depth lock is enabled use depth closed loop control
 	elif closed_loop_dict["depth"] == 1 and closed_loop_dict["altitude"] == 0:
-		output = add_next(output, str(format(pid_dict["depth"].calculate_next(temp_pres), '.3f'))) 
+		output = add_next(output, str(format(pid_dict["depth"].calculate_next(temp_depth), '.3f'))) 
 	else:
 		output = add_next(output, str(format(0, '.3f')))
 	
@@ -122,7 +127,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 		output = add_next(output, 'S')
 
 	# ------ Token10: GUI Arm/Disarm Value for ROV Motion ------
-	output = add_next(output, str(arm_disarm_value))
+	output = add_next(output, str(temp_arm))
 	
 
 	# ------ Token11-15: Controller2 Robotic Manipulator Joint Servo Values ------

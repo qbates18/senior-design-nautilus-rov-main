@@ -36,7 +36,7 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Guage and Depth Lock
+        # Depth Guage, Depth Lock, Altitude Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
@@ -50,10 +50,21 @@ class MainWindow(QWidget):
         self.depthLockTextBox = DepthLockTextBox()
         self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
 
+        #Altitude Lock
+        self.altitudeVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.altitudeVerticalContainer, 2, 1, 1, 2, Qt.AlignCenter)
+        self.altitudeLockHorizontalContainer = HorizontalContainer()
+        self.altitudeVerticalContainer.insertLayout(0, self.altitudeLockHorizontalContainer, Qt.AlignCenter)
+
+        self.altitudeLockButton = altitudeLockButton()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockButton, Qt. AlignCenter)
+        self.altitudeLockTextBox = altitudeLockTextBox()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockTextBox, Qt. AlignCenter)
+
         # Warning Indicators
         #layout
         self.warningIndicatorsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 3, 1, 1, 1, Qt.AlignCenter)
         #widgets
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
@@ -70,7 +81,7 @@ class MainWindow(QWidget):
         # Display Raw Values
         #layout
         self.dataValuesVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.dataValuesVerticalContainer, 3, 2, 1, 1, Qt.AlignCenter)
         #widgets
         self.displayDepth = DisplayDepth()
         self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
@@ -86,7 +97,7 @@ class MainWindow(QWidget):
         # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
         self.captainLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
-        self.GL.addLayout(self.captainLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
+        self.GL.addLayout(self.captainLogGridContainer, 4, 1, 1, 2, Qt.AlignCenter)
         self.displayTimeElapsedHorizontalContainer = HorizontalContainer()
         self.captainLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
         #widgets
@@ -152,7 +163,7 @@ class MainWindow(QWidget):
 
         self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
         #captain's log
-        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
+        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
@@ -169,6 +180,10 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #altitude lock
+        self.altitudeLockButton.clicked.connect(self.altitudeLockTextBox.sendValueSlot)
+        self.altitudeLockTextBox.altitudeValueFromTextBox.connect(self.comms.setAltitudeLockSlot)
+        self.comms.altitudeLockValueUpdate.connect(self.altitudeLockButton.altitudeLockValueUpdateSlot)
         #dev tools
         self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
         self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary

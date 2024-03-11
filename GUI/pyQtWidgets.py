@@ -8,11 +8,12 @@ import os
 from imports import timeDeploymentStarted
 from imports import RotationCounter
 import config
+from config import sub_data
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
-BUTTON_MIN_HEIGHT = 40
-SHORTER_BUTTON_MIN_HEIGHT = 30
+BUTTON_MIN_HEIGHT = 30
+SHORTER_BUTTON_MIN_HEIGHT = 25
 BUTTON_MIN_WIDTH = 175
 
 CLOCK_MAX_WIDTH = round(BUTTON_MIN_WIDTH/2)
@@ -20,7 +21,7 @@ CLOCK_MIN_WIDTH = CLOCK_MAX_WIDTH
 
 DEV_BUTTON_MAX_HEIGHT = BUTTON_MAX_HEIGHT
 DEV_BUTTON_MAX_WIDTH = 80
-DEV_BUTTON_MIN_HEIGHT = 30
+DEV_BUTTON_MIN_HEIGHT = BUTTON_MIN_HEIGHT
 DEV_BUTTON_MIN_WIDTH = DEV_BUTTON_MAX_WIDTH
 
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
@@ -37,7 +38,7 @@ SMALL_TEXT_BOX_MAX_WIDTH = 40
 COMPASS_FIXED_WIDTH = 200
 COMPASS_FIXED_HEIGHT = 200
 
-INDICATOR_FIXED_HEIGHT = 40
+INDICATOR_FIXED_HEIGHT = BUTTON_MIN_HEIGHT
 INDICATOR_MIN_WIDTH = 80
 
 CAPTAIN_LOG_MIN_WIDTH = 460
@@ -170,7 +171,7 @@ class gaugeWidget(QWidget):
         self._angle = 0.0
         self._margins = 10
         self._pointText = {0: strRoundHalf, 45: strValue3, 90: strMaxReach, 135: strMaxDepth,
-                           180: "", 225: "0", 270: strValue1, 315: strValue2}
+                           180: " ", 225: "0", 270: strValue1, 315: strValue2}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
@@ -266,6 +267,7 @@ class gaugeWidget(QWidget):
                                  self._pointText[i])
                 if i != 315:
                     painter.drawLine(-30, 30, -37, 37)
+
             elif i < 270:
                 painter.drawLine(-30, 30, -37, 37)
                 
@@ -273,6 +275,8 @@ class gaugeWidget(QWidget):
             painter.rotate(15)
             i += 15
         
+        painter.drawText(-20 , 50, "Depth (m)")
+
         painter.restore()
     
     def angle(self):
@@ -380,12 +384,11 @@ class DisplayRotations(QLabel):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
         self.rotationCounter = RotationCounter()
-        self.rotations = None
     def updateRotationsSlot(self, heading):
         newRotations = round(self.rotationCounter.calculate_rotation(heading))
-        if newRotations != self.rotations:
-            self.rotations = newRotations
-            self.setText("Rotations: " + str(self.rotations))
+        if newRotations != sub_data.read("ROT"):
+            sub_data.assign("ROT", newRotations)
+            self.setText("Rotations: " + str(newRotations))
 
 class HeadingLockButton(QPushButton):
     def __init__(self):
@@ -435,6 +438,31 @@ class DepthLockTextBox(QLineEdit):
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
     def sendValueSlot(self):
         self.depthValueFromTextBox.emit(self.text())
+
+class altitudeLockButton(QPushButton):
+    def __init__(self):
+        super(altitudeLockButton, self).__init__()
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(SHORTER_BUTTON_MIN_HEIGHT)
+        self.setText("Altitude Lock Off")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+    def altitudeLockValueUpdateSlot(self, desiredAltitude):
+        if (desiredAltitude == -1):
+            self.setText("Altitude Lock Off")
+            self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        else:
+            self.setText("Altitude Lock Set To " + str(desiredAltitude))
+            self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
+
+class altitudeLockTextBox(QLineEdit):
+    altitudeValueFromTextBox = pyqtSignal(str)
+    def __init__(self):
+        super(altitudeLockTextBox, self).__init__()
+        self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+    def sendValueSlot(self):
+        self.altitudeValueFromTextBox.emit(self.text())
 
 class LeakIndicator(QTextEdit):
     def __init__(self):
@@ -579,7 +607,7 @@ class CaptainLogTextEntryBox(QTextEdit):
         self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
         self.captainLogFds = None
-    def saveTextSlot(self, comms, timer):
+    def saveTextSlot(self, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
             if not os.path.isdir(self.logFolderString):
@@ -587,13 +615,13 @@ class CaptainLogTextEntryBox(QTextEdit):
             self.captainLogFds = open(self.captainLogFileName, 'a')
             self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                 + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                + "Heading: " + str(comms.getHeading())
-                                + ", Depth: " + str(comms.getDepth())
-                                + " m, Altitude: " + str(comms.getAltitude())
-                                + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                + "C, Voltage: " + str(comms.getVoltage())
-                                + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                + ", Rotations: " + str(comms.getRotation()) + "\n")
+                                + "Heading: " + str(sub_data.read("HEAD"))
+                                + ", Depth: " + str(sub_data.read("DEPTH"))
+                                + " m, Altitude: " + str(sub_data.read("ALT"))
+                                + " m, Temperature: " + str(sub_data.read("TMPR")) + " " + u'\N{DEGREE SIGN}'
+                                + "C, Voltage: " + str(sub_data.read("VOLT"))
+                                + " V, Leak: " + ("True" if (sub_data.read("LEAK")) else "False")
+                                + ", Rotations: " + str(sub_data.read("ROT")) + "\n")
             self.captainLogFds.write(logText + "\n\n")
             self.captainLogFds.close()
             self.entryNumber += 1
