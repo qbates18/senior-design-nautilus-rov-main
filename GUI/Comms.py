@@ -15,6 +15,7 @@ class Comms(QThread):
     safemodeUpdate = pyqtSignal(bool)
     headingLockValueUpdate = pyqtSignal(int)
     depthLockValueUpdate = pyqtSignal(float)
+    altitudeLockValueUpdate = pyqtSignal(float)
     commsStatusUpdate = pyqtSignal(bool)
     addArduinoErrorMessageUpdate = pyqtSignal(str)
     def __init__(self):
@@ -252,11 +253,11 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Altitude Kd"])
             else:
                 self.closed_loop_dict["altitude"] = 1
-                self.pid_dict["altitude"] = altitude_PID(sub_data.read("ALTITUDE"),
+                self.pid_dict["altitude"] = altitude_PID(sub_data.read("ALT"),
                                                    self.pidGainsValuesDict["Altitude Kp"],
                                                    self.pidGainsValuesDict["Altitude Ki"],
                                                    self.pidGainsValuesDict["Altitude Kd"])
-        self.depthLockValueUpdate.emit(float(self.pid_dict["altitude"].getDesiredValue()) if self.pid_dict["altitude"] != None else -1)
+        self.altitudeLockValueUpdate.emit(float(self.pid_dict["altitude"].getDesiredValue()) if self.pid_dict["altitude"] != None else -1)
 
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
         self.pidGainsValuesDict = devToolsDict

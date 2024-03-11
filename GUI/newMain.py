@@ -180,6 +180,10 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #altitude lock
+        self.altitudeLockButton.clicked.connect(self.altitudeLockTextBox.sendValueSlot)
+        self.altitudeLockTextBox.altitudeValueFromTextBox.connect(self.comms.setAltitudeLockSlot)
+        self.comms.altitudeLockValueUpdate.connect(self.altitudeLockButton.altitudeLockValueUpdateSlot)
         #dev tools
         self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
         self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
