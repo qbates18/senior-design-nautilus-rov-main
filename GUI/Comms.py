@@ -99,9 +99,9 @@ class Comms(QThread):
                 if not commsStatusGood:
                     commsStatusGood = True
                     self.commsStatusUpdate.emit(commsStatusGood)
-                    self.leakUpdate.emit(sub_data.read("LEAK"))
+                    if sub_data.read("LEAK") != None: self.leakUpdate.emit(sub_data.read("LEAK"))
                     if sub_data.read("VOLT") != None: self.voltageUpdate.emit(sub_data.read("VOLT"))
-                    self.depthUpdate.emit(sub_data.read("DEPTH"))
+                    if sub_data.read("DEPTH") != None: self.depthUpdate.emit(sub_data.read("DEPTH"))
                     
 
                 # Parse the message received from the subsea Arduino
@@ -146,19 +146,24 @@ class Comms(QThread):
         processedLeak = int(float(leak[1:]))
         processedHead = int(round((360 - float(head) + config.heading_offset) % 360))
 
-        self.temperatureUpdate.emit(round(float(tmpr), 1))
-        self.depthUpdate.emit(round(float(depth), 1))
+        floatedTmpr = float(tmpr)
+        floatedDepth = float(depth)
+        floatedAltitude = float(altitude)
+        floatedVoltage = float(voltage)
+
+        self.temperatureUpdate.emit(round(floatedTmpr, 1))
+        self.depthUpdate.emit(round(floatedDepth, 1))
         self.headUpdate.emit(processedHead)
-        self.altitudeUpdate.emit(round(float(altitude), 1))
-        self.voltageUpdate.emit(round(float(voltage), 1))
+        self.altitudeUpdate.emit(round(floatedAltitude, 1))
+        self.voltageUpdate.emit(round(floatedVoltage, 1))
         self.leakUpdate.emit(processedLeak) #get rid of leading space, cast to float (because it's a string in the form of "x.xx"), cast to int, emit int. this is because leak comes from the string received from the arduino as a string of the form "1.00" you can't int that kind of string but you can float it, and then you can int the float.
         
         #update the values used by generator function
-        sub_data.assign("TMPR", tmpr)
-        sub_data.assign("DEPTH", depth)
+        sub_data.assign("TMPR", floatedTmpr)
+        sub_data.assign("DEPTH", floatedDepth)
         sub_data.assign("HEAD", processedHead)
-        sub_data.assign("ALT", altitude)
-        sub_data.assign("VOLT", voltage)
+        sub_data.assign("ALT", floatedAltitude)
+        sub_data.assign("VOLT", floatedVoltage)
         sub_data.assign("LEAK", processedLeak)
 
     def armRovSlot(self):

@@ -12,8 +12,8 @@ from config import sub_data
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
-BUTTON_MIN_HEIGHT = 40
-SHORTER_BUTTON_MIN_HEIGHT = 30
+BUTTON_MIN_HEIGHT = 30
+SHORTER_BUTTON_MIN_HEIGHT = 25
 BUTTON_MIN_WIDTH = 175
 
 CLOCK_MAX_WIDTH = round(BUTTON_MIN_WIDTH/2)
@@ -21,7 +21,7 @@ CLOCK_MIN_WIDTH = CLOCK_MAX_WIDTH
 
 DEV_BUTTON_MAX_HEIGHT = BUTTON_MAX_HEIGHT
 DEV_BUTTON_MAX_WIDTH = 80
-DEV_BUTTON_MIN_HEIGHT = 30
+DEV_BUTTON_MIN_HEIGHT = BUTTON_MIN_HEIGHT
 DEV_BUTTON_MIN_WIDTH = DEV_BUTTON_MAX_WIDTH
 
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
@@ -38,7 +38,7 @@ SMALL_TEXT_BOX_MAX_WIDTH = 40
 COMPASS_FIXED_WIDTH = 200
 COMPASS_FIXED_HEIGHT = 200
 
-INDICATOR_FIXED_HEIGHT = 40
+INDICATOR_FIXED_HEIGHT = BUTTON_MIN_HEIGHT
 INDICATOR_MIN_WIDTH = 80
 
 CAPTAIN_LOG_MIN_WIDTH = 460
@@ -171,7 +171,7 @@ class gaugeWidget(QWidget):
         self._angle = 0.0
         self._margins = 10
         self._pointText = {0: strRoundHalf, 45: strValue3, 90: strMaxReach, 135: strMaxDepth,
-                           180: "", 225: "0", 270: strValue1, 315: strValue2}
+                           180: " ", 225: "0", 270: strValue1, 315: strValue2}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
@@ -267,6 +267,7 @@ class gaugeWidget(QWidget):
                                  self._pointText[i])
                 if i != 315:
                     painter.drawLine(-30, 30, -37, 37)
+
             elif i < 270:
                 painter.drawLine(-30, 30, -37, 37)
                 
@@ -274,6 +275,8 @@ class gaugeWidget(QWidget):
             painter.rotate(15)
             i += 15
         
+        painter.drawText(-20 , 50, "Depth (m)")
+
         painter.restore()
     
     def angle(self):
