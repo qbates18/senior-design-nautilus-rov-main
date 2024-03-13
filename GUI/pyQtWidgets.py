@@ -58,7 +58,6 @@ class CompassWidget(QWidget):
     angleChanged = pyqtSignal(float)
     
     def __init__(self, parent = None):
-    
         QWidget.__init__(self, parent)
         
         self._angle = 0.0
@@ -69,7 +68,6 @@ class CompassWidget(QWidget):
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
     
     def paintEvent(self, event):
-    
         painter = QPainter()
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -81,7 +79,6 @@ class CompassWidget(QWidget):
         painter.end()
     
     def drawMarkings(self, painter):
-    
         painter.save()
         painter.translate(self.width()/2, self.height()/2)
         scale = min((self.width() - self._margins)/120.0,
@@ -111,7 +108,6 @@ class CompassWidget(QWidget):
         painter.restore()
     
     def drawNeedle(self, painter):
-    
         painter.save()
         painter.translate(self.width()/2, self.height()/2)
         painter.rotate(self._angle)
@@ -137,7 +133,6 @@ class CompassWidget(QWidget):
         painter.restore()
     
     def sizeHint(self):
-    
         return QSize(COMPASS_FIXED_WIDTH, COMPASS_FIXED_HEIGHT)
     
     def angle(self):
@@ -187,7 +182,6 @@ class gaugeWidget(QWidget):
         #painter.end()
 
     def drawNeedle(self, painter):
-
         painter.save()
         painter.translate(self.width()/2, (self.height()/2)+10)
         scale = min((self.width() - self._margins)/120.0,
@@ -241,7 +235,6 @@ class gaugeWidget(QWidget):
         painter.restore()
 
     def drawMarkings(self, painter):
-        
         painter.save()
         painter.translate((self.width()/2), (self.height()/2)+10)
         scale = min((self.width() - self._margins)/120.0,
@@ -295,11 +288,13 @@ class VerticalContainer(QVBoxLayout):
         super(VerticalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
 
+
 class HorizontalContainer(QHBoxLayout):
     def __init__(self):
         super(HorizontalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
         
+
 class RovArmedButton(QPushButton):
     def __init__(self):
         super(RovArmedButton, self).__init__()
@@ -328,14 +323,20 @@ class RovSafeModeButton(QPushButton):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else ORANGE_BUTTON_BACKGROUND_COLOR_SS)
 
 
-class ArmMovementOptionsDropdown(QComboBox):
+# Generates a dropdown menu with a list of arm positions from armLocationsDict in config.py
+# Called in newMain.py when moveArmButton is clicked to move the arm to one of a set of fixed positions
+class ArmMovementDropdown(QComboBox):
+    armdropdownValue = pyqtSignal(str)
     def __init__(self):
-        super(ArmMovementOptionsDropdown, self).__init__()
-        self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
+        super(ArmMovementDropdown, self).__init__()
+        armLocationList = list(config.armLocationsDict.keys())
+        self.addItems(armLocationList)
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+    def updateArmPosition(self):
+        self.armdropdownValue.emit(self.currentText())
 
 
 class MoveArmButton(QPushButton):
@@ -347,12 +348,14 @@ class MoveArmButton(QPushButton):
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
+
 class DisplayDepth(QLabel):
     def __init__(self):
         super(DisplayDepth, self).__init__()
         self.setText("Depth: Initializing...")
     def updateDepthSlot(self, depth):
         self.setText("Depth: " + str(depth) + " m")
+
 
 class DisplayAltitude(QLabel):
     def __init__(self):
@@ -361,6 +364,7 @@ class DisplayAltitude(QLabel):
     def updateAltitudeSlot(self, alt):
         self.setText("Altitude: " + str(alt) + " m")
 
+
 class DisplayTemperature(QLabel):
     def __init__(self):
         super(DisplayTemperature, self).__init__()
@@ -368,12 +372,14 @@ class DisplayTemperature(QLabel):
     def updateTemperatureSlot(self, temp):
         self.setText("Temperature: " + str(temp) + " " + u'\N{DEGREE SIGN}' + "C")
 
+
 class DisplayVoltage(QLabel):
     def __init__(self):
         super(DisplayVoltage, self).__init__()
         self.setText("Voltage: Initializing...")
     def updateVoltageSlot(self, volts):
         self.setText("Voltage: " + str(volts) + " V")
+
 
 class DisplayRotations(QLabel):
     def __init__(self):
@@ -386,6 +392,7 @@ class DisplayRotations(QLabel):
         if newRotations != self.rotations:
             self.rotations = newRotations
             self.setText("Rotations: " + str(self.rotations))
+
 
 class HeadingLockButton(QPushButton):
     def __init__(self):
@@ -403,6 +410,8 @@ class HeadingLockButton(QPushButton):
         else:
             self.setText("Heading Lock Set To " + str(desiredHeading))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
+
+
 class HeadingLockTextBox(QLineEdit):
     headValueFromTextBox = pyqtSignal(str)
     def __init__(self):
@@ -410,6 +419,7 @@ class HeadingLockTextBox(QLineEdit):
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
     def sendValueSlot(self):
         self.headValueFromTextBox.emit(self.text())
+
 
 class DepthLockButton(QPushButton):
     def __init__(self):
@@ -428,6 +438,7 @@ class DepthLockButton(QPushButton):
             self.setText("Depth Lock Set To " + str(desiredDepth))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 
+
 class DepthLockTextBox(QLineEdit):
     depthValueFromTextBox = pyqtSignal(str)
     def __init__(self):
@@ -435,6 +446,7 @@ class DepthLockTextBox(QLineEdit):
         self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
     def sendValueSlot(self):
         self.depthValueFromTextBox.emit(self.text())
+
 
 class LeakIndicator(QTextEdit):
     def __init__(self):
@@ -467,9 +479,11 @@ class LeakIndicator(QTextEdit):
         if not status:
             self.setIndicatorToLeakUnknown()
 
+
 class LeakWarningPopup(QMessageBox):
     def popup(self):
         self.warning(self, "Leak Detected!", "The ROV has detected a leak within the internal electronics! Return to the surface immediately!", QMessageBox.Ok)
+
 
 class VoltageIndicator(QTextEdit):
     def __init__(self):
@@ -511,9 +525,11 @@ class VoltageIndicator(QTextEdit):
         if not status:
             self.setIndicatorToBatteryUnknown()
 
+
 class BatteryCriticalWarningPopup(QMessageBox):
     def popup(self):
         self.warning(self, "Battery Critical!", "The ROV battery is critically low! Return to the surface immediately!", QMessageBox.Ok)
+
 
 class DepthIndicator(QTextEdit):
     def __init__(self):
@@ -548,6 +564,7 @@ class DepthIndicator(QTextEdit):
         if not status:
             self.setIndicatorToDepthUnknown()
 
+
 class CommsIndicator(QTextEdit):
     def __init__(self):
         super(CommsIndicator, self).__init__()
@@ -567,6 +584,7 @@ class CommsIndicator(QTextEdit):
             self.setCommsIndicatorGood()
         else:
             self.setCommsIndicatorCritical()
+
 
 class CaptainLogTextEntryBox(QTextEdit):
     emptyTextWroteUpon = pyqtSignal()
@@ -603,6 +621,7 @@ class CaptainLogTextEntryBox(QTextEdit):
         if (len(self.toPlainText()) == 1):
             self.setPlaceholderText("")
 
+
 class CaptainLogSaveButton(QPushButton):
     def __init__(self):
         super(CaptainLogSaveButton, self).__init__()
@@ -613,13 +632,6 @@ class CaptainLogSaveButton(QPushButton):
         self.setText("Save Captain's Log")
 
 
-class DisplayTimeElapsed(QLabel):
-    def __init__(self):
-        super(DisplayTimeElapsed, self).__init__()
-        self.setMaximumWidth(CLOCK_MAX_WIDTH)
-        self.setMinimumWidth(CLOCK_MIN_WIDTH)
-        self.setText("Clock: Initializing...")
-
 class DevToolsButton(QPushButton):
     def __init__(self):
         super(DevToolsButton, self).__init__()
@@ -628,6 +640,7 @@ class DevToolsButton(QPushButton):
         self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
         self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
         self.setText("Dev Tools")
+
 
 class DevToolsWindow(QDialog):
     devToolsUpdateSignal = pyqtSignal(dict)
@@ -700,6 +713,7 @@ class DevToolsWindow(QDialog):
         layout = VerticalContainer()
         layout.addWidget(self.arduinoErrorsTextEdit)
         self.arduinoErrorsGroupBox.setLayout(layout)
+
 
 class ArduinoErrorsTextEdit(QTextEdit):
     def __init__(self):
