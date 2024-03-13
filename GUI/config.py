@@ -38,4 +38,12 @@ defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Altitude Ki": 4.0,
                              "Altitude Kd": 4.0}
 
+armLocationsDict = {
+    "Travel Home": (0, 0, 0),
+    "Workspace Home": (0, 10, 20),
+    "Storage 1": (10, 0, 10),
+    "Storage 2": (20, 0, 10),
+    "Storage 3": (30, 0, 10)
+}
+
 VideoSize = (1324, 993) # (width, height) (1348,1011) for Wayland and (1324, 993) for X11 Ratio: (1.333333333, 1)
