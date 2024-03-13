@@ -58,23 +58,25 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
 			# If safe mode is on and the current depth is dangerous
 			if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # current depth dangerous, also implied that depth lock is off and controls are going down
-				output = add_next(output, str(format(0, '.3f'))) # do nothing?
+				output = add_next(output, str(format(0, '.3f'))) # do nothing
 			else:
 				output = add_next(output, str(format(input.read("DOWN"), '.3f')))
 		else:
 			output = add_next(output, str(format(0, '.3f')))
 	# If the altitude lock is enabled use altitude closed loop control
 	elif closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 1:
-		if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # TODO -> add way of detecting whether or not going down
+		next_val = pid_dict["altitude"].calculate_next(temp_alt)
+		if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and next_val < 0: # TODO -> add way of detecting whether or not going down
 			output = add_next(output, str(format(0, '.3f')))
 		else:
-			output = add_next(output, str(format(pid_dict["altitude"].calculate_next(temp_alt), '.3f'))) 
+			output = add_next(output, str(format(next_val, '.3f')))
 	# If depth lock is enabled use depth closed loop control
 	elif closed_loop_dict["depth"] == 1 and closed_loop_dict["altitude"] == 0:
-		if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH: # TODO -> add way of detecting whether or not going down
+		next_val = pid_dict["depth"].calculate_next(temp_pres)
+		if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and next_val < 0: # TODO -> add way of detecting whether or not going down
 			output = add_next(output, str(format(0, '.3f')))
 		else:
-			output = add_next(output, str(format(pid_dict["depth"].calculate_next(temp_pres), '.3f'))) 
+			output = add_next(output, str(format(next_val, '.3f'))) 
 	else:
 		output = add_next(output, str(format(0, '.3f')))
 	

@@ -218,7 +218,7 @@ class Comms(QThread):
 	# in newMain, locationName gotten from the text selected in armMovementDropdown when moveArmButton is pressed
 	def armMovementSlot(self, locationName):
 		position = config.armLocationsDict.get(locationName)
-		print("Going to arm position " + locationName + " at: " + position)
+		print("Going to arm position " + locationName + " at: " + str(position))
 
 	def setHeadingLockSlot(self, desiredHeading):
 		if (self.closed_loop_dict["head"]):
