@@ -70,7 +70,6 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 
 	# ------ Calculate the theta dots ------
 	thetaDots = np.matmul(inv_jacobian, xDots)
-	thetaDots = thetaDots * gain
 
 	# ------ Calculate the change in theta ------
 	for x in range(3):        
