@@ -20,7 +20,7 @@ top_data = Data(["FORWARD", "RIGHT", "BACK", "LEFT", "DOWN", "UP", "ROT_CCW", "R
 sub_data = Data(["TMPR", "DEPTH", "HEAD", "ALT", "VOLT", "ROT", "LEAK", "SAFE", "ARM"])
 
 arm_inputs = Data(["S1_LEFT", "S1_RIGHT", "S2_FORWARD", "S2_BACK", "S3_LEFT", "S3_RIGHT", "S4_OPEN", "S4_CLOSE", "S5_CW", "S5_CCW", "theta1", "theta2", "theta3"])
-
+# want to add S3_FORWARD and S3_BACK, not sure if it will break anything
 map_dict = None
 map2_dict = None
 

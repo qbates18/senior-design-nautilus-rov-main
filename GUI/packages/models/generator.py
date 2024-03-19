@@ -138,27 +138,24 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 
 	# If endpoint control is enabled, set servo values accordingly
 	if(endpoint_control_flag):
-
 		s1_mapped += arm_inputs.read("theta1")
 		if (s1_mapped < 100):
 			s1_mapped = 100
 		elif (s1_mapped > 310):
 			s1_mapped = 310
 
-		servo2 = 0 #currently set to 0 because it has not been tested/made to work yet
-		if (s2_mapped > 100 or s2_mapped < 310): 
-			s2_mapped +=(servo2 * mult)
+		servo2 = arm_inputs.read("theta2")
 		if (s2_mapped < 100):
 			s2_mapped = 100
 		elif (s2_mapped > 310):
 			s2_mapped = 310
 
 		s3_mapped += arm_inputs.read("theta3")
-		#if (s3_mapped > 100 or s3_mapped < 310): s3_mapped += ((servo3 + 0.5) * 2 * mult)
 		if (s3_mapped < 100):
 			s3_mapped = 100
 		elif (s3_mapped > 310):
 			s3_mapped = 310
+			
 	# If endpoint control is disabled use joint control as default
 	else:
 		servo1 = arm_inputs.read("S1_LEFT") - arm_inputs.read("S1_RIGHT") 

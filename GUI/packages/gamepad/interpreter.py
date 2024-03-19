@@ -18,7 +18,7 @@ angle3Old = 30.0
 angle1New = None
 angle2New = None 
 angle3New = None
-thetas = np.array([[math.pi/4], [0.0], [math.pi/4]])
+thetas = np.array([[math.pi/4], [math.pi/4], [0.0]])
 previousThetaDots = np.array([[0.0], [0.0], [0.0]])
 deltaThetas = np.array([[0.0], [0.0], [0.0]])
 L0 = 2.375
@@ -26,8 +26,7 @@ L1 = 0.9
 L2 = 15
 L3 = 2.5
 L4 = 10.5
-gain = 10
-time_step = .001
+time_step = .1
 
 
 
@@ -35,7 +34,7 @@ time_step = .001
 # description: calculates joint values to move end effector in XYZ as commanded by controller inputs
 # input: 
 def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
-	global thetas, deltaThetas, previousThetaDots, L1, L2, gain
+	global thetas, deltaThetas, previousThetaDots, L0, L1, L2, L3, L4, time_step
 
 	xDots = np.array([[xDot], [yDot], [zDot]])
 
@@ -73,7 +72,7 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 
 	# ------ Calculate the change in theta ------
 	for x in range(3):        
-		deltaThetas[x][0] = gain * (time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5)
+		deltaThetas[x][0] = (time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5)
 	previousThetaDots = thetaDots
 
 	# ------ Calculate the XYZ coordinates of the end effector ------
@@ -83,12 +82,13 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 	t2 = thetas[1][0]
 	t3 = -thetas[1][0]
 	t4 = thetas[2][0]
-	x = L0 * math.cos(t1) - L4 * (math.sin(t1) * math.sin(t4) - math.cos(t4) * (math.cos(t1) * math.sin(t2) * math.sin(t3) - math.cos(t1) * math.cos(t2) * math.cos(t3))) - L3 * (math.cos(t1) * math.cos(t2) * math.sin(t3) + math.cos(t1) * math.cos(t3) * math.sin(t2)) + L2 * math.cos(t1) * math.cos(t2)
-	y = L3 * (math.cos(t2) * math.sin(t1) * math.sin(t3) + math.cos(t3) * math.sin(t1) * math.sin(t2)) - L0 * math.sin(t1) - L4 * (math.cos(t1) * math.sin(t4) + math.cos(t4) * (math.sin(t1) * math.sin(t2) * math.sin(t3) - math.cos(t2) * math.cos(t3) * math.sin(t1))) - L2 * math.cos(t2) * math.sin(t1)
-	z = L1 - L3 * math.cos(t2 + t3) - L2 * math.sin(t2) + L4 * math.sin(t2 + t3) * math.cos(t4)
-	print("X: {}\n".format(x))
-	print("Y: {}\n".format(y))
-	print("Z: {}\n".format(z))
+	# uncomment to see where arm should mathematically be
+	# x = L0 * math.cos(t1) - L4 * (math.sin(t1) * math.sin(t4) - math.cos(t4) * (math.cos(t1) * math.sin(t2) * math.sin(t3) - math.cos(t1) * math.cos(t2) * math.cos(t3))) - L3 * (math.cos(t1) * math.cos(t2) * math.sin(t3) + math.cos(t1) * math.cos(t3) * math.sin(t2)) + L2 * math.cos(t1) * math.cos(t2)
+	# y = L3 * (math.cos(t2) * math.sin(t1) * math.sin(t3) + math.cos(t3) * math.sin(t1) * math.sin(t2)) - L0 * math.sin(t1) - L4 * (math.cos(t1) * math.sin(t4) + math.cos(t4) * (math.sin(t1) * math.sin(t2) * math.sin(t3) - math.cos(t2) * math.cos(t3) * math.sin(t1))) - L2 * math.cos(t2) * math.sin(t1)
+	# z = L1 - L3 * math.cos(t2 + t3) - L2 * math.sin(t2) + L4 * math.sin(t2 + t3) * math.cos(t4)
+	# print("X: {}\n".format(x))
+	# print("Y: {}\n".format(y))
+	# print("Z: {}\n".format(z))
 
 	return deltaThetas
 
@@ -119,14 +119,13 @@ def interpret2(gamepad2):
 	# ------ Calculate and assign endpoint values ------
 	x_dot = config.arm_inputs.read("S1_LEFT") - config.arm_inputs.read("S1_RIGHT")
 	#y_dot = config.arm_inputs.read("S2_FORWARD") - config.arm_inputs.read("S2_BACK") # CURRENTLY YDOT (VERTICAL) ENPOINT CONTROL HAS NOT BEEN FINISHED
-	#z_dot = config.arm_inputs.read("S4_OPEN") - config.arm_inputs.read("S4_CLOSE")
+	#z_dot = config.arm_inputs.read("S4_OPEN") - config.arm_inputs.read("S4_CLOSE") #should be S3_FORWARD and S3_BACK, those are not currently in the arm_inputs data structure
 	theta_radians = end_point(x_dot, 0.0, 0.0)
 	#theta_radians = end_point(0.0, y_dot, 0.0)
 	#theta_radians = end_point(0.0, 0.0, z_dot)
 	#theta_radians = end_point(x_dot, y_dot, z_dot)
 
 	theta_degrees = (theta_radians * 180) / math.pi
-	#theta_degrees = theta_degrees / 1.6 #1.6 is the gear ratio
 	theta_degrees = (theta_degrees * 10) / 3 # 3.33 metal gear ratio
 	config.arm_inputs.assign("theta1", theta_degrees[0][0])
 	config.arm_inputs.assign("theta2", theta_degrees[1][0])
