@@ -30,7 +30,6 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	global s_tog_flag
 	global s1_mapped, s2_mapped, s3_mapped, s4_mapped, s5_mapped  
 	
-
 	temp_tmpr = subData.read("TMPR")
 	temp_depth = subData.read("DEPTH")
 	temp_head = subData.read("HEAD")
@@ -39,7 +38,6 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	temp_leak = subData.read("LEAK")
 	temp_safemode = subData.read("SAFE")
 	temp_arm = subData.read("ARM")
-
 	
 	# ------ Token1: Start of string ------
 	output =  "$"

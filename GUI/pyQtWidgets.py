@@ -293,6 +293,7 @@ class VerticalContainer(QVBoxLayout):
 		self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
 
 
+
 class HorizontalContainer(QHBoxLayout):
 	def __init__(self):
 		super(HorizontalContainer, self).__init__()
@@ -353,12 +354,14 @@ class MoveArmButton(QPushButton):
 		self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
 
+
 class DisplayDepth(QLabel):
 	def __init__(self):
 		super(DisplayDepth, self).__init__()
 		self.setText("Depth: Initializing...")
 	def updateDepthSlot(self, depth):
 		self.setText("Depth: " + str(depth) + " m")
+
 
 
 class DisplayAltitude(QLabel):
@@ -369,6 +372,7 @@ class DisplayAltitude(QLabel):
 		self.setText("Altitude: " + str(alt) + " m")
 
 
+
 class DisplayTemperature(QLabel):
 	def __init__(self):
 		super(DisplayTemperature, self).__init__()
@@ -377,12 +381,14 @@ class DisplayTemperature(QLabel):
 		self.setText("Temperature: " + str(temp) + " " + u'\N{DEGREE SIGN}' + "C")
 
 
+
 class DisplayVoltage(QLabel):
 	def __init__(self):
 		super(DisplayVoltage, self).__init__()
 		self.setText("Voltage: Initializing...")
 	def updateVoltageSlot(self, volts):
 		self.setText("Voltage: " + str(volts) + " V")
+
 
 
 class DisplayRotations(QLabel):
@@ -395,6 +401,7 @@ class DisplayRotations(QLabel):
 		if newRotations != sub_data.read("ROT"):
 			sub_data.assign("ROT", newRotations)
 			self.setText("Rotations: " + str(newRotations))
+
 
 
 class HeadingLockButton(QPushButton):
@@ -424,6 +431,7 @@ class HeadingLockTextBox(QLineEdit):
 		self.headValueFromTextBox.emit(self.text())
 
 
+
 class DepthLockButton(QPushButton):
 	def __init__(self):
 		super(DepthLockButton, self).__init__()
@@ -440,6 +448,7 @@ class DepthLockButton(QPushButton):
 		else:
 			self.setText("Depth Lock Set To " + str(desiredDepth))
 			self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
+
 
 
 class DepthLockTextBox(QLineEdit):
@@ -507,9 +516,11 @@ class LeakIndicator(QTextEdit):
 			self.setIndicatorToLeakUnknown()
 
 
+
 class LeakWarningPopup(QMessageBox):
 	def popup(self):
 		self.warning(self, "Leak Detected!", "The ROV has detected a leak within the internal electronics! Return to the surface immediately!", QMessageBox.Ok)
+
 
 
 class VoltageIndicator(QTextEdit):
@@ -553,9 +564,11 @@ class VoltageIndicator(QTextEdit):
 			self.setIndicatorToBatteryUnknown()
 
 
+
 class BatteryCriticalWarningPopup(QMessageBox):
 	def popup(self):
 		self.warning(self, "Battery Critical!", "The ROV battery is critically low! Return to the surface immediately!", QMessageBox.Ok)
+
 
 
 class DepthIndicator(QTextEdit):
@@ -592,6 +605,7 @@ class DepthIndicator(QTextEdit):
 			self.setIndicatorToDepthUnknown()
 
 
+
 class CommsIndicator(QTextEdit):
 	def __init__(self):
 		super(CommsIndicator, self).__init__()
@@ -611,6 +625,7 @@ class CommsIndicator(QTextEdit):
 			self.setCommsIndicatorGood()
 		else:
 			self.setCommsIndicatorCritical()
+
 
 
 class CaptainLogTextEntryBox(QTextEdit):
@@ -649,6 +664,7 @@ class CaptainLogTextEntryBox(QTextEdit):
 			self.setPlaceholderText("")
 
 
+
 class CaptainLogSaveButton(QPushButton):
 	def __init__(self):
 		super(CaptainLogSaveButton, self).__init__()
@@ -667,6 +683,7 @@ class DevToolsButton(QPushButton):
 		self.setMinimumWidth(DEV_BUTTON_MIN_WIDTH)
 		self.setMinimumHeight(DEV_BUTTON_MIN_HEIGHT)
 		self.setText("Dev Tools")
+
 
 
 class DevToolsWindow(QDialog):
@@ -740,6 +757,7 @@ class DevToolsWindow(QDialog):
 		layout = VerticalContainer()
 		layout.addWidget(self.arduinoErrorsTextEdit)
 		self.arduinoErrorsGroupBox.setLayout(layout)
+
 
 
 class ArduinoErrorsTextEdit(QTextEdit):
