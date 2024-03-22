@@ -19,7 +19,7 @@ class MainWindow(QWidget):
         # Camera Feed
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, -1, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
-        # Show placeholder image
+        #show placeholder image
         self.feedLabel.setPixmap(QtGui.QPixmap(PLACEHOLDER_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
         
         # Compass / Heading Display and Heading Lock
@@ -36,7 +36,7 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Gauge, Depth Lock, Altitude Lock
+        # Depth Guage, Depth Lock, Altitude Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
@@ -126,8 +126,8 @@ class MainWindow(QWidget):
         self.armLocationSelectVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.armLocationSelectVerticalContainer, 5, 2, 1, 1, Qt.AlignRight)
         #widgets
-        self.armMovementDropdown = ArmMovementDropdown()
-        self.armLocationSelectVerticalContainer.addWidget(self.armMovementDropdown, Qt.AlignCenter)
+        self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
+        self.armLocationSelectVerticalContainer.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
         self.moveArmButton = MoveArmButton()
         self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
 
@@ -171,10 +171,6 @@ class MainWindow(QWidget):
         #safe mode
         self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
         self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)
-
-        # arm position
-        self.moveArmButton.clicked.connect(self.armMovementDropdown.updateArmPosition)
-        self.armMovementDropdown.armdropdownValue.connect(self.comms.armMovementSlot)
 
         #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value

@@ -46,7 +46,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	output = add_next(output, str(ack_id))
 	ack_id = ack_id + 1
 
-	# ------ Token3 and Token4: Controller1 Left Joystick XY values for Maneuvering Thrusters Directional Motion ------
+	# ------ Token3 and Token4: Controller1 Left Joystick XY values for Maneuvering Thrusters Direcitonal Motion ------
 	x = min(input.read("RIGHT") - input.read("LEFT"), 1)
 	y = min(input.read("FORWARD") - input.read("BACK"), 1)
 	output = add_next(output, str(x))
@@ -68,18 +68,10 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 			output = add_next(output, str(format(0, '.3f')))
 	# If the altitude lock is enabled use altitude closed loop control
 	elif closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 1:
-		next_val = pid_dict["altitude"].calculate_next(temp_alt)
-		if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and next_val < 0: # TODO -> add way of detecting whether or not going down
-			output = add_next(output, str(format(0, '.3f')))
-		else:
-			output = add_next(output, str(format(next_val, '.3f')))
+		output = add_next(output, str(format(pid_dict["altitude"].calculate_next(temp_alt), '.3f'))) 
 	# If depth lock is enabled use depth closed loop control
 	elif closed_loop_dict["depth"] == 1 and closed_loop_dict["altitude"] == 0:
-		next_val = pid_dict["depth"].calculate_next(temp_depth)
-		if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and next_val < 0: # TODO -> add way of detecting whether or not going down
-			output = add_next(output, str(format(0, '.3f')))
-		else:
-			output = add_next(output, str(format(next_val, '.3f'))) 
+		output = add_next(output, str(format(pid_dict["depth"].calculate_next(temp_depth), '.3f'))) 
 	else:
 		output = add_next(output, str(format(0, '.3f')))
 	
