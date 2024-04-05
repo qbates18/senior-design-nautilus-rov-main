@@ -50,7 +50,7 @@ class Comms(QThread):
             #gamepad initialization
             generate_dictionaries("map.txt") 
             self.gamepad = Gamepad()
-            config.gamepad_flag = self.gamepad.init(0) #why are we doing this
+            config.gamepad_flag = self.gamepad.init(0) #if the gamepad initialization fails, store false to indicate lack of viable gamepad to future code. ## Note from Davis: (init is defined in ps4.py and I didn't write it so I'm not 100% that it will actually return false in every fail condition.)
         #prepare necessary resources for second gamepad
         if config.gamepad2_flag:
             #second gamepad initialization
@@ -73,7 +73,8 @@ class Comms(QThread):
             if config.gamepad_flag:
                 self.gamepad.listen(self.gamepad2)
                 interpret(self.gamepad)
-                interpret2(self.gamepad2)
+                if config.gamepad2_flag:
+                    interpret2(self.gamepad2)
 
             # Generate string to send subsea
             self.nmea_string = generate(config.top_data, sub_data, self.closed_loop_dict, self.pid_dict, config.arm_inputs)
