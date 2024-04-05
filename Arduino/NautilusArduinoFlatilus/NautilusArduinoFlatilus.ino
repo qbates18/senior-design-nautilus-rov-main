@@ -34,7 +34,7 @@
 // --- GLOBAL DEFINES ---
   #define FLUID_DENSITY 1029// kg/m^3 (997 freshwater, 1029 for seawater)
   #define accelLimit 20 // microseconds (limits how fast the specktrum brushless motors accelerate) [FLATILUS ONLY]
-  #define FLATILUS 0 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
+  #define FLATILUS 1 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
 
 // --- GLOBAL VARIABLES ---
   MS5837 pres_sens; // pressure sensor
@@ -99,9 +99,12 @@ void setup(){
 
     delay(5000); //delay as it takes time to make sure all the escs recieve the stop signal
 
+    sendFlatilusConfiguration();
+  
   // Initialize voltage Sensor
     while (!ina260.begin()) {
         Serial.println("\nCouldn't find INA260 chip!&");
+        sendFlatilusConfiguration();
         delay(3000);
     }
     Serial.println("Found INA260 chip&");
@@ -109,6 +112,7 @@ void setup(){
   // Initialize pressure sensor 
     while (!pres_sens.init()) {
       Serial.println("\nPressure init failed!&");
+      sendFlatilusConfiguration();
       delay(3000);
     }
     pres_sens.setFluidDensity(FLUID_DENSITY);
@@ -117,6 +121,7 @@ void setup(){
   // Initialize temperature sensor
     while (!tmpr_sens.init()) {
       Serial.println("\nTemperature init failed!&");
+      sendFlatilusConfiguration();
       delay(3000);
     }
     Serial.println("Temperature init successful&");
@@ -125,12 +130,14 @@ void setup(){
     if(FLATILUS){
       while (!head_sens.begin()) { 
         Serial.println("IMU init failed!&");
+        sendFlatilusConfiguration();
         delay(3000);
       }
       Serial.println("IMU init successful&");
     } else {
       while (!magnometer.begin()){
         Serial.println("IMU init failed!&");
+        sendFlatilusConfiguration();
         delay(3000);
       }
       Serial.println("IMU init successful&");
@@ -139,6 +146,7 @@ void setup(){
   // Initialize echosounder (altimiter)
     while (!ping.initialize()) {
         Serial.println("\nEchosounder failed to initialize!&");
+        sendFlatilusConfiguration();
         delay(3000); 
     }
     Serial.println("Echosounder initialize successful&");
@@ -334,3 +342,13 @@ void loop() {
 
   first_loop_flag = true;
 }
+
+
+//send a message to indicate if the connected arduino is set to Nautilus or Flatilus
+void sendFlatilusConfiguration() {
+  if (FLATILUS) {
+    Serial.println("ARDUINO IS CONFIGURED FOR FLATILUS TESTBENCH&");
+    } else {
+    Serial.println("ARDUINO IS CONFIGURED FOR NAUTILUS ROV&");
+    }
+  }
