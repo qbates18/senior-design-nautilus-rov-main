@@ -11,7 +11,7 @@ THRESHOLD = 0.1 # sets controller deadzone: the minimal joystick input value req
 
 gamepad_flag = True
 gamepad2_flag = True
-cam_flag = False #Q: is this used anymore?
+cam_flag = False #Q: is this used anymore? D: No?
 serial_flag = True
 altitude_lock_flag = False
 endpoint_control_flag = False
@@ -24,8 +24,8 @@ arm_inputs = Data(["S1_LEFT", "S1_RIGHT", "S2_FORWARD", "S2_BACK", "S3_LEFT", "S
 map_dict = None
 map2_dict = None
 
-heading_offset = 341+28
-NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of March 2024
+heading_offset = 324
+NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of April 2024
 NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle at and depth warning indicator should turn red at (it will turn orange at NAUTILUS_MAX_RATED_DEPTH * NAUTILUS_SAFE_DEPTH * 0.9)
 
 defaultPidGainsValuesDict = {"Heading Kp": 4.0,

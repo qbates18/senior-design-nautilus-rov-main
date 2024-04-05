@@ -83,16 +83,18 @@ class MainWindow(QWidget):
         self.dataValuesVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.dataValuesVerticalContainer, 3, 2, 1, 1, Qt.AlignCenter)
         #widgets
+        self.displayHeading = DisplayHeading()
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayHeading, Qt.AlignCenter)
         self.displayDepth = DisplayDepth()
-        self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayDepth, Qt.AlignCenter)
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVerticalContainer.insertWidget(1, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVerticalContainer.insertWidget(2, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(3, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVerticalContainer.insertWidget(3, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(4, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
-        self.dataValuesVerticalContainer.insertWidget(4, self.displayRotations, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(5, self.displayRotations, Qt.AlignCenter)
 
         # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
@@ -148,6 +150,7 @@ class MainWindow(QWidget):
 
         self.comms.depthUpdate.connect(self.displayDepth.updateDepthSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
+        self.comms.headUpdate.connect(self.displayHeading.updateHeadingSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update

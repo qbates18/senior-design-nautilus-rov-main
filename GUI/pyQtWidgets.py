@@ -353,6 +353,14 @@ class MoveArmButton(QPushButton):
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
 
 
+class DisplayHeading(QLabel):
+    def __init__(self):
+        super(DisplayHeading, self).__init__()
+        self.setText("Heading: Initializing...")
+    def updateHeadingSlot(self, head):
+        self.setText("Heading: " + str(head))
+
+
 class DisplayDepth(QLabel):
     def __init__(self):
         super(DisplayDepth, self).__init__()
