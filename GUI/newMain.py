@@ -11,6 +11,7 @@ PLACEHOLDER_IMAGE_SIZE = config.VideoSize
 
 class MainWindow(QWidget):
     stopCommsSignal = pyqtSignal()
+    saveheadPIDSetpointSignal = pyqtSignal(list)
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
@@ -168,6 +169,8 @@ class MainWindow(QWidget):
         #captain's log
         self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
+        self.comms.headingLockValueUpdate.connect(self.saveheadPIDSetpointSlot)
+        self.saveheadPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
@@ -200,10 +203,9 @@ class MainWindow(QWidget):
         #General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
-
-    # Updating Developer Tools Values:
-    def updateDevToolsValues(self, devToolsItemsDict):
-        print(devToolsItemsDict)
+    
+    def saveheadPIDSetpointSlot(self, desiredHeading):
+        self.saveheadPIDSetpointSignal.emit([desiredHeading, "Heading", self.deploymentTimer])
 
     # Updating the Camera frame
     def ImageUpdateSlot(self, Image):

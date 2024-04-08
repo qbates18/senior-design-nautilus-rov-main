@@ -650,6 +650,14 @@ class CaptainLogTextEntryBox(QTextEdit):
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()
+    def savePIDSetpointSlot(self, argList):
+        PIDSetpoint = argList[0]
+        PIDType = argList[1]
+        timer = argList[2]
+        self.captainLogFds = open(self.captainLogFileName, 'a')
+        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType + " control set to " + PIDSetpoint + "\n\n")
+        self.captainLogFds.close()
+
     def textChangedSlot(self):
         if (len(self.toPlainText()) == 1):
             self.setPlaceholderText("")
