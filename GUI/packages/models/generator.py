@@ -50,6 +50,11 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 	output = add_next(output, str(y))
 
 	# ------ Token5: Controller1 Trigger values for Vertical Thrusters ------
+
+	# Handles the value that will be written as Token5, 0 is doing nothing, - is downwards motion, + is upwards motion
+	print("input.read(\"UP\")", input.read("UP"))
+	vert_thrust = 0
+
 	# If neither depth and altitude locks are enabled then calculate verticals normally
 	if closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 0:
 		# takes analog value from 0 to 1 for each up and down

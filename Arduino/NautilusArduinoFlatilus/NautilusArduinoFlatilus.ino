@@ -167,7 +167,7 @@ void setup(){
 
 
 void loop() {
-  float heading, voltage, adVoltage, altitude;
+  float heading, voltage, adVoltage, altitude, depth;
   sensors_event_t event;
   fiveSecsPassed = false;
   // ------ READ MESSAGE FROM TOPSIDE ------
@@ -300,7 +300,9 @@ void loop() {
       leak = digitalRead(19);
 
     // pressure/depth
-      pres_sens.read(); //can take about 40ms
+      //pres_sens.read(); //can take about 40ms
+      depth=analogRead(A8);
+      depth=int(100*depth/1024);
 
     // temperature
       tmpr_sens.read(); //can take about 40ms
@@ -329,7 +331,8 @@ void loop() {
     delay(50); //without the 50ms delay, we found a high rate of messages being sent with erroneous contents
 
   // Generate NMEA message and send back up through serial to topside laptop
-    Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, altitude, leak, voltage));
+//    Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, altitude, leak, voltage));
+Serial.println(generator.generate(ack, tmpr_sens.temperature(), depth, heading, altitude, leak, voltage));
     ack++; //incriment message ID number
 
   first_loop_flag = true;
