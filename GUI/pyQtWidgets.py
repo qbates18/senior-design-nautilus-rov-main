@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtCore import pyqtProperty
 import datetime
 import os
-from imports import timeDeploymentStarted
+from config import timeDeploymentStarted
 from imports import RotationCounter
 import config
 from config import sub_data
@@ -49,7 +49,6 @@ LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_RIGHT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
 
-dateOnly = datetime.date.today()
 
 maxDepth = config.NAUTILUS_MAX_RATED_DEPTH
 strMaxDepth = str(maxDepth)
@@ -624,18 +623,14 @@ class CaptainLogTextEntryBox(QTextEdit):
     def __init__(self):
         super(CaptainLogTextEntryBox, self).__init__()
         self.setMinimumWidth(CAPTAIN_LOG_MIN_WIDTH)
-        dateObj = dateOnly
-        dateStr = str(dateObj)
-        self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
-        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
         self.captainLogFds = None
     def saveTextSlot(self, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
-            if not os.path.isdir(self.logFolderString):
-                os.mkdir(self.logFolderString)
-            self.captainLogFds = open(self.captainLogFileName, 'a')
+            if not os.path.isdir(config.captainLogFolderString):
+                os.mkdir(config.captainLogFolderString)
+            self.captainLogFds = open(config.captainLogFileName, 'a')
             self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                 + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
                                 + "Heading: " + str(sub_data.read("HEAD"))
@@ -654,8 +649,10 @@ class CaptainLogTextEntryBox(QTextEdit):
         PIDSetpoint = argList[0]
         PIDType = argList[1]
         timer = argList[2]
-        self.captainLogFds = open(self.captainLogFileName, 'a')
-        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType + " control set to " + PIDSetpoint + "\n\n")
+        if not os.path.isdir(config.captainLogFolderString):
+            os.mkdir(config.captainLogFolderString)
+        self.captainLogFds = open(config.captainLogFileName, 'a')
+        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType + " control set to " + (str(PIDSetpoint) if PIDSetpoint != -1 else "Off") + "\n\n")
         self.captainLogFds.close()
 
     def textChangedSlot(self):

@@ -2,6 +2,8 @@
 # description: set parameters and enable/disable functionality based on the current hardware configuration
 
 from packages.models.input import Data
+import datetime
+timeDeploymentStarted = datetime.datetime.now() #universal source of truth for the start time of the deployment
 
 CAM_RATE = 1
 INPUT_RATE = 500
@@ -39,3 +41,7 @@ defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Altitude Kd": 4.0}
 
 VideoSize = (1324, 993) # (width, height) (1348,1011) for Wayland and (1324, 993) for X11 Ratio: (1.333333333, 1)
+
+dateToday = datetime.date.today()
+captainLogFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + str(dateToday)
+captainLogFileName = captainLogFolderString + "/" +str(timeDeploymentStarted)

@@ -11,7 +11,9 @@ PLACEHOLDER_IMAGE_SIZE = config.VideoSize
 
 class MainWindow(QWidget):
     stopCommsSignal = pyqtSignal()
-    saveheadPIDSetpointSignal = pyqtSignal(list)
+    saveHeadPIDSetpointSignal = pyqtSignal(list)
+    saveDepthPIDSetpointSignal = pyqtSignal(list)
+    saveAltitudePIDSetpointSignal = pyqtSignal(list)
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
@@ -169,8 +171,15 @@ class MainWindow(QWidget):
         #captain's log
         self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
+            #save heading setpoint:
         self.comms.headingLockValueUpdate.connect(self.saveheadPIDSetpointSlot)
-        self.saveheadPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
+        self.saveHeadPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
+            #save depth setpoint:
+        self.comms.depthLockValueUpdate.connect(self.savedepthPIDSetpointSlot)
+        self.saveDepthPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
+            #save altitude setpoint:
+        self.comms.altitudeLockValueUpdate.connect(self.savealtitudePIDSetpointSlot)
+        self.saveAltitudePIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
@@ -205,7 +214,11 @@ class MainWindow(QWidget):
         self.setLayout(self.GL)
     
     def saveheadPIDSetpointSlot(self, desiredHeading):
-        self.saveheadPIDSetpointSignal.emit([desiredHeading, "Heading", self.deploymentTimer])
+        self.saveHeadPIDSetpointSignal.emit([desiredHeading, "Heading", self.deploymentTimer])
+    def savedepthPIDSetpointSlot(self, desiredDepth):
+        self.saveDepthPIDSetpointSignal.emit([desiredDepth, "Depth", self.deploymentTimer])
+    def savealtitudePIDSetpointSlot(self, desiredAltitude):
+        self.saveAltitudePIDSetpointSignal.emit([desiredAltitude, "Altitude", self.deploymentTimer])
 
     # Updating the Camera frame
     def ImageUpdateSlot(self, Image):
