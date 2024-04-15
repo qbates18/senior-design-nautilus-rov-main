@@ -330,6 +330,7 @@ void loop() {
         if (heading < 0) {
           heading = 360 + heading;
         }
+      Serial.println(event.orientation.heading);
 
     // voltage
         voltage = ina260.readBusVoltage() / 1000;
@@ -337,7 +338,7 @@ void loop() {
     delay(50); //without the 50ms delay, we found a high rate of messages being sent with erroneous contents
 
   // Generate NMEA message and send back up through serial to topside laptop
-    Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, altitude, leak, voltage));
+    //Serial.println(generator.generate(ack, tmpr_sens.temperature(), pres_sens.depth(), heading, altitude, leak, voltage));
     ack++; //incriment message ID number
 
   first_loop_flag = true;

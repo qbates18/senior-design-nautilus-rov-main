@@ -19,6 +19,7 @@
 #include "MS5837.h"
 #include "Adafruit_Sensor.h"
 #include "Adafruit_LSM303DLH_Mag.h"
+#include "Adafruit_LIS2MDL.h"
 #include "Neptune.h"
 #include "ping1d.h"
 #include "HCPCA9685.h"
@@ -76,7 +77,8 @@ byte STBD_AFT_VECTOR_PIN = 11;
 
 MS5837 pres_sens;                  // pressure sensor
 TSYS01 tmpr_sens;                  // temperature sensor
-Adafruit_LSM303DLH_Mag_Unified head_sens = Adafruit_LSM303DLH_Mag_Unified(12345); // imu
+// Adafruit_LSM303DLH_Mag_Unified head_sens = Adafruit_LSM303DLH_Mag_Unified(12345); // old imu
+Adafruit_LIS2MDL headSensor = Adafruit_LIS2MDL(12345);
 Adafruit_INA260 ina260 = Adafruit_INA260(); //voltage sensor
 HCPCA9685 HCPCA9685(0x41); // adafruit 16 channel servo driver on address 0x41 (default is 0x40, same as INA260)
 
@@ -154,7 +156,7 @@ void setup()
     Serial.println("Temp init");
 
     // init IMU sensor - Q: IMU is inertail measurement unit (compass heading + accelerometer)
-    if (!head_sens.begin()) {
+    if (!headSensor.begin()) {
       Serial.println("IMU init failed!");
     }
     Serial.println("IMU init");
@@ -379,7 +381,7 @@ void loop()
     float mDistance = 0;
   //float ftDistance = 0;
   
-  head_sens.getEvent(&event);
+  headSensor.getEvent(&event);
   float MagX = (((event.magnetic.x-(-70.82)) * 61.3) / 97.91) + (-38.04);
   float MagY = (((event.magnetic.y-(-72.73)) * 56.44) / 101.37) + (-27.36);
 
