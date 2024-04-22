@@ -5,14 +5,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtCore import pyqtProperty
 import datetime
 import os
-from imports import timeDeploymentStarted
+from config import timeDeploymentStarted
 from imports import RotationCounter
 import config
+from config import sub_data
 
 BUTTON_MAX_HEIGHT = 40
 BUTTON_MAX_WIDTH = 175
-BUTTON_MIN_HEIGHT = 40
-SHORTER_BUTTON_MIN_HEIGHT = 30
+BUTTON_MIN_HEIGHT = 30
+SHORTER_BUTTON_MIN_HEIGHT = 25
 BUTTON_MIN_WIDTH = 175
 
 CLOCK_MAX_WIDTH = round(BUTTON_MIN_WIDTH/2)
@@ -20,7 +21,7 @@ CLOCK_MIN_WIDTH = CLOCK_MAX_WIDTH
 
 DEV_BUTTON_MAX_HEIGHT = BUTTON_MAX_HEIGHT
 DEV_BUTTON_MAX_WIDTH = 80
-DEV_BUTTON_MIN_HEIGHT = 30
+DEV_BUTTON_MIN_HEIGHT = BUTTON_MIN_HEIGHT
 DEV_BUTTON_MIN_WIDTH = DEV_BUTTON_MAX_WIDTH
 
 GREEN_BUTTON_BACKGROUND_COLOR_SS = "background-color : rgba(30, 255, 30, 60%);"
@@ -37,7 +38,7 @@ SMALL_TEXT_BOX_MAX_WIDTH = 40
 COMPASS_FIXED_WIDTH = 200
 COMPASS_FIXED_HEIGHT = 200
 
-INDICATOR_FIXED_HEIGHT = 40
+INDICATOR_FIXED_HEIGHT = BUTTON_MIN_HEIGHT
 INDICATOR_MIN_WIDTH = 80
 
 CAPTAIN_LOG_MIN_WIDTH = 460
@@ -48,7 +49,6 @@ LAYOUT_CONTENTS_MARGINS_TOP = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_RIGHT = LAYOUT_CONTENTS_MARGINS
 LAYOUT_CONTENTS_MARGINS_BOTTOM = LAYOUT_CONTENTS_MARGINS
 
-dateOnly = datetime.date.today()
 
 maxDepth = config.NAUTILUS_MAX_RATED_DEPTH
 strMaxDepth = str(maxDepth)
@@ -58,6 +58,7 @@ class CompassWidget(QWidget):
     angleChanged = pyqtSignal(float)
     
     def __init__(self, parent = None):
+    
         QWidget.__init__(self, parent)
         
         self._angle = 0.0
@@ -68,6 +69,7 @@ class CompassWidget(QWidget):
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
     
     def paintEvent(self, event):
+    
         painter = QPainter()
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -79,6 +81,7 @@ class CompassWidget(QWidget):
         painter.end()
     
     def drawMarkings(self, painter):
+    
         painter.save()
         painter.translate(self.width()/2, self.height()/2)
         scale = min((self.width() - self._margins)/120.0,
@@ -108,6 +111,7 @@ class CompassWidget(QWidget):
         painter.restore()
     
     def drawNeedle(self, painter):
+    
         painter.save()
         painter.translate(self.width()/2, self.height()/2)
         painter.rotate(self._angle)
@@ -133,6 +137,7 @@ class CompassWidget(QWidget):
         painter.restore()
     
     def sizeHint(self):
+    
         return QSize(COMPASS_FIXED_WIDTH, COMPASS_FIXED_HEIGHT)
     
     def angle(self):
@@ -165,7 +170,7 @@ class gaugeWidget(QWidget):
         self._angle = 0.0
         self._margins = 10
         self._pointText = {0: strRoundHalf, 45: strValue3, 90: strMaxReach, 135: strMaxDepth,
-                           180: "", 225: "0", 270: strValue1, 315: strValue2}
+                           180: " ", 225: "0", 270: strValue1, 315: strValue2}
         self.setFixedWidth(COMPASS_FIXED_WIDTH)
         self.setFixedHeight(COMPASS_FIXED_HEIGHT)
 
@@ -182,6 +187,7 @@ class gaugeWidget(QWidget):
         #painter.end()
 
     def drawNeedle(self, painter):
+
         painter.save()
         painter.translate(self.width()/2, (self.height()/2)+10)
         scale = min((self.width() - self._margins)/120.0,
@@ -235,6 +241,7 @@ class gaugeWidget(QWidget):
         painter.restore()
 
     def drawMarkings(self, painter):
+        
         painter.save()
         painter.translate((self.width()/2), (self.height()/2)+10)
         scale = min((self.width() - self._margins)/120.0,
@@ -259,6 +266,7 @@ class gaugeWidget(QWidget):
                                  self._pointText[i])
                 if i != 315:
                     painter.drawLine(-30, 30, -37, 37)
+
             elif i < 270:
                 painter.drawLine(-30, 30, -37, 37)
                 
@@ -266,6 +274,8 @@ class gaugeWidget(QWidget):
             painter.rotate(15)
             i += 15
         
+        painter.drawText(-20 , 50, "Depth (m)")
+
         painter.restore()
     
     def angle(self):
@@ -294,7 +304,6 @@ class HorizontalContainer(QHBoxLayout):
         super(HorizontalContainer, self).__init__()
         self.setContentsMargins(LAYOUT_CONTENTS_MARGINS_LEFT, LAYOUT_CONTENTS_MARGINS_TOP, LAYOUT_CONTENTS_MARGINS_RIGHT, LAYOUT_CONTENTS_MARGINS_BOTTOM)
         
-
 class RovArmedButton(QPushButton):
     def __init__(self):
         super(RovArmedButton, self).__init__()
@@ -323,20 +332,14 @@ class RovSafeModeButton(QPushButton):
         self.setStyleSheet(GREEN_BUTTON_BACKGROUND_COLOR_SS if isOn else ORANGE_BUTTON_BACKGROUND_COLOR_SS)
 
 
-# Generates a dropdown menu with a list of arm positions from armLocationsDict in config.py
-# Called in newMain.py when moveArmButton is clicked to move the arm to one of a set of fixed positions
-class ArmMovementDropdown(QComboBox):
-    armdropdownValue = pyqtSignal(str)
+class ArmMovementOptionsDropdown(QComboBox):
     def __init__(self):
-        super(ArmMovementDropdown, self).__init__()
-        armLocationList = list(config.armLocationsDict.keys())
-        self.addItems(armLocationList)
+        super(ArmMovementOptionsDropdown, self).__init__()
+        self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
-    def updateArmPosition(self):
-        self.armdropdownValue.emit(self.currentText())
 
 
 class MoveArmButton(QPushButton):
@@ -347,6 +350,14 @@ class MoveArmButton(QPushButton):
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+
+
+class DisplayHeading(QLabel):
+    def __init__(self):
+        super(DisplayHeading, self).__init__()
+        self.setText("Heading: Initializing...")
+    def updateHeadingSlot(self, head):
+        self.setText("Heading: " + str(head))
 
 
 class DisplayDepth(QLabel):
@@ -386,12 +397,11 @@ class DisplayRotations(QLabel):
         super(DisplayRotations, self).__init__()
         self.setText("Rotations: Initializing...")
         self.rotationCounter = RotationCounter()
-        self.rotations = None
     def updateRotationsSlot(self, heading):
         newRotations = round(self.rotationCounter.calculate_rotation(heading))
-        if newRotations != self.rotations:
-            self.rotations = newRotations
-            self.setText("Rotations: " + str(self.rotations))
+        if newRotations != sub_data.read("ROT"):
+            sub_data.assign("ROT", newRotations)
+            self.setText("Rotations: " + str(newRotations))
 
 
 class HeadingLockButton(QPushButton):
@@ -410,8 +420,6 @@ class HeadingLockButton(QPushButton):
         else:
             self.setText("Heading Lock Set To " + str(desiredHeading))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
-
-
 class HeadingLockTextBox(QLineEdit):
     headValueFromTextBox = pyqtSignal(str)
     def __init__(self):
@@ -447,6 +455,30 @@ class DepthLockTextBox(QLineEdit):
     def sendValueSlot(self):
         self.depthValueFromTextBox.emit(self.text())
 
+class altitudeLockButton(QPushButton):
+    def __init__(self):
+        super(altitudeLockButton, self).__init__()
+        self.setMaximumWidth(BUTTON_MAX_WIDTH)
+        self.setMaximumHeight(BUTTON_MAX_HEIGHT)
+        self.setMinimumWidth(BUTTON_MIN_WIDTH)
+        self.setMinimumHeight(SHORTER_BUTTON_MIN_HEIGHT)
+        self.setText("Altitude Lock Off")
+        self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+    def altitudeLockValueUpdateSlot(self, desiredAltitude):
+        if (desiredAltitude == -1):
+            self.setText("Altitude Lock Off")
+            self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
+        else:
+            self.setText("Altitude Lock Set To " + str(desiredAltitude))
+            self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
+
+class altitudeLockTextBox(QLineEdit):
+    altitudeValueFromTextBox = pyqtSignal(str)
+    def __init__(self):
+        super(altitudeLockTextBox, self).__init__()
+        self.setMaximumWidth(SMALL_TEXT_BOX_MAX_WIDTH)
+    def sendValueSlot(self):
+        self.altitudeValueFromTextBox.emit(self.text())
 
 class LeakIndicator(QTextEdit):
     def __init__(self):
@@ -591,32 +623,38 @@ class CaptainLogTextEntryBox(QTextEdit):
     def __init__(self):
         super(CaptainLogTextEntryBox, self).__init__()
         self.setMinimumWidth(CAPTAIN_LOG_MIN_WIDTH)
-        dateObj = dateOnly
-        dateStr = str(dateObj)
-        self.logFolderString = '/home/rsl/Desktop/NautilusCaptain\'sLogs/Captain\'sLog ' + dateStr
-        self.captainLogFileName = self.logFolderString + "/" +str(timeDeploymentStarted)
         self.entryNumber = 1
         self.captainLogFds = None
-    def saveTextSlot(self, comms, timer):
+    def saveTextSlot(self, timer):
         logText = self.toPlainText()
         if (len(logText) != 0):
-            if not os.path.isdir(self.logFolderString):
-                os.mkdir(self.logFolderString)
-            self.captainLogFds = open(self.captainLogFileName, 'a')
+            if not os.path.isdir(config.captainLogFolderString):
+                os.mkdir(config.captainLogFolderString)
+            self.captainLogFds = open(config.captainLogFileName, 'a')
             self.captainLogFds.write("Captain's Log Entry " + str(self.entryNumber) + "\n"
                                 + str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start" + "\n" #0 to 19 so that the decimal gets left out.
-                                + "Heading: " + str(comms.getHeading())
-                                + ", Depth: " + str(comms.getDepth())
-                                + " m, Altitude: " + str(comms.getAltitude())
-                                + " m, Temperature: " + str(comms.getTemperature()) + " " + u'\N{DEGREE SIGN}'
-                                + "C, Voltage: " + str(comms.getVoltage())
-                                + " V, Leak: " + ("True" if (comms.getLeak()) else "False")
-                                + ", Rotations: " + str(comms.getRotation()) + "\n")
+                                + "Heading: " + str(sub_data.read("HEAD"))
+                                + ", Depth: " + str(sub_data.read("DEPTH"))
+                                + " m, Altitude: " + str(sub_data.read("ALT"))
+                                + " m, Temperature: " + str(sub_data.read("TMPR")) + " " + u'\N{DEGREE SIGN}'
+                                + "C, Voltage: " + str(sub_data.read("VOLT"))
+                                + " V, Leak: " + ("True" if (sub_data.read("LEAK")) else "False")
+                                + ", Rotations: " + str(sub_data.read("ROT")) + "\n")
             self.captainLogFds.write(logText + "\n\n")
             self.captainLogFds.close()
             self.entryNumber += 1
             self.setPlaceholderText("Saved!")
             self.clear()
+    def savePIDSetpointSlot(self, argList):
+        PIDSetpoint = argList[0]
+        PIDType = argList[1]
+        timer = argList[2]
+        if not os.path.isdir(config.captainLogFolderString):
+            os.mkdir(config.captainLogFolderString)
+        self.captainLogFds = open(config.captainLogFileName, 'a')
+        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType + " control set to " + (str(PIDSetpoint) if PIDSetpoint != -1 else "Off") + "\n\n")
+        self.captainLogFds.close()
+
     def textChangedSlot(self):
         if (len(self.toPlainText()) == 1):
             self.setPlaceholderText("")
@@ -631,6 +669,13 @@ class CaptainLogSaveButton(QPushButton):
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
         self.setText("Save Captain's Log")
 
+
+class DisplayTimeElapsed(QLabel):
+    def __init__(self):
+        super(DisplayTimeElapsed, self).__init__()
+        self.setMaximumWidth(CLOCK_MAX_WIDTH)
+        self.setMinimumWidth(CLOCK_MIN_WIDTH)
+        self.setText("Clock: Initializing...")
 
 class DevToolsButton(QPushButton):
     def __init__(self):

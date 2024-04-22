@@ -81,11 +81,14 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 # description: takes input from a controller and maps it to top_data, the values sent to the ROV to control motion
 # input: a gamepad object
 def interpret(gamepad):
-	for entry in config.top_data.val_names:
-		x = convert(gamepad.read_value(config.map_dict[entry]))
-		config.top_data.assign(entry, x)
-		#print all values of top data for debug
-		#config.top_data.printclass()
+	if (gamepad != None):
+		for entry in config.top_data.val_names:
+			x = convert(gamepad.read_value(config.map_dict[entry]))
+			config.top_data.assign(entry, x)
+			#print all values of top data for debug
+			#config.top_data.printclass()
+	else:
+		print("GAMEPAD1 UNINTERPRETABLE! IT IS NONE!")
 		
 
 
@@ -93,21 +96,24 @@ def interpret(gamepad):
 # description: takes input from a controller and mapts to arm_inputs, the values sent to the ROV to control arm manipulation. Both joint and endpoint control values are calculated.	
 # input: a gamepad object	
 def interpret2(gamepad2):
-	# ------ Assign joint control values ------
-	for entry in config.arm_inputs.val_names:
-		if(entry != "theta1" and entry != "theta2" and entry != "theta3"):
-			x = convert(gamepad2.read_value(config.map2_dict[entry]))
-			config.arm_inputs.assign(entry, x)
+	if (gamepad2 != None):
+		# ------ Assign joint control values ------
+		for entry in config.arm_inputs.val_names:
+			if(entry != "theta1" and entry != "theta2" and entry != "theta3"):
+				x = convert(gamepad2.read_value(config.map2_dict[entry]))
+				config.arm_inputs.assign(entry, x)
 
-	# ------ Calculate and assign endpoint values ------
-	x_dot = config.arm_inputs.read("S1_LEFT") - config.arm_inputs.read("S1_RIGHT")
-	#y_dot = config.arm_inputs.read("S2_FORWARD") - config.arm_inputs.read("S3_BACK") # CURRENTLY YDOT (VERTICAL) ENPOINT CONTROL HAS NOT BEEN FINISHED
-	theta_radians = end_point(x_dot, 0.0, 0.0)
-	theta_degrees = (theta_radians * 180) / math.pi
-	theta_degrees = theta_degrees / 1.6 #1.6 is the gear ratio
-	config.arm_inputs.assign("theta1", theta_degrees[0][0])
-	config.arm_inputs.assign("theta2", theta_degrees[1][0])
-	config.arm_inputs.assign("theta3", theta_degrees[2][0])
+		# ------ Calculate and assign endpoint values ------
+		x_dot = config.arm_inputs.read("S1_LEFT") - config.arm_inputs.read("S1_RIGHT")
+		#y_dot = config.arm_inputs.read("S2_FORWARD") - config.arm_inputs.read("S3_BACK") # CURRENTLY YDOT (VERTICAL) ENPOINT CONTROL HAS NOT BEEN FINISHED
+		theta_radians = end_point(x_dot, 0.0, 0.0)
+		theta_degrees = (theta_radians * 180) / math.pi
+		theta_degrees = theta_degrees / 1.6 #1.6 is the gear ratio
+		config.arm_inputs.assign("theta1", theta_degrees[0][0])
+		config.arm_inputs.assign("theta2", theta_degrees[1][0])
+		config.arm_inputs.assign("theta3", theta_degrees[2][0])
+	else:
+		print("GAMEPAD2 UNINTERPRETABLE! IT IS NONE!")
 
 
 

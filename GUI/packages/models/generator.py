@@ -24,18 +24,21 @@ s5_mapped = 0
 
 # function: generate()
 # description: generate a message to send commands to the ROV using the National Marine Electronics Association (NMEA) string protocol
-def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_disarm_value, arm_inputs):
+def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	global ack_id
 	global l_tog_flag
 	global s_tog_flag
 	global s1_mapped, s2_mapped, s3_mapped, s4_mapped, s5_mapped  
 	
-
-	temp_pres = subData.read("PRES")
 	temp_tmpr = subData.read("TMPR")
-	temp_alt = subData.read("ALT")
+	temp_depth = subData.read("DEPTH")
 	temp_head = subData.read("HEAD")
-
+	temp_alt = subData.read("ALT")
+	temp_voltage = subData.read("VOLT")
+	temp_leak = subData.read("LEAK")
+	temp_safemode = subData.read("SAFE")
+	temp_arm = subData.read("ARM")
+	
 	# ------ Token1: Start of string ------
 	output =  "$"
 
@@ -43,7 +46,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 	output = add_next(output, str(ack_id))
 	ack_id = ack_id + 1
 
-	# ------ Token3 and Token4: Controller1 Left Joystick XY values for Maneuvering Thrusters Directional Motion ------
+	# ------ Token3 and Token4: Controller1 Left Joystick XY values for Maneuvering Thrusters Direcitonal Motion ------
 	x = min(input.read("RIGHT") - input.read("LEFT"), 1)
 	y = min(input.read("FORWARD") - input.read("BACK"), 1)
 	output = add_next(output, str(x))
@@ -59,9 +62,8 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 	if closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 0:
 		# takes analog value from 0 to 1 for each up and down
 		if input.read("UP") > 0 and input.read("DOWN") == 0:
-			vert_thrust = input.read("UP") # TODO - needs testing for the value
+			vert_thrust = input.read("UP")
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
-			# If safe mode is on and the current depth is dangerous
 			vert_thrust = input.read("DOWN")
 		else:
 			output = add_next(output, str(format(0, '.3f')))
@@ -70,14 +72,14 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 		vert_thrust = pid_dict["altitude"].calculate_next(temp_alt)
 	# If depth lock is enabled use depth closed loop control
 	elif closed_loop_dict["depth"] == 1 and closed_loop_dict["altitude"] == 0:
-		vert_thrust = pid_dict["depth"].calculate_next(temp_pres)
+		vert_thrust = pid_dict["depth"].calculate_next(temp_depth)
 	else:
 		vert_thrust = 0
 
 	print("vert_trust: ", vert_thrust)
 
 	# checks if safemode is on, current depth is dangerous, and current trajectory is downwards
-	if safemode == True and depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and vert_thrust < 0:
+	if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and vert_thrust < 0:
 		vert_thrust = 0 # commands the controllers to do nothing
 
 	output = add_next(output, str(format(vert_thrust, '.3f')))
@@ -132,7 +134,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, safemode, depth, arm_di
 		output = add_next(output, 'S')
 
 	# ------ Token10: GUI Arm/Disarm Value for ROV Motion ------
-	output = add_next(output, str(arm_disarm_value))
+	output = add_next(output, str(temp_arm))
 	
 
 	# ------ Token11-15: Controller2 Robotic Manipulator Joint Servo Values ------

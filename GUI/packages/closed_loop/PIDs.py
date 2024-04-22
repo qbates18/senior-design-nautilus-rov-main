@@ -5,10 +5,11 @@ from simple_pid import PID
 from config import defaultPidGainsValuesDict
 
 class altitude_PID:
-    def __init__(self, desiredAltitude):
+    def __init__(self, desiredAltitude, p = defaultPidGainsValuesDict["Altitude Kp"], i=defaultPidGainsValuesDict["Altitude Ki"], d=defaultPidGainsValuesDict["Altitude Kd"]):
         #initialize PID object
         self.desiredAltitude = float(desiredAltitude)
-        self.pid_instance = PID(8, 4, 4, setpoint = self.desiredAltitude)
+        self.pid_instance = PID(p, i, d, setpoint = self.desiredAltitude)
+        print("Altitude PID created with pid = " + str(p) + str(i) + str(d))
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-34.32, 44.32)
         self.force_to_joystick_ratio = 1/34.32
@@ -61,8 +62,8 @@ class head_PID:
         if abs(currentValue-self.pid_instance.setpoint) <= 180:
             output = self.pid_instance(currentValue)
         else:
-            if currentValue > self.pid_instance.setpoint:
-                lower_input_value = (360 - currentValue)
+            if currentValue > self.pid_instance.setpoint: #THIS DOESN"T MAKE SENSE?
+                lower_input_value = (currentValue - 360) #old:  360 - currentValue
                 output = self.pid_instance(lower_input_value)
             else:
                 higher_input_value = (360 + currentValue)

@@ -11,6 +11,9 @@ PLACEHOLDER_IMAGE_SIZE = config.VideoSize
 
 class MainWindow(QWidget):
     stopCommsSignal = pyqtSignal()
+    saveHeadPIDSetpointSignal = pyqtSignal(list)
+    saveDepthPIDSetpointSignal = pyqtSignal(list)
+    saveAltitudePIDSetpointSignal = pyqtSignal(list)
     def __init__(self):
         #GUI:
         super(MainWindow, self).__init__()
@@ -19,7 +22,7 @@ class MainWindow(QWidget):
         # Camera Feed
         self.feedLabel = QLabel() #object on which the pixelmap will appear in the GUI
         self.GL.addWidget(self.feedLabel, 0, 0, -1, 1, Qt.AlignCenter) #add object for camera feed pixelmap to appear on
-        # Show placeholder image
+        #show placeholder image
         self.feedLabel.setPixmap(QtGui.QPixmap(PLACEHOLDER_IMAGE_FILE_NAME).scaled(PLACEHOLDER_IMAGE_SIZE[0], PLACEHOLDER_IMAGE_SIZE[1]))
         
         # Compass / Heading Display and Heading Lock
@@ -36,7 +39,7 @@ class MainWindow(QWidget):
         self.headingLockTextBox = HeadingLockTextBox()
         self.headingLockHorizontalContainer.addWidget(self.headingLockTextBox, Qt.AlignCenter)
 
-        # Depth Gauge and Depth Lock
+        # Depth Guage, Depth Lock, Altitude Lock
         #layout
         self.depthVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.depthVerticalContainer, 1, 1, 1, 2, Qt.AlignCenter)
@@ -50,10 +53,21 @@ class MainWindow(QWidget):
         self.depthLockTextBox = DepthLockTextBox()
         self.depthLockHorizontalContainer.addWidget(self.depthLockTextBox, Qt.AlignCenter)
 
+        #Altitude Lock
+        self.altitudeVerticalContainer = VerticalContainer()
+        self.GL.addLayout(self.altitudeVerticalContainer, 2, 1, 1, 2, Qt.AlignCenter)
+        self.altitudeLockHorizontalContainer = HorizontalContainer()
+        self.altitudeVerticalContainer.insertLayout(0, self.altitudeLockHorizontalContainer, Qt.AlignCenter)
+
+        self.altitudeLockButton = altitudeLockButton()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockButton, Qt. AlignCenter)
+        self.altitudeLockTextBox = altitudeLockTextBox()
+        self.altitudeLockHorizontalContainer.addWidget(self.altitudeLockTextBox, Qt. AlignCenter)
+
         # Warning Indicators
         #layout
         self.warningIndicatorsVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 2, 1, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.warningIndicatorsVerticalContainer, 3, 1, 1, 1, Qt.AlignCenter)
         #widgets
         self.depthIndicator = DepthIndicator()
         self.warningIndicatorsVerticalContainer.addWidget(self.depthIndicator, Qt.AlignCenter)
@@ -70,23 +84,25 @@ class MainWindow(QWidget):
         # Display Raw Values
         #layout
         self.dataValuesVerticalContainer = VerticalContainer()
-        self.GL.addLayout(self.dataValuesVerticalContainer, 2, 2, 1, 1, Qt.AlignCenter)
+        self.GL.addLayout(self.dataValuesVerticalContainer, 3, 2, 1, 1, Qt.AlignCenter)
         #widgets
+        self.displayHeading = DisplayHeading()
+        self.dataValuesVerticalContainer.insertWidget(0, self.displayHeading, Qt.AlignCenter)
         self.displayDepth = DisplayDepth()
-        self.dataValuesVerticalContainer.insertWidget(0, self.displayDepth, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(1, self.displayDepth, Qt.AlignCenter)
         self.displayAltitude = DisplayAltitude()
-        self.dataValuesVerticalContainer.insertWidget(1, self.displayAltitude, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(2, self.displayAltitude, Qt.AlignCenter)
         self.displayTemperature = DisplayTemperature()
-        self.dataValuesVerticalContainer.insertWidget(2, self.displayTemperature, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(3, self.displayTemperature, Qt.AlignCenter)
         self.displayVoltage = DisplayVoltage()
-        self.dataValuesVerticalContainer.insertWidget(3, self.displayVoltage, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(4, self.displayVoltage, Qt.AlignCenter)
         self.displayRotations = DisplayRotations()
-        self.dataValuesVerticalContainer.insertWidget(4, self.displayRotations, Qt.AlignCenter)
+        self.dataValuesVerticalContainer.insertWidget(5, self.displayRotations, Qt.AlignCenter)
 
         # Captain's Log, Deployment Clock, and Dev Tools Button
         #layouts
         self.captainLogGridContainer = QGridLayout() #putting the captain's log in a vertical container makes it fill the width of the available space
-        self.GL.addLayout(self.captainLogGridContainer, 3, 1, 1, 2, Qt.AlignCenter)
+        self.GL.addLayout(self.captainLogGridContainer, 4, 1, 1, 2, Qt.AlignCenter)
         self.displayTimeElapsedHorizontalContainer = HorizontalContainer()
         self.captainLogGridContainer.addLayout(self.displayTimeElapsedHorizontalContainer, 1, 1, 1, 1, Qt.AlignRight)
         #widgets
@@ -115,8 +131,8 @@ class MainWindow(QWidget):
         self.armLocationSelectVerticalContainer = VerticalContainer()
         self.GL.addLayout(self.armLocationSelectVerticalContainer, 5, 2, 1, 1, Qt.AlignRight)
         #widgets
-        self.armMovementDropdown = ArmMovementDropdown()
-        self.armLocationSelectVerticalContainer.addWidget(self.armMovementDropdown, Qt.AlignCenter)
+        self.armMovementOptionsDropdown = ArmMovementOptionsDropdown()
+        self.armLocationSelectVerticalContainer.addWidget(self.armMovementOptionsDropdown, Qt.AlignCenter)
         self.moveArmButton = MoveArmButton()
         self.armLocationSelectVerticalContainer.addWidget(self.moveArmButton, Qt.AlignCenter)
 
@@ -137,6 +153,7 @@ class MainWindow(QWidget):
 
         self.comms.depthUpdate.connect(self.displayDepth.updateDepthSlot)
         self.comms.altitudeUpdate.connect(self.displayAltitude.updateAltitudeSlot)
+        self.comms.headUpdate.connect(self.displayHeading.updateHeadingSlot)
         self.comms.temperatureUpdate.connect(self.displayTemperature.updateTemperatureSlot)
         self.comms.voltageUpdate.connect(self.displayVoltage.updateVoltageSlot)
         self.comms.headUpdate.connect(self.displayRotations.updateRotationsSlot) #calculate rotations based on heading update
@@ -152,18 +169,23 @@ class MainWindow(QWidget):
 
         self.comms.commsStatusUpdate.connect(self.commsIndicator.commsIndicatorUpdateSlot)
         #captain's log
-        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.comms, self.deploymentTimer))
+        self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
+            #save heading setpoint:
+        self.comms.headingLockValueUpdate.connect(self.saveheadPIDSetpointSlot)
+        self.saveHeadPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
+            #save depth setpoint:
+        self.comms.depthLockValueUpdate.connect(self.savedepthPIDSetpointSlot)
+        self.saveDepthPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
+            #save altitude setpoint:
+        self.comms.altitudeLockValueUpdate.connect(self.savealtitudePIDSetpointSlot)
+        self.saveAltitudePIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
         #safe mode
         self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
         self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)
-
-        # arm position
-        self.moveArmButton.clicked.connect(self.armMovementDropdown.updateArmPosition)
-        self.armMovementDropdown.armdropdownValue.connect(self.comms.armMovementSlot)
 
         #heading lock
         self.headingLockButton.clicked.connect(self.headingLockTextBox.sendValueSlot) #when heading lock button clicked, call on text box to emit a signal with the current value
@@ -173,6 +195,10 @@ class MainWindow(QWidget):
         self.depthLockButton.clicked.connect(self.depthLockTextBox.sendValueSlot) #when depth lock button clicked, call on text box to emit a signal with the current value
         self.depthLockTextBox.depthValueFromTextBox.connect(self.comms.setDepthLockSlot) #when the text box emits its current value, comms class gets that value and sets depth lock based on it (setDepthLockSlot)
         self.comms.depthLockValueUpdate.connect(self.depthLockButton.depthLockValueUpdateSlot) #when the depth lock value is updated (signal sent at the end of setDepthLockSlot) update the button to reflect the current lock value
+        #altitude lock
+        self.altitudeLockButton.clicked.connect(self.altitudeLockTextBox.sendValueSlot)
+        self.altitudeLockTextBox.altitudeValueFromTextBox.connect(self.comms.setAltitudeLockSlot)
+        self.comms.altitudeLockValueUpdate.connect(self.altitudeLockButton.altitudeLockValueUpdateSlot)
         #dev tools
         self.devToolsButton.clicked.connect(self.devToolsWindow.openDevToolsSlot)
         self.devToolsWindow.devToolsUpdateSignal.connect(self.comms.devToolsItemsDictUpdateSlot) #when the devtools window is saved update the comms classes pid gains dictionary
@@ -186,10 +212,13 @@ class MainWindow(QWidget):
         #General
         self.setWindowTitle('Nautilus')
         self.setLayout(self.GL)
-
-    # Updating Developer Tools Values:
-    def updateDevToolsValues(self, devToolsItemsDict):
-        print(devToolsItemsDict)
+    
+    def saveheadPIDSetpointSlot(self, desiredHeading):
+        self.saveHeadPIDSetpointSignal.emit([desiredHeading, "Heading", self.deploymentTimer])
+    def savedepthPIDSetpointSlot(self, desiredDepth):
+        self.saveDepthPIDSetpointSignal.emit([desiredDepth, "Depth", self.deploymentTimer])
+    def savealtitudePIDSetpointSlot(self, desiredAltitude):
+        self.saveAltitudePIDSetpointSignal.emit([desiredAltitude, "Altitude", self.deploymentTimer])
 
     # Updating the Camera frame
     def ImageUpdateSlot(self, Image):
