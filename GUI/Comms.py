@@ -44,7 +44,7 @@ class Comms(QThread):
     # description: called first to initialize components
     def startup(self):
         self.logFile = initialize_log_folder()
-
+        sub_data.assign("SAFE", True) #initialize safe mode to be on
         #prepare necessary resources for gamepad
         if config.gamepad_flag:
             #gamepad initialization

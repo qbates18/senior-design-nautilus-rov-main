@@ -76,12 +76,8 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	else:
 		vert_thrust = 0
 
-	print("vert_trust: ", vert_thrust)
-	print("safemode: ", temp_safemode)
-
 	# checks if safemode is on, current depth is dangerous, and current trajectory is downwards
-	if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and vert_thrust < 0:
-		print("safemode on")
+	if temp_depth == None or (temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and vert_thrust < 0):
 		vert_thrust = 0 # commands the controllers to do nothing
 
 	output = add_next(output, str(format(vert_thrust, '.3f')))
