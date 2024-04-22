@@ -27,7 +27,7 @@ class depth_PID:
     def __init__(self, desiredDepth, p=defaultPidGainsValuesDict["Depth Kp"], i=defaultPidGainsValuesDict["Depth Ki"], d=defaultPidGainsValuesDict["Depth Kd"]):
         self.vertical_thruster_amount = 4
         self.desiredDepth = float(desiredDepth)
-        self.pid_instance = PID(p, i, d, setpoint=self.desiredDepth)
+        self.pid_instance = PID(-p, -i, -d, setpoint=self.desiredDepth)
         print("Depth PID created with pid = " + str(p) + str(i) + str(d))
         self.pid_instance.sample_time = 0.05
         self.pid_instance.output_limits = (-34.32*self.vertical_thruster_amount, 44.13*self.vertical_thruster_amount)
@@ -36,8 +36,7 @@ class depth_PID:
 
     def calculate_next(self, currentValue):
         currentValue = float(currentValue)
-        depth_input = currentValue/(9.8*1)
-        output = self.pid_instance(depth_input)
+        output = self.pid_instance(currentValue)
         output = output * self.force_to_joystick_ratio_pos
         return output
     def getDesiredValue(self):

@@ -33,9 +33,9 @@ NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle a
 defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Heading Ki": 1.0,
                              "Heading Kd": 1.0,
-                             "Depth Kp": -7.0,
-                             "Depth Ki": -1.0,
-                             "Depth Kd": -3.0,
+                             "Depth Kp": 1,
+                             "Depth Ki": 0,
+                             "Depth Kd": 0,
                              "Altitude Kp": 8.0,
                              "Altitude Ki": 4.0,
                              "Altitude Kd": 4.0}

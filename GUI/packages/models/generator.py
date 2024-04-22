@@ -77,9 +77,11 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 		vert_thrust = 0
 
 	print("vert_trust: ", vert_thrust)
+	print("safemode: ", temp_safemode)
 
 	# checks if safemode is on, current depth is dangerous, and current trajectory is downwards
 	if temp_safemode == True and temp_depth > config.NAUTILUS_MAX_RATED_DEPTH * config.NAUTILUS_SAFE_DEPTH and vert_thrust < 0:
+		print("safemode on")
 		vert_thrust = 0 # commands the controllers to do nothing
 
 	output = add_next(output, str(format(vert_thrust, '.3f')))
@@ -87,19 +89,21 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 
 	# ------ Token6: Controller1 Right Joystick Horizontal values for Manuvering Thruster Rotational Motion ------
 	# If 0 closed loop heading control is off, if 1 then its on, otherwise default to off
+	rotation_thrust = 0
 	if closed_loop_dict["head"] == 0:
 		if input.read("ROT_CW") > config.THRESHOLD and input.read("ROT_CCW") == 0:
-			output = add_next(output, str(format(input.read("ROT_CW"), '.3f')))
+			rotation_thrust = input.read("ROT_CW")
 		elif input.read("ROT_CW") == 0 and input.read("ROT_CCW") > config.THRESHOLD:
-			output = add_next(output, str(format(-input.read("ROT_CCW"), '.3f')))
+			rotation_thrust = -input.read("ROT_CCW")
 		else:
-			output = add_next(output, str(format(0, '.3f')))
+			rotation_thrust = 0
 	# If heading lock is enabled
 	elif closed_loop_dict["head"] == 1:
-		output = add_next(output, str(format(pid_dict["head"].calculate_next(temp_head), '.3f')))
+		rotation_thrust = pid_dict["head"].calculate_next(temp_head)
 	else:
-		output = add_next(output, str(format(0, '.3f')))
-
+		rotation_thrust = 0
+	print("rotation thrust is: ", str(rotation_thrust))
+	output = add_next(output, str(format(rotation_thrust, '.3f')))
 
 	# ------ Token7: Controller1 "Y" Button for Toggling Lights ------
 	if input.read("L_TOG") == 1 and l_tog_flag == False:
