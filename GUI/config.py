@@ -30,15 +30,15 @@ heading_offset = 324
 NAUTILUS_MAX_RATED_DEPTH = 100 #100 as of April 2024
 NAUTILUS_SAFE_DEPTH = 0.9 # percentage (of 1) that the safe mode should toggle at and depth warning indicator should turn red at (it will turn orange at NAUTILUS_MAX_RATED_DEPTH * NAUTILUS_SAFE_DEPTH * 0.9)
 
-defaultPidGainsValuesDict = {"Heading Kp": 4.0,
-                             "Heading Ki": 1.0,
-                             "Heading Kd": 1.0,
-                             "Depth Kp": 1,
-                             "Depth Ki": 0,
+defaultPidGainsValuesDict = {"Heading Kp": 2,
+                             "Heading Ki": 0.2,
+                             "Heading Kd": 0.0,
+                             "Depth Kp": 75,
+                             "Depth Ki": 2,
                              "Depth Kd": 0,
-                             "Altitude Kp": 8.0,
-                             "Altitude Ki": 4.0,
-                             "Altitude Kd": 4.0}
+                             "Altitude Kp": 75,
+                             "Altitude Ki": 2,
+                             "Altitude Kd": 10}
 
 VideoSize = (1324, 993) # (width, height) (1348,1011) for Wayland and (1324, 993) for X11 Ratio: (1.333333333, 1)
 
