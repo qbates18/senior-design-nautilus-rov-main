@@ -214,7 +214,7 @@ class MainWindow(QWidget):
         self.setLayout(self.GL)
     
     def saveheadPIDSetpointSlot(self, desiredHeading):
-        self.saveHeadPIDSetpointSignal.emit([desiredHeading, "Heading", self.deploymentTimer])
+        self.saveHeadPIDSetpointSignal.emit([desiredHeading[0], "Heading", self.deploymentTimer, desiredHeading[1], desiredHeading[2], desiredHeading[3]])
     def savedepthPIDSetpointSlot(self, desiredDepth):
         self.saveDepthPIDSetpointSignal.emit([desiredDepth, "Depth", self.deploymentTimer])
     def savealtitudePIDSetpointSlot(self, desiredAltitude):

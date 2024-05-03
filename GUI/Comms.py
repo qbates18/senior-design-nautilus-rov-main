@@ -13,7 +13,7 @@ class Comms(QThread):
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
     safemodeUpdate = pyqtSignal(bool)
-    headingLockValueUpdate = pyqtSignal(int)
+    headingLockValueUpdate = pyqtSignal(list)
     depthLockValueUpdate = pyqtSignal(float)
     altitudeLockValueUpdate = pyqtSignal(float)
     commsStatusUpdate = pyqtSignal(bool)
@@ -214,7 +214,11 @@ class Comms(QThread):
                                                  self.pidGainsValuesDict["Heading Kp"],
                                                  self.pidGainsValuesDict["Heading Ki"],
                                                  self.pidGainsValuesDict["Heading Kd"])
-        self.headingLockValueUpdate.emit(int(self.pid_dict["head"].getDesiredValue()) if self.pid_dict["head"] != None else -1) #-1 indicates heading lock has been turned off
+        self.headingLockValueUpdate.emit([int(self.pid_dict["head"].getDesiredValue()),
+                                          self.pidGainsValuesDict["Heading Kp"],
+                                          self.pidGainsValuesDict["Heading Ki"],
+                                          self.pidGainsValuesDict["Heading Kd"]]
+                                          if self.pid_dict["head"] != None else [-1, -1, -1, -1]) #-1 indicates heading lock has been turned off
     def setDepthLockSlot(self, desiredDepth):
         if (self.closed_loop_dict["depth"]):
             self.closed_loop_dict["depth"] = 0
