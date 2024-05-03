@@ -656,7 +656,7 @@ class CaptainLogTextEntryBox(QTextEdit):
             os.mkdir(config.captainLogFolderString)
         self.captainLogFds = open(config.captainLogFileName, 'a')
         self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType +
-                                 " control set to " + ((str(PIDSetpoint)+", PID values are p=" + str(pval) + " i=" + str(ival) + " d=" + str(dval)) if PIDSetpoint != -1 else "Off") + "\n\n")
+                                 " control set to " + ((str(PIDSetpoint)+", PID values are Kp=" + str(pval) + " Ki=" + str(ival) + " Kd=" + str(dval)) if PIDSetpoint != -1 else "Off") + "\n\n")
         self.captainLogFds.close()
 
     def textChangedSlot(self):

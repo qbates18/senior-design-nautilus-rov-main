@@ -216,9 +216,9 @@ class MainWindow(QWidget):
     def saveheadPIDSetpointSlot(self, desiredHeading):
         self.saveHeadPIDSetpointSignal.emit([desiredHeading[0], "Heading", self.deploymentTimer, desiredHeading[1], desiredHeading[2], desiredHeading[3]])
     def savedepthPIDSetpointSlot(self, desiredDepth):
-        self.saveDepthPIDSetpointSignal.emit([desiredDepth, "Depth", self.deploymentTimer])
+        self.saveDepthPIDSetpointSignal.emit([desiredDepth[0], "Depth", self.deploymentTimer, desiredDepth[1], desiredDepth[2], desiredDepth[3]])
     def savealtitudePIDSetpointSlot(self, desiredAltitude):
-        self.saveAltitudePIDSetpointSignal.emit([desiredAltitude, "Altitude", self.deploymentTimer])
+        self.saveAltitudePIDSetpointSignal.emit([desiredAltitude[0], "Altitude", self.deploymentTimer, desiredAltitude[1], desiredAltitude[2], desiredAltitude[3]])
 
     # Updating the Camera frame
     def ImageUpdateSlot(self, Image):
