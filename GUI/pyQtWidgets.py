@@ -361,6 +361,13 @@ class DisplayHeading(QLabel):
         self.setText("Heading: Initializing...")
     def updateHeadingSlot(self, head):
         self.setText("Heading: " + str(head))
+    def runningAverage(self, head):
+        tempAvg = []
+        runAvg = []
+        tempAvg.append(head)
+        if len(tempAvg) == 10:
+            runAvg.append(round(sum(tempAvg)/len(tempAvg), 2))
+        print(runAvg)
 
 
 class DisplayDepth(QLabel):
@@ -417,11 +424,11 @@ class HeadingLockButton(QPushButton):
         self.setText("Heading Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
     def headingLockValueUpdateSlot(self, desiredHeading):
-        if (desiredHeading == -1):
+        if (desiredHeading[0] == -1):
             self.setText("Heading Lock Off")
             self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         else:
-            self.setText("Heading Lock Set To " + str(desiredHeading))
+            self.setText("Heading Lock Set To " + str(desiredHeading[0]))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 class HeadingLockTextBox(QLineEdit):
     headValueFromTextBox = pyqtSignal(str)
@@ -442,11 +449,11 @@ class DepthLockButton(QPushButton):
         self.setText("Depth Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
     def depthLockValueUpdateSlot(self, desiredDepth):
-        if (desiredDepth == -1):
+        if (desiredDepth[0] == -1):
             self.setText("Depth Lock Off")
             self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         else:
-            self.setText("Depth Lock Set To " + str(desiredDepth))
+            self.setText("Depth Lock Set To " + str(desiredDepth[0]))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 
 
@@ -468,11 +475,11 @@ class altitudeLockButton(QPushButton):
         self.setText("Altitude Lock Off")
         self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
     def altitudeLockValueUpdateSlot(self, desiredAltitude):
-        if (desiredAltitude == -1):
+        if (desiredAltitude[0] == -1):
             self.setText("Altitude Lock Off")
             self.setStyleSheet(GREY_BUTTON_BACKGROUND_COLOR_SS)
         else:
-            self.setText("Altitude Lock Set To " + str(desiredAltitude))
+            self.setText("Altitude Lock Set To " + str(desiredAltitude[0]))
             self.setStyleSheet(BLUE_BUTTON_BACKGROUND_COLOR_SS)
 
 class altitudeLockTextBox(QLineEdit):
@@ -652,10 +659,14 @@ class CaptainLogTextEntryBox(QTextEdit):
         PIDSetpoint = argList[0]
         PIDType = argList[1]
         timer = argList[2]
+        pval = argList[3]
+        ival = argList[4]
+        dval = argList[5]
         if not os.path.isdir(config.captainLogFolderString):
             os.mkdir(config.captainLogFolderString)
         self.captainLogFds = open(config.captainLogFileName, 'a')
-        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType + " control set to " + (str(PIDSetpoint) if PIDSetpoint != -1 else "Off") + "\n\n")
+        self.captainLogFds.write(str(datetime.datetime.now())[0:19]+ ", " + timer.getTime() + " since deployment start. " + PIDType +
+                                 " control set to " + ((str(PIDSetpoint)+", PID values are Kp=" + str(pval) + " Ki=" + str(ival) + " Kd=" + str(dval)) if PIDSetpoint != -1 else "Off") + "\n\n")
         self.captainLogFds.close()
 
     def textChangedSlot(self):

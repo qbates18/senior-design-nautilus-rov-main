@@ -13,9 +13,11 @@ class Comms(QThread):
     leakUpdate = pyqtSignal(int)
     armUpdate = pyqtSignal(bool)
     safemodeUpdate = pyqtSignal(bool)
-    headingLockValueUpdate = pyqtSignal(int)
-    depthLockValueUpdate = pyqtSignal(float)
-    altitudeLockValueUpdate = pyqtSignal(float)
+    #all lock value update signals emit a list[4] with setpoint at position 0 and PID values at positions 1, 2, and 3, respectively.
+    headingLockValueUpdate = pyqtSignal(list)
+    depthLockValueUpdate = pyqtSignal(list)
+    altitudeLockValueUpdate = pyqtSignal(list)
+
     commsStatusUpdate = pyqtSignal(bool)
     addArduinoErrorMessageUpdate = pyqtSignal(str)
     def __init__(self):
@@ -145,6 +147,7 @@ class Comms(QThread):
     def update_sensor_values(self, tmpr, depth, head, altitude, voltage, leak):
         #emit values for use by the GUI
         processedLeak = int(float(leak[1:]))
+        
         processedHead = int(round((360 - float(head) + config.heading_offset) % 360))
 
         floatedTmpr = float(tmpr)
@@ -217,7 +220,11 @@ class Comms(QThread):
                                                  self.pidGainsValuesDict["Heading Kp"],
                                                  self.pidGainsValuesDict["Heading Ki"],
                                                  self.pidGainsValuesDict["Heading Kd"])
-        self.headingLockValueUpdate.emit(int(self.pid_dict["head"].getDesiredValue()) if self.pid_dict["head"] != None else -1) #-1 indicates heading lock has been turned off
+        self.headingLockValueUpdate.emit([int(self.pid_dict["head"].getDesiredValue()),
+                                          self.pidGainsValuesDict["Heading Kp"],
+                                          self.pidGainsValuesDict["Heading Ki"],
+                                          self.pidGainsValuesDict["Heading Kd"]]
+                                          if self.pid_dict["head"] != None else [-1, 0, 0, 0]) #-1 indicates heading lock has been turned off
     def setDepthLockSlot(self, desiredDepth):
         if (self.closed_loop_dict["depth"]):
             self.closed_loop_dict["depth"] = 0
@@ -241,7 +248,11 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Depth Kp"],
                                                    self.pidGainsValuesDict["Depth Ki"],
                                                    self.pidGainsValuesDict["Depth Kd"])
-        self.depthLockValueUpdate.emit(float(self.pid_dict["depth"].getDesiredValue()) if self.pid_dict["depth"] != None else -1) #-1 indicates depth lock has been turned off
+        self.depthLockValueUpdate.emit([float(self.pid_dict["depth"].getDesiredValue()),
+                                        self.pidGainsValuesDict["Depth Kp"],
+                                        self.pidGainsValuesDict["Depth Ki"],
+                                        self.pidGainsValuesDict["Depth Kd"]]
+                                        if self.pid_dict["depth"] != None else [-1, 0, 0, 0]) #-1 indicates depth lock has been turned off
     
     def setAltitudeLockSlot(self, desiredAltitude):
         if (self.closed_loop_dict["altitude"]):
@@ -266,7 +277,11 @@ class Comms(QThread):
                                                    self.pidGainsValuesDict["Altitude Kp"],
                                                    self.pidGainsValuesDict["Altitude Ki"],
                                                    self.pidGainsValuesDict["Altitude Kd"])
-        self.altitudeLockValueUpdate.emit(float(self.pid_dict["altitude"].getDesiredValue()) if self.pid_dict["altitude"] != None else -1)
+        self.altitudeLockValueUpdate.emit([float(self.pid_dict["altitude"].getDesiredValue()),
+                                           self.pidGainsValuesDict["Altitude Kp"],
+                                           self.pidGainsValuesDict["Altitude Ki"],
+                                           self.pidGainsValuesDict["Altitude Kd"]]
+                                           if self.pid_dict["altitude"] != None else [-1, 0, 0, 0])
 
     def devToolsItemsDictUpdateSlot(self, devToolsDict):
         self.pidGainsValuesDict = devToolsDict

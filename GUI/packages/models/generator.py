@@ -60,7 +60,7 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 		elif input.read("UP") == 0 and input.read("DOWN") < 0:
 			vert_thrust = input.read("DOWN")
 		else:
-			output = add_next(output, str(format(0, '.3f')))
+			vert_thrust = 0
 	# If the altitude lock is enabled use altitude closed loop control
 	elif closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 1:
 		vert_thrust = pid_dict["altitude"].calculate_next(temp_alt)
