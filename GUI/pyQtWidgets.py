@@ -342,7 +342,7 @@ class ArmMovementOptionsDropdown(QComboBox):
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
     def sendArmCommand(self):
-        self.armDropdownValue.emit(self.currentText)
+        self.armDropdownValue.emit(self.currentText())
 
 
 class MoveArmButton(QPushButton):
