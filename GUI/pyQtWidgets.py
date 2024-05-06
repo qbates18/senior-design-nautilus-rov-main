@@ -358,6 +358,13 @@ class DisplayHeading(QLabel):
         self.setText("Heading: Initializing...")
     def updateHeadingSlot(self, head):
         self.setText("Heading: " + str(head))
+    def runningAverage(self, head):
+        tempAvg = []
+        runAvg = []
+        tempAvg.append(head)
+        if len(tempAvg) == 10:
+            runAvg.append(round(sum(tempAvg)/len(tempAvg), 2))
+        print(runAvg)
 
 
 class DisplayDepth(QLabel):

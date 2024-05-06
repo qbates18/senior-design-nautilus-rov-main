@@ -147,6 +147,7 @@ class Comms(QThread):
     def update_sensor_values(self, tmpr, depth, head, altitude, voltage, leak):
         #emit values for use by the GUI
         processedLeak = int(float(leak[1:]))
+        
         processedHead = int(round((360 - float(head) + config.heading_offset) % 360))
 
         floatedTmpr = float(tmpr)
