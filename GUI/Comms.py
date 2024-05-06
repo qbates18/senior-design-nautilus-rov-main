@@ -173,6 +173,9 @@ class Comms(QThread):
     def safemodeSlot(self):
         sub_data.assign("SAFE", not sub_data.read("SAFE"))
         self.safemodeUpdate.emit(sub_data.read("SAFE"))
+    def moveArmSlot(self, newLocation):
+        position = armLocationsDict.get(newLocation)
+        print("Traveling to " + newLocation + " at coordinates " + str(position))
     def setHeadingLockSlot(self, desiredHeading):
         if (self.closed_loop_dict["head"]):
             self.closed_loop_dict["head"] = 0

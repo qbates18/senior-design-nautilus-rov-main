@@ -30,12 +30,10 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	global s_tog_flag
 	global s1_mapped, s2_mapped, s3_mapped, s4_mapped, s5_mapped  
 	
-	temp_tmpr = subData.read("TMPR")
+	# temperature ("TMPR"), voltage ("VOLT"), and the leak sensor ("LEAK") are not used in this code currently but may be added
 	temp_depth = subData.read("DEPTH")
 	temp_head = subData.read("HEAD")
 	temp_alt = subData.read("ALT")
-	temp_voltage = subData.read("VOLT")
-	temp_leak = subData.read("LEAK")
 	temp_safemode = subData.read("SAFE")
 	temp_arm = subData.read("ARM")
 	
@@ -53,10 +51,6 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 	output = add_next(output, str(y))
 
 	# ------ Token5: Controller1 Trigger values for Vertical Thrusters ------
-
-	# Handles the value that will be written as Token5, 0 is doing nothing, - is downwards motion, + is upwards motion
-	print("input.read(\"UP\")", input.read("UP"))
-	vert_thrust = 0
 
 	# If neither depth and altitude locks are enabled then calculate verticals normally
 	if closed_loop_dict["depth"] == 0 and closed_loop_dict["altitude"] == 0:

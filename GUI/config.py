@@ -40,6 +40,13 @@ defaultPidGainsValuesDict = {"Heading Kp": 4.0,
                              "Altitude Ki": 4.0,
                              "Altitude Kd": 4.0}
 
+# Placeholder values until further testing is done meant to represent values for the arm servos
+armLocationsDict = {"Travel Home": (0, 0, 0),
+                    "Workspace Home": (1, 0, 0),
+                    "Storage 1": (2, 1, 0),
+                    "Storage 2": (2, 2, 0),
+                    "Storage 3": (2, 3, 0)}
+
 VideoSize = (1324, 993) # (width, height) (1348,1011) for Wayland and (1324, 993) for X11 Ratio: (1.333333333, 1)
 
 dateToday = datetime.date.today()

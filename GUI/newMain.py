@@ -171,18 +171,21 @@ class MainWindow(QWidget):
         #captain's log
         self.captainLogSaveButton.clicked.connect(lambda: self.captainLogTextEntryBox.saveTextSlot(self.deploymentTimer))
         self.captainLogTextEntryBox.textChanged.connect(self.captainLogTextEntryBox.textChangedSlot)
-            #save heading setpoint:
+        #save heading setpoint:
         self.comms.headingLockValueUpdate.connect(self.saveheadPIDSetpointSlot)
         self.saveHeadPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
-            #save depth setpoint:
+        #save depth setpoint:
         self.comms.depthLockValueUpdate.connect(self.savedepthPIDSetpointSlot)
         self.saveDepthPIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
-            #save altitude setpoint:
+        #save altitude setpoint:
         self.comms.altitudeLockValueUpdate.connect(self.savealtitudePIDSetpointSlot)
         self.saveAltitudePIDSetpointSignal.connect(self.captainLogTextEntryBox.savePIDSetpointSlot)
         #arm ROV
         self.rovArmedButton.clicked.connect(self.comms.armRovSlot)
         self.comms.armUpdate.connect(self.rovArmedButton.armUpdateSlot)
+        #arm movement control buttons
+        self.moveArmButton.clicked.connect(self.armMovementOptionsDropdown.sendArmCommand)
+        self.armMovementOptionsDropdown.armDropdownValue.connect(self.comms.moveArmSlot)
         #safe mode
         self.rovSafeModeButton.clicked.connect(self.comms.safemodeSlot)
         self.comms.safemodeUpdate.connect(self.rovSafeModeButton.safemodeUpdateSlot)

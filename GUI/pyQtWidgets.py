@@ -333,13 +333,16 @@ class RovSafeModeButton(QPushButton):
 
 
 class ArmMovementOptionsDropdown(QComboBox):
+    armDropdownValue = pyqtSignal(str)
     def __init__(self):
         super(ArmMovementOptionsDropdown, self).__init__()
-        self.addItems(["Travel Home", "Workspace Home", "Storage 1", "Storage 2", "Storage 3"])
+        self.addItems(list(config.armLocationsDict.keys()))
         self.setMaximumWidth(BUTTON_MAX_WIDTH)
         self.setMaximumHeight(BUTTON_MAX_HEIGHT)
         self.setMinimumWidth(BUTTON_MIN_WIDTH)
         self.setMinimumHeight(BUTTON_MIN_HEIGHT)
+    def sendArmCommand(self):
+        self.armDropdownValue.emit(self.currentText)
 
 
 class MoveArmButton(QPushButton):
