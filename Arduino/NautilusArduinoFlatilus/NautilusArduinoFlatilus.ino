@@ -34,7 +34,7 @@
 // --- GLOBAL DEFINES ---
   #define FLUID_DENSITY 1029// kg/m^3 (997 freshwater, 1029 for seawater)
   #define accelLimit 20 // microseconds (limits how fast the specktrum brushless motors accelerate) [FLATILUS ONLY]
-  #define FLATILUS 1 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
+  #define FLATILUS 0 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
 
 // --- GLOBAL VARIABLES ---
   MS5837 pres_sens; // pressure sensor
@@ -332,7 +332,7 @@ void loop() {
         if (heading < 0) {
           heading = 360 + heading;
         }
-      Serial.println(event.orientation.heading);
+      
 
     // voltage
         voltage = ina260.readBusVoltage() / 1000;
