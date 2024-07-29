@@ -92,7 +92,6 @@ def generate(input, subData, closed_loop_dict, pid_dict, arm_inputs):
 		rotation_thrust = pid_dict["head"].calculate_next(temp_head)
 	else:
 		rotation_thrust = 0
-	print("rotation thrust is: ", str(rotation_thrust))
 	output = add_next(output, str(format(rotation_thrust, '.3f')))
 
 	# ------ Token7: Controller1 "Y" Button for Toggling Lights ------
