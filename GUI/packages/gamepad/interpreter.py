@@ -23,7 +23,7 @@ deltaThetas = np.array([[0.0], [0.0], [0.0]])
 L1 = 17
 L2 = 11
 gain = 10
-time_step = .001
+time_step = .25
 
 
 
