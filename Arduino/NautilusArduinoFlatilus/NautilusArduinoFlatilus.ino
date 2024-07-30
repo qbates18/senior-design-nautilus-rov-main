@@ -32,7 +32,7 @@
   byte STBD_AFT_VECTOR_PIN = 11;
 
 // --- GLOBAL DEFINES ---
-  #define FLUID_DENSITY 1029// kg/m^3 (997 freshwater, 1029 for seawater)
+  #define FLUID_DENSITY 1029// kg/m^3 (997 freshwater, 1029 for seawater, 1.293 for air)
   #define accelLimit 20 // microseconds (limits how fast the specktrum brushless motors accelerate) [FLATILUS ONLY]
   #define FLATILUS 0 // <---------------- IF USING FLATILUS SET TO 1, IF USING NAUTLIUS SET TO 0 | This is because there are a few minor differences in hardware
 
@@ -308,10 +308,12 @@ void loop() {
       leak = digitalRead(19);
 
     // pressure/depth
-      //pres_sens.read(); //can take about 40ms
-      depth=analogRead(A8);
-      depth=int(100*depth/1024);
-
+      if(!FLATILUS){
+        pres_sens.read(); //can take about 40ms
+      } else {
+        depth=analogRead(A8);
+        depth=int(100*depth/1024);
+      }
     // temperature
       tmpr_sens.read(); //can take about 40ms
 
