@@ -319,7 +319,7 @@ void loop() {
 
     // echosounder
       ping.update();
-      altitude = ping.distance() / 1000;
+      altitude = ping.distance() / 1000.0;
 
     // IMU Sensor (heading)
       if(FLATILUS){ //used to be !FLATILUS, but changed to reflect temporary hardware swap
@@ -337,7 +337,7 @@ void loop() {
       
 
     // voltage
-        voltage = ina260.readBusVoltage() / 1000;
+        voltage = ina260.readBusVoltage() / 1000.0;
 
     delay(50); //without the 50ms delay, we found a high rate of messages being sent with erroneous contents
 

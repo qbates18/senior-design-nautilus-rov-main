@@ -1,0 +1,48 @@
+2024-07-26 09:06:02, 00:22:21 since deployment start. Heading control set to 283, PID values are Kp=2 Ki=0.2 Kd=0.0
+
+2024-07-26 09:06:19, 00:22:38 since deployment start. Heading control set to Off
+
+2024-07-26 09:07:17, 00:23:36 since deployment start. Heading control set to 277, PID values are Kp=4.0 Ki=0.2 Kd=0.0
+
+2024-07-26 09:07:46, 00:24:05 since deployment start. Heading control set to Off
+
+Captain's Log Entry 1
+2024-07-26 09:09:10, 00:25:29 since deployment start
+Heading: 277, Depth: 26.0 m, Altitude: 0.0 m, Temperature: 20.28 °C, Voltage: 16.17 V, Leak: False, Rotations: 0
+heading test 3
+
+2024-07-26 09:09:15, 00:25:34 since deployment start. Heading control set to 278, PID values are Kp=4.0 Ki=0.2 Kd=2.0
+
+2024-07-26 09:09:42, 00:26:01 since deployment start. Heading control set to Off
+
+Captain's Log Entry 2
+2024-07-26 09:10:06, 00:26:25 since deployment start
+Heading: 296, Depth: 25.0 m, Altitude: 9.0 m, Temperature: 20.26 °C, Voltage: 16.17 V, Leak: False, Rotations: 0
+heading test 4, increasing kd because of oscillations
+
+2024-07-26 09:10:15, 00:26:34 since deployment start. Heading control set to 283, PID values are Kp=4.0 Ki=0.2 Kd=4.0
+
+2024-07-26 09:10:37, 00:26:56 since deployment start. Heading control set to Off
+
+2024-07-26 09:11:34, 00:27:53 since deployment start. Heading control set to 275, PID values are Kp=4.0 Ki=0.2 Kd=3.0
+
+2024-07-26 09:11:53, 00:28:11 since deployment start. Heading control set to Off
+
+Captain's Log Entry 3
+2024-07-26 09:12:11, 00:28:29 since deployment start
+Heading: 274, Depth: 25.0 m, Altitude: 0.0 m, Temperature: 20.26 °C, Voltage: 16.12 V, Leak: False, Rotations: 0
+happy with that last test, moving on to depth control
+
+2024-07-26 09:12:27, 00:28:46 since deployment start. Depth control set to 5.0, PID values are Kp=75.0 Ki=2.0 Kd=0.0
+
+2024-07-26 09:12:37, 00:28:56 since deployment start. Depth control set to Off
+
+2024-07-26 09:14:16, 00:30:35 since deployment start. Depth control set to 30.0, PID values are Kp=75.0 Ki=2.0 Kd=0.0
+
+2024-07-26 09:14:35, 00:30:54 since deployment start. Depth control set to Off
+
+Captain's Log Entry 4
+2024-07-26 09:15:00, 00:31:19 since deployment start
+Heading: 239, Depth: 24.0 m, Altitude: 0.0 m, Temperature: 20.27 °C, Voltage: 16.12 V, Leak: False, Rotations: 0
+depth and altitude sensors seem to be anomolous, so cannot perform depth and altitude control tests
+
