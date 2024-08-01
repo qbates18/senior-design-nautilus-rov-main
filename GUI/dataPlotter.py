@@ -90,21 +90,39 @@ def captainsLogParser(f):
 			if value[1] == "Off":
 				depthSP.off(timestamp)
 			else:
-				depthSP.on(timestamp, float(value[1]))
+				value = value[1].split(',', 1)
+				DepthGainsValues = value[1].strip()
+				DepthGainsValues = DepthGainsValues.split()
+				DepthGainsValues = [DepthGainsValues[3][3:], DepthGainsValues[4][3:], DepthGainsValues[5][3:]]
+				print("DepthGainsValues:")
+				print(DepthGainsValues)
+				depthSP.on(timestamp, float(value[0]))
 		elif entry[54:70] == "Altitude control":
 			value = entry.split(" set to ")
 			timestamp = datetime.datetime.strptime(value[0][0:19], '%Y-%m-%d %H:%M:%S')
 			if value[1] == "Off":
 				altSP.off(timestamp)
 			else:
-				altSP.on(timestamp, float(value[1]))
+				value = value[1].split(',', 1)
+				AltitudeGainsValues = value[1].strip()
+				AltitudeGainsValues = AltitudeGainsValues.split()
+				AltitudeGainsValues = [AltitudeGainsValues[3][3:], AltitudeGainsValues[4][3:], AltitudeGainsValues[5][3:]]
+				print("AltitudeGainsValues:")
+				print(AltitudeGainsValues)
+				altSP.on(timestamp, float(value[0]))
 		elif entry[54:69] == "Heading control":
 			value = entry.split(" set to ")
 			timestamp = datetime.datetime.strptime(value[0][0:19], '%Y-%m-%d %H:%M:%S')
 			if value[1] == "Off":
 				headSP.off(timestamp)
 			else:
-				headSP.on(timestamp, float(value[1]))
+				value = value[1].split(',', 1)
+				HeadingGainsValues = value[1].strip()
+				HeadingGainsValues = HeadingGainsValues.split()
+				HeadingGainsValues = [HeadingGainsValues[3][3:], HeadingGainsValues[4][3:], HeadingGainsValues[5][3:]]
+				print("HeadingGainsValues:")
+				print(HeadingGainsValues)
+				headSP.on(timestamp, float(value[0]))
 		else:
 			print("No match!")
 
