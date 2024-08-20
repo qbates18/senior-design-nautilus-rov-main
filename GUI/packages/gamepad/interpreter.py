@@ -22,7 +22,6 @@ previousThetaDots = np.array([[0.0], [0.0], [0.0]])
 deltaThetas = np.array([[0.0], [0.0], [0.0]])
 L1 = 17
 L2 = 11
-gain = 10
 time_step = .25
 
 
@@ -31,7 +30,7 @@ time_step = .25
 # description: calculates joint values to move end effector in XYZ as commanded by controller inputs
 # input: 
 def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
-    global thetas, deltaThetas, previousThetaDots, L1, L2, gain
+    global thetas, deltaThetas, previousThetaDots, L1, L2
 
     xDots = np.array([[xDot], [yDot], [zDot]])
 
@@ -52,11 +51,10 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 
 	# ------ Calculate the theta dots ------
     thetaDots = np.matmul(inv_jacobian, xDots)
-    thetaDots = thetaDots * gain
 
 	# ------ Calculate the change in theta ------
     for x in range(3):        
-        deltaThetas[x][0] = gain * (time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5)
+        deltaThetas[x][0] = time_step * (thetaDots[x][0] + previousThetaDots[x][0]) * .5
     previousThetaDots = thetaDots
 
 	# ------ Calculate the XYZ coordinates of the end effector ------
@@ -73,7 +71,7 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
     #print("Y: {}\n".format(y))
     #print("Z: {}\n".format(z))
 
-    return deltaThetas
+    return thetas
 
 
 
