@@ -63,9 +63,10 @@ def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
 if __name__ == "__main__":
     controllerFlag=True
     if(controllerFlag):
-        pygame.init()
         gamepad = Gamepad()
+        gamepad.init(0)
         gamepad2= Gamepad()
+        gamepad2.init(1)
     else:
         xdot=0
         ydot=1
