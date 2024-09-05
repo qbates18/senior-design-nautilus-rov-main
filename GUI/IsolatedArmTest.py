@@ -17,6 +17,7 @@ startTime=time.time()
 def end_point(xDot = 0.0, yDot = 0.0, zDot = 0.0):
     global thetas, deltaThetas, previousThetaDots, L1, L2, firstRunFlag, startTime
 
+    print("cringe")
     xDots = np.array([[xDot], [yDot], [zDot]])
 
 	# ------ Create inverse jacobian matrix ------
@@ -67,6 +68,7 @@ if __name__ == "__main__":
         gamepad.init(0)
         gamepad2= Gamepad()
         gamepad2.init(1)
+        deadzone=0.1
     else:
         xdot=0
         ydot=1
@@ -76,19 +78,23 @@ if __name__ == "__main__":
         if(controllerFlag):
             gamepad.listen(gamepad2)
             xdot=gamepad.read_value("JOY1_LT")-gamepad.read_value("JOY1_RT")
-            ydot=0.0
-            #ydot=gamepad.read_value("JOY1_UP")-gamepad.read_value("JOY1_DN")
-            zdot=0.0
-            #zdot=gamepad.read_value("JOY2_UP")-gamepad.read_value("JOY2_DN")
+            if(xdot<deadzone and xdot>-deadzone):
+                xdot=0
+            ydot=gamepad.read_value("JOY1_UP")-gamepad.read_value("JOY1_DN")
+            if(ydot<deadzone and ydot>-deadzone):
+                ydot=0
+            zdot=gamepad.read_value("JOY2_LT")-gamepad.read_value("JOY2_RT")
+            if(zdot<deadzone and zdot>-deadzone):
+                zdot=0
             print("Xc: {}".format(xdot))
             print("Yc: {}".format(ydot))
             print("Zc: {}\n".format(zdot))
         theta_radians = end_point(xdot, ydot, zdot)
         theta_degrees = (theta_radians * 180) / math.pi
-        theta_degrees = theta_degrees * 10 / 3 #3.3333 is the gear ratio
+        #theta_degrees = theta_degrees * 10 / 3 #3.3333 is the gear ratio
         
         print("Theta1: {}".format(theta_degrees[0][0]))
         print("Theta2: {}".format(theta_degrees[1][0]))
         print("Theta3: {}\n".format(theta_degrees[2][0]))
 
-        time.sleep(1)
+        time.sleep(0.25)

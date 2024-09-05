@@ -423,6 +423,7 @@ int8_t Parser::read_camdir(){
 	return this->_camdir;
 }
 
+
 int Parser::read_servo1() {
 	return this->servo1;
 }
